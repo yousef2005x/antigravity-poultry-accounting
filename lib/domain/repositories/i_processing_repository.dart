@@ -1,5 +1,5 @@
-import 'package:poultry_accounting/domain/entities/raw_meat_processing.dart';
 import 'package:poultry_accounting/domain/entities/processing_output.dart';
+import 'package:poultry_accounting/domain/entities/raw_meat_processing.dart';
 
 abstract class IProcessingRepository {
   Future<List<RawMeatProcessing>> getAllProcessings();

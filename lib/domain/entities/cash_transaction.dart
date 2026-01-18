@@ -1,6 +1,15 @@
 import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 class CashTransaction extends Equatable {
+
+  const CashTransaction({
+    required this.amount, required this.type, required this.description, required this.transactionDate, required this.createdBy, this.id,
+    this.relatedPaymentId,
+    this.relatedExpenseId,
+    this.createdAt,
+  });
   final int? id;
   final double amount;
   final String type; // 'in' or 'out'
@@ -10,18 +19,6 @@ class CashTransaction extends Equatable {
   final int? relatedExpenseId;
   final int createdBy;
   final DateTime? createdAt;
-
-  const CashTransaction({
-    this.id,
-    required this.amount,
-    required this.type,
-    required this.description,
-    required this.transactionDate,
-    this.relatedPaymentId,
-    this.relatedExpenseId,
-    required this.createdBy,
-    this.createdAt,
-  });
 
   @override
   List<Object?> get props => [

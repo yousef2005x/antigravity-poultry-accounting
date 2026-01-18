@@ -5,6 +5,9 @@ abstract class SupplierRepository {
   /// Get all suppliers
   Future<List<Supplier>> getAllSuppliers();
 
+  /// Watch all suppliers
+  Stream<List<Supplier>> watchAllSuppliers();
+
   /// Get supplier by ID
   Future<Supplier?> getSupplierById(int id);
 

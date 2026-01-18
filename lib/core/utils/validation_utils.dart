@@ -59,8 +59,8 @@ class ValidationUtils {
   static bool isStrongPassword(String password) {
     // At least 8 chars, 1 uppercase, 1 lowercase, 1 number
     return password.length >= 8 &&
-        RegExp(r'[A-Z]').hasMatch(password) &&
-        RegExp(r'[a-z]').hasMatch(password) &&
+        RegExp('[A-Z]').hasMatch(password) &&
+        RegExp('[a-z]').hasMatch(password) &&
         RegExp(r'\d').hasMatch(password);
   }
 
@@ -68,12 +68,24 @@ class ValidationUtils {
   static int getPasswordStrength(String password) {
     var strength = 0;
     
-    if (password.length >= 6) strength++;
-    if (password.length >= 10) strength++;
-    if (RegExp(r'[A-Z]').hasMatch(password)) strength++;
-    if (RegExp(r'[a-z]').hasMatch(password)) strength++;
-    if (RegExp(r'\d').hasMatch(password)) strength++;
-    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) strength++;
+    if (password.length >= 6) {
+      strength++;
+    }
+    if (password.length >= 10) {
+      strength++;
+    }
+    if (RegExp('[A-Z]').hasMatch(password)) {
+      strength++;
+    }
+    if (RegExp('[a-z]').hasMatch(password)) {
+      strength++;
+    }
+    if (RegExp(r'\d').hasMatch(password)) {
+      strength++;
+    }
+    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) {
+      strength++;
+    }
     
     return (strength / 1.5).round().clamp(0, 4);
   }
@@ -110,7 +122,9 @@ class FormValidators {
 
   /// Email validator
   static String? email(String? value) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     if (!ValidationUtils.isValidEmail(value)) {
       return 'البريد الإلكتروني غير صحيح';
@@ -120,7 +134,9 @@ class FormValidators {
 
   /// Phone validator
   static String? phone(String? value) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     if (!ValidationUtils.isValidPhone(value)) {
       return 'رقم الهاتف غير صحيح';
@@ -130,7 +146,9 @@ class FormValidators {
 
   /// Min length validator
   static String? minLength(String? value, int minLength, {String? fieldName}) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     if (!ValidationUtils.hasMinLength(value, minLength)) {
       return '${fieldName ?? 'هذا الحقل'} يجب أن يكون $minLength أحرف على الأقل';
@@ -140,7 +158,9 @@ class FormValidators {
 
   /// Max length validator
   static String? maxLength(String? value, int maxLength, {String? fieldName}) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     if (!ValidationUtils.hasMaxLength(value, maxLength)) {
       return '${fieldName ?? 'هذا الحقل'} يجب أن لا يتجاوز $maxLength حرف';
@@ -150,7 +170,9 @@ class FormValidators {
 
   /// Positive number validator
   static String? positiveNumber(String? value, {String? fieldName}) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     final number = double.tryParse(value);
     if (number == null) {
@@ -165,7 +187,9 @@ class FormValidators {
 
   /// Non-negative number validator
   static String? nonNegativeNumber(String? value, {String? fieldName}) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     final number = double.tryParse(value);
     if (number == null) {
@@ -230,7 +254,9 @@ class FormValidators {
   static String? combine(List<String? Function(String?)> validators, String? value) {
     for (final validator in validators) {
       final error = validator(value);
-      if (error != null) return error;
+      if (error != null) {
+        return error;
+      }
     }
     return null;
   }

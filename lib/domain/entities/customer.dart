@@ -1,10 +1,10 @@
-import 'package:poultry_accounting/core/constants/app_constants.dart';
+import 'package:meta/meta.dart';
 
 /// Customer domain entity
+@immutable
 class Customer {
   const Customer({
-    this.id,
-    required this.name,
+    required this.name, this.id,
     this.phone,
     this.address,
     this.creditLimit = 10000.0,

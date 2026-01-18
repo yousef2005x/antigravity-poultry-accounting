@@ -27,7 +27,9 @@ class AppDateUtils {
 
   /// Parse date from string
   static DateTime? parseDate(String? dateString) {
-    if (dateString == null || dateString.isEmpty) return null;
+    if (dateString == null || dateString.isEmpty) {
+      return null;
+    }
     try {
       return DateTime.parse(dateString);
     } catch (e) {
@@ -47,18 +49,18 @@ class AppDateUtils {
 
   /// Get start of month
   static DateTime startOfMonth(DateTime date) {
-    return DateTime(date.year, date.month, 1);
+    return DateTime(date.year, date.month);
   }
 
   /// Get end of month
   static DateTime endOfMonth(DateTime date) {
-    final nextMonth = DateTime(date.year, date.month + 1, 1);
+    final nextMonth = DateTime(date.year, date.month + 1);
     return nextMonth.subtract(const Duration(days: 1));
   }
 
   /// Get start of year
   static DateTime startOfYear(DateTime date) {
-    return DateTime(date.year, 1, 1);
+    return DateTime(date.year);
   }
 
   /// Get end of year
@@ -88,9 +90,9 @@ class AppDateUtils {
 
   /// Get days between two dates
   static int daysBetween(DateTime from, DateTime to) {
-    from = DateTime(from.year, from.month, from.day);
-    to = DateTime(to.year, to.month, to.day);
-    return (to.difference(from).inHours / 24).round();
+    final fromDate = DateTime(from.year, from.month, from.day);
+    final toDate = DateTime(to.year, to.month, to.day);
+    return (toDate.difference(fromDate).inHours / 24).round();
   }
 
   /// Calculate aging category (0-30, 31-60, 61-90, 90+)

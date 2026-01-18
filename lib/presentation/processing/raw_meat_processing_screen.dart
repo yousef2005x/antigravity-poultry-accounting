@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:poultry_accounting/core/constants/app_constants.dart';
-import 'package:poultry_accounting/domain/entities/raw_meat_processing.dart';
-import 'package:poultry_accounting/domain/entities/processing_output.dart';
 import 'package:poultry_accounting/core/providers/database_providers.dart';
+import 'package:poultry_accounting/domain/entities/processing_output.dart';
+import 'package:poultry_accounting/domain/entities/product.dart';
+import 'package:poultry_accounting/domain/entities/raw_meat_processing.dart';
 
 class RawMeatProcessingScreen extends ConsumerStatefulWidget {
   const RawMeatProcessingScreen({super.key});
@@ -19,27 +18,34 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
   final _grossWeightController = TextEditingController();
   final _basketWeightController = TextEditingController(text: '0.5'); // Default basket weight
   final _basketCountController = TextEditingController(text: '0');
+  final _pricePerKgController = TextEditingController();
   final _notesController = TextEditingController();
   
-  double _netWeight = 0.0;
-  List<ProcessingOutput> _outputs = [];
+  double _netWeight = 0;
+  double _totalCost = 0;
+  final List<ProcessingOutput> _outputs = [];
   
   @override
   void initState() {
     super.initState();
-    _grossWeightController.addListener(_calculateNetWeight);
-    _basketWeightController.addListener(_calculateNetWeight);
-    _basketCountController.addListener(_calculateNetWeight);
+    _grossWeightController.addListener(_calculateValues);
+    _basketWeightController.addListener(_calculateValues);
+    _basketCountController.addListener(_calculateValues);
+    _pricePerKgController.addListener(_calculateValues);
   }
 
-  void _calculateNetWeight() {
+  void _calculateValues() {
     final gross = double.tryParse(_grossWeightController.text) ?? 0.0;
     final basketWeight = double.tryParse(_basketWeightController.text) ?? 0.0;
     final basketCount = int.tryParse(_basketCountController.text) ?? 0;
+    final pricePerKg = double.tryParse(_pricePerKgController.text) ?? 0.0;
     
     setState(() {
       _netWeight = gross - (basketWeight * basketCount);
-      if (_netWeight < 0) _netWeight = 0;
+      if (_netWeight < 0) {
+        _netWeight = 0;
+      }
+      _totalCost = _netWeight * pricePerKg;
     });
   }
 
@@ -48,6 +54,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
     _grossWeightController.dispose();
     _basketWeightController.dispose();
     _basketCountController.dispose();
+    _pricePerKgController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -60,7 +67,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
         backgroundColor: Colors.green,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
@@ -92,7 +99,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -151,6 +158,38 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
                 ),
               ],
             ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _pricePerKgController,
+                    decoration: const InputDecoration(labelText: 'سعر الكيلو (شيكل)', border: OutlineInputBorder()),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                         Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      border: Border.all(color: Colors.blue),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text('التكلفة الإجمالية', style: TextStyle(color: Colors.blue)),
+                        Text(
+                          '${_totalCost.toStringAsFixed(2)} ₪',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+             ),
           ],
         ),
       ),
@@ -173,28 +212,35 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
           ],
         ),
         const SizedBox(height: 8),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _outputs.length,
-          itemBuilder: (context, index) {
-            final output = _outputs[index];
-            return Card(
-              child: ListTile(
-                title: Text('صنف رقم: ${output.productId}'), // In production, show product name
-                subtitle: Text('الكمية: ${output.quantity} كغ'),
-                trailing: Text(
-                  'النسبة: ${output.yieldPercentage.toStringAsFixed(1)}%',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
-                ),
-                leading: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () => setState(() => _outputs.removeAt(index)),
-                ),
-              ),
-            );
-          },
-        ),
+        ref.watch(productsStreamProvider).when(
+              loading: () => const LinearProgressIndicator(),
+              error: (err, stack) => Text('خطأ: $err'),
+              data: (products) {
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _outputs.length,
+                  itemBuilder: (context, index) {
+                    final output = _outputs[index];
+                    final product = products.firstWhere((p) => p.id == output.productId, orElse: () => products.first);
+                    return Card(
+                      child: ListTile(
+                        title: Text(product.name),
+                        subtitle: Text('الكمية: ${output.quantity} كغ'),
+                        trailing: Text(
+                          'النسبة: ${output.yieldPercentage.toStringAsFixed(1)}%',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                        ),
+                        leading: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => setState(() => _outputs.removeAt(index)),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
         if (_outputs.isNotEmpty) ...[
           const SizedBox(height: 16),
           _buildTotalYieldSummary(),
@@ -204,7 +250,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
   }
 
   Widget _buildTotalYieldSummary() {
-    final totalQty = _outputs.fold(0.0, (sum, item) => sum + item.quantity);
+    final totalQty = _outputs.fold<double>(0, (sum, item) => sum + item.quantity);
     final totalYield = _netWeight > 0 ? (totalQty / _netWeight) * 100 : 0.0;
     final waste = _netWeight - totalQty;
     
@@ -235,9 +281,9 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
   }
 
   void _showAddOutputDialog() {
-    // In a real app, this would show a product picker and quantity input
-    // For now, I'll simulate adding a product (e.g. Breasts)
+    Product? selectedProduct;
     final qtyController = TextEditingController();
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -245,11 +291,22 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('اختر الصنف (سيتم ربطه بجدول الأصناف)'),
+            ref.watch(productsStreamProvider).when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (err, stack) => Text('خطأ: $err'),
+                  data: (products) {
+                    return DropdownButtonFormField<Product>(
+                      decoration: const InputDecoration(labelText: 'اختر الصنف'),
+                      items: products.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+                      onChanged: (val) => selectedProduct = val,
+                    );
+                  },
+                ),
+            const SizedBox(height: 16),
             TextField(
               controller: qtyController,
-              decoration: const InputDecoration(labelText: 'الوزن (كغ)'),
-              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'الوزن (كغ)', border: OutlineInputBorder()),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
             ),
           ],
         ),
@@ -258,16 +315,18 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
           ElevatedButton(
             onPressed: () {
               final qty = double.tryParse(qtyController.text) ?? 0.0;
-              if (qty > 0 && _netWeight > 0) {
+              if (selectedProduct != null && qty > 0 && _netWeight > 0) {
                 setState(() {
                   _outputs.add(ProcessingOutput(
                     processingId: 0, 
-                    productId: 1, // Mock product ID
+                    productId: selectedProduct!.id!,
                     quantity: qty,
                     yieldPercentage: (qty / _netWeight) * 100,
-                  ));
+                  ),);
                 });
                 Navigator.pop(context);
+              } else if (qty <= 0) {
+                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء إدخال كمية صحيحة')));
               }
             },
             child: const Text('إضافة'),
@@ -278,7 +337,9 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
   }
 
   Future<void> _saveProcessing() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     if (_outputs.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى إضافة صنف واحد على الأقل')));
       return;
@@ -291,6 +352,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
       basketWeight: double.parse(_basketWeightController.text),
       basketCount: int.parse(_basketCountController.text),
       netWeight: _netWeight,
+      totalCost: _totalCost,
       processingDate: DateTime.now(),
       createdBy: 1, // Default admin
     );

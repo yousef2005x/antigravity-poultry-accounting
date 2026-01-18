@@ -37,7 +37,10 @@ dependencies:
   uuid: ^4.2.0
   logger: ^2.0.0
   file_picker: ^6.1.1
+  meta: ^1.10.0
 
+  equatable: any
+  shared_preferences: ^2.5.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -46,6 +49,7 @@ dev_dependencies:
   drift_dev: ^2.14.0
   riverpod_generator: ^2.3.0
   build_runner: ^2.4.0
+  analyzer: ^6.4.1
   
   # Linting
   custom_lint: ^0.5.0

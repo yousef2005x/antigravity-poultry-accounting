@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:poultry_accounting/core/constants/app_constants.dart';
 import 'package:poultry_accounting/core/providers/database_providers.dart';
-import 'package:poultry_accounting/domain/entities/invoice.dart';
 import 'package:poultry_accounting/domain/entities/customer.dart';
+import 'package:poultry_accounting/domain/entities/invoice.dart';
 import 'package:poultry_accounting/domain/entities/product.dart';
 
 class SalesInvoiceScreen extends ConsumerStatefulWidget {
@@ -15,11 +14,11 @@ class SalesInvoiceScreen extends ConsumerStatefulWidget {
 }
 
 class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
-  final _formKey = GlobalKey<FormState>();
+
   
   Customer? _selectedCustomer;
-  List<InvoiceItem> _items = [];
-  double _discount = 0.0;
+  final List<InvoiceItem> _items = [];
+  double _discount = 0;
   final _notesController = TextEditingController();
   String _invoiceNumber = '';
 
@@ -35,7 +34,7 @@ class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
     setState(() => _invoiceNumber = num);
   }
 
-  double get _subtotal => _items.fold(0.0, (sum, item) => sum + item.total);
+  double get _subtotal => _items.fold(0, (sum, item) => sum + item.total);
   double get _total => _subtotal - _discount;
 
   @override
@@ -57,7 +56,7 @@ class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
           Expanded(
             flex: 3,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                    _buildCustomerSelector(),
@@ -69,7 +68,6 @@ class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
           ),
           // Total & Summary Side
           Expanded(
-            flex: 1,
             child: Container(
               color: Colors.grey.shade100,
               padding: const EdgeInsets.all(16),
@@ -90,14 +88,16 @@ class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
   Widget _buildCustomerSelector() {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: FutureBuilder<List<Customer>>(
           future: ref.read(customerRepositoryProvider).getActiveCustomers(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const LinearProgressIndicator();
+            if (!snapshot.hasData) {
+              return const LinearProgressIndicator();
+            }
             final customers = snapshot.data!;
             return DropdownButtonFormField<Customer>(
-              value: _selectedCustomer,
+              initialValue: _selectedCustomer,
               decoration: const InputDecoration(
                 labelText: 'اختر العميل',
                 prefixIcon: Icon(Icons.person),
@@ -214,9 +214,11 @@ class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
               FutureBuilder<List<Product>>(
                 future: ref.read(productRepositoryProvider).getActiveProducts(),
                 builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const LinearProgressIndicator();
+                  if (!snapshot.hasData) {
+                    return const LinearProgressIndicator();
+                  }
                   return DropdownButtonFormField<Product>(
-                    value: selectedProduct,
+                    initialValue: selectedProduct,
                     decoration: const InputDecoration(labelText: 'اختر الصنف'),
                     items: snapshot.data!.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
                     onChanged: (val) async {
@@ -249,7 +251,9 @@ class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
             TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
             ElevatedButton(
               onPressed: () {
-                if (selectedProduct == null) return;
+                if (selectedProduct == null) {
+                  return;
+                }
                 final weight = double.tryParse(weightController.text) ?? 0.0;
                 final price = double.tryParse(priceController.text) ?? 0.0;
                 
@@ -260,8 +264,8 @@ class _SalesInvoiceScreenState extends ConsumerState<SalesInvoiceScreen> {
                       productName: selectedProduct!.name,
                       quantity: weight,
                       unitPrice: price,
-                      costAtSale: 0.0, // Should be fetched from inventory
-                    ));
+                      costAtSale: 0, // Should be fetched from inventory
+                    ),);
                   });
                   Navigator.pop(context);
                 }

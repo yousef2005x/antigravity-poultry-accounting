@@ -11,6 +11,14 @@ abstract class InvoiceRepository {
     DateTime? toDate,
   });
 
+  /// Watch all sales invoices
+  Stream<List<Invoice>> watchAllInvoices({
+    InvoiceStatus? status,
+    int? customerId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  });
+
   /// Get invoice by ID
   Future<Invoice?> getInvoiceById(int id);
 

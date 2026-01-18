@@ -1,19 +1,18 @@
 import 'package:equatable/equatable.dart';
 
 class Partner extends Equatable {
+
+  const Partner({
+    required this.name, this.id,
+    this.sharePercentage = 50.0,
+    this.isActive = true,
+    this.createdAt,
+  });
   final int? id;
   final String name;
   final double sharePercentage;
   final bool isActive;
   final DateTime? createdAt;
-
-  const Partner({
-    this.id,
-    required this.name,
-    this.sharePercentage = 50.0,
-    this.isActive = true,
-    this.createdAt,
-  });
 
   @override
   List<Object?> get props => [id, name, sharePercentage, isActive, createdAt];

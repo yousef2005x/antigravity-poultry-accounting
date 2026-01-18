@@ -1,13 +1,13 @@
 import 'package:drift/drift.dart';
 import 'package:poultry_accounting/data/database/database.dart' as db;
-import 'package:poultry_accounting/domain/entities/raw_meat_processing.dart';
 import 'package:poultry_accounting/domain/entities/processing_output.dart';
+import 'package:poultry_accounting/domain/entities/raw_meat_processing.dart';
 import 'package:poultry_accounting/domain/repositories/i_processing_repository.dart';
 
 class ProcessingRepositoryImpl implements IProcessingRepository {
-  final db.AppDatabase database;
 
   ProcessingRepositoryImpl(this.database);
+  final db.AppDatabase database;
 
   @override
   Future<List<RawMeatProcessing>> getAllProcessings() async {
@@ -24,14 +24,15 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
 
   @override
   Future<int> createProcessing(RawMeatProcessing processing, List<ProcessingOutput> outputs) async {
-    return await database.transaction(() async {
+    return database.transaction(() async {
       final id = await database.into(database.rawMeatProcessings).insert(
-        db.RawMeatProcessingTableCompanion.insert(
+        db.RawMeatProcessingsCompanion.insert(
           batchNumber: processing.batchNumber,
           grossWeight: processing.grossWeight,
           basketWeight: processing.basketWeight,
           basketCount: processing.basketCount,
           netWeight: processing.netWeight,
+          totalCost: Value(processing.totalCost),
           supplierId: Value(processing.supplierId),
           processingDate: processing.processingDate,
           notes: Value(processing.notes),
@@ -39,13 +40,32 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
         ),
       );
 
+      double totalOutputQty = 0;
+      for (final output in outputs) {
+        totalOutputQty += output.quantity;
+      }
+      final outputUnitCost = totalOutputQty > 0 ? (processing.totalCost / totalOutputQty) : 0.0;
+
       for (final output in outputs) {
         await database.into(database.processingOutputs).insert(
-          db.ProcessingOutputTableCompanion.insert(
+          db.ProcessingOutputsCompanion.insert(
             processingId: id,
             productId: output.productId,
             quantity: output.quantity,
             yieldPercentage: output.yieldPercentage,
+          ),
+        );
+
+        // Create Inventory Batch for the output
+        await database.into(database.inventoryBatches).insert(
+          db.InventoryBatchesCompanion.insert(
+            productId: output.productId,
+            processingId: Value(id), // Link to processing
+            quantity: output.quantity,
+            remainingQuantity: output.quantity, // New stock
+            unitCost: outputUnitCost,
+            purchaseDate: processing.processingDate,
+            batchNumber: Value('${processing.batchNumber}-${output.productId}'),
           ),
         );
       }
@@ -57,11 +77,12 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
   Future<void> updateProcessing(RawMeatProcessing processing, List<ProcessingOutput> outputs) async {
     await database.transaction(() async {
       await (database.update(database.rawMeatProcessings)..where((t) => t.id.equals(processing.id!))).write(
-        db.RawMeatProcessingTableCompanion(
+        db.RawMeatProcessingsCompanion(
           grossWeight: Value(processing.grossWeight),
           basketWeight: Value(processing.basketWeight),
           basketCount: Value(processing.basketCount),
           netWeight: Value(processing.netWeight),
+          totalCost: Value(processing.totalCost),
           notes: Value(processing.notes),
           updatedAt: Value(DateTime.now()),
         ),
@@ -70,13 +91,35 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
       // Delete old outputs and replace with new ones
       await (database.delete(database.processingOutputs)..where((t) => t.processingId.equals(processing.id!))).go();
       
+      // Delete associated inventory batches to reset stock (Assumption: Not yet sold)
+      await (database.delete(database.inventoryBatches)..where((t) => t.processingId.equals(processing.id!))).go();
+
+      double totalOutputQty = 0;
+      for (final output in outputs) {
+        totalOutputQty += output.quantity;
+      }
+      final outputUnitCost = totalOutputQty > 0 ? (processing.totalCost / totalOutputQty) : 0.0;
+
       for (final output in outputs) {
         await database.into(database.processingOutputs).insert(
-          db.ProcessingOutputTableCompanion.insert(
+          db.ProcessingOutputsCompanion.insert(
             processingId: processing.id!,
             productId: output.productId,
             quantity: output.quantity,
             yieldPercentage: output.yieldPercentage,
+          ),
+        );
+
+        // Re-create Inventory Batch
+        await database.into(database.inventoryBatches).insert(
+          db.InventoryBatchesCompanion.insert(
+            productId: output.productId,
+            processingId: Value(processing.id),
+            quantity: output.quantity,
+            remainingQuantity: output.quantity,
+            unitCost: outputUnitCost,
+            purchaseDate: processing.processingDate,
+            batchNumber: Value('${processing.batchNumber}-${output.productId}'),
           ),
         );
       }
@@ -103,6 +146,7 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
       basketWeight: row.basketWeight,
       basketCount: row.basketCount,
       netWeight: row.netWeight,
+      totalCost: row.totalCost,
       supplierId: row.supplierId,
       processingDate: row.processingDate,
       notes: row.notes,

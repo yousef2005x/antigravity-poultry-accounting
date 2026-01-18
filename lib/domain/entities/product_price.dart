@@ -1,19 +1,16 @@
 import 'package:equatable/equatable.dart';
 
 class ProductPrice extends Equatable {
+
+  const ProductPrice({
+    required this.productId, required this.price, required this.date, this.id,
+    this.createdAt,
+  });
   final int? id;
   final int productId;
   final double price;
   final DateTime date;
   final DateTime? createdAt;
-
-  const ProductPrice({
-    this.id,
-    required this.productId,
-    required this.price,
-    required this.date,
-    this.createdAt,
-  });
 
   @override
   List<Object?> get props => [id, productId, price, date, createdAt];

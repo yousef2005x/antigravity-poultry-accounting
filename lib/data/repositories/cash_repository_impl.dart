@@ -4,20 +4,29 @@ import 'package:poultry_accounting/domain/entities/cash_transaction.dart';
 import 'package:poultry_accounting/domain/repositories/i_cash_repository.dart';
 
 class CashRepositoryImpl implements ICashRepository {
-  final db.AppDatabase database;
-
   CashRepositoryImpl(this.database);
+  final db.AppDatabase database;
 
   @override
   Future<List<CashTransaction>> getAllTransactions({DateTime? start, DateTime? end}) async {
+    final query = _buildTransactionsQuery(start, end);
+    final results = await query.get();
+    return results.map(_mapToEntity).toList();
+  }
+
+  @override
+  Stream<List<CashTransaction>> watchAllTransactions({DateTime? start, DateTime? end}) {
+    final query = _buildTransactionsQuery(start, end);
+    return query.watch().map((rows) => rows.map(_mapToEntity).toList());
+  }
+
+  SimpleSelectStatement<db.CashTransactions, db.CashTransactionTable> _buildTransactionsQuery(DateTime? start, DateTime? end) {
     final query = database.select(database.cashTransactions);
     if (start != null && end != null) {
       query.where((t) => t.transactionDate.isBetweenValues(start, end));
     }
     query.orderBy([(t) => OrderingTerm(expression: t.transactionDate, mode: OrderingMode.desc)]);
-    
-    final results = await query.get();
-    return results.map(_mapToEntity).toList();
+    return query;
   }
 
   @override
@@ -39,8 +48,8 @@ class CashRepositoryImpl implements ICashRepository {
 
   @override
   Future<int> createTransaction(CashTransaction transaction) async {
-    return await database.into(database.cashTransactions).insert(
-      db.CashTransactionTableCompanion.insert(
+    return database.into(database.cashTransactions).insert(
+      db.CashTransactionsCompanion.insert(
         amount: transaction.amount,
         type: transaction.type,
         description: transaction.description,

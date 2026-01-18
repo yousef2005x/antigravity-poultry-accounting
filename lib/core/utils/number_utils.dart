@@ -22,13 +22,15 @@ class NumberUtils {
 
   /// Format number with commas
   static String formatNumber(num number, {int decimals = 0}) {
-    final formatter = NumberFormat('#,##0' + (decimals > 0 ? '.${'0' * decimals}' : ''), 'ar');
+    final formatter = NumberFormat('#,##0${decimals > 0 ? '.${'0' * decimals}' : ''}', 'ar');
     return formatter.format(number);
   }
 
   /// Parse string to double
   static double? parseDouble(String? value) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     // Remove any non-numeric characters except . and -
     final cleaned = value.replaceAll(RegExp(r'[^\d.-]'), '');
@@ -42,7 +44,9 @@ class NumberUtils {
 
   /// Parse string to int
   static int? parseInt(String? value) {
-    if (value == null || value.isEmpty) return null;
+    if (value == null || value.isEmpty) {
+      return null;
+    }
     
     // Remove any non-numeric characters except -
     final cleaned = value.replaceAll(RegExp(r'[^\d-]'), '');
@@ -62,7 +66,9 @@ class NumberUtils {
 
   /// Calculate percentage
   static double calculatePercentage(double part, double total) {
-    if (total == 0) return 0;
+    if (total == 0) {
+      return 0;
+    }
     return (part / total) * 100;
   }
 
@@ -73,13 +79,17 @@ class NumberUtils {
 
   /// Calculate profit margin
   static double calculateProfitMargin(double cost, double price) {
-    if (price == 0) return 0;
+    if (price == 0) {
+      return 0;
+    }
     return ((price - cost) / price) * 100;
   }
 
   /// Calculate markup
   static double calculateMarkup(double cost, double price) {
-    if (cost == 0) return 0;
+    if (cost == 0) {
+      return 0;
+    }
     return ((price - cost) / cost) * 100;
   }
 
@@ -119,24 +129,30 @@ class NumberUtils {
 
   /// Sum a list of numbers
   static double sum(List<double> numbers) {
-    return numbers.fold(0.0, (sum, value) => sum + value);
+    return numbers.fold(0, (sum, value) => sum + value);
   }
 
   /// Average of a list of numbers
   static double average(List<double> numbers) {
-    if (numbers.isEmpty) return 0;
+    if (numbers.isEmpty) {
+      return 0;
+    }
     return sum(numbers) / numbers.length;
   }
 
   /// Get min from list
   static double? min(List<double> numbers) {
-    if (numbers.isEmpty) return null;
+    if (numbers.isEmpty) {
+      return null;
+    }
     return numbers.reduce((a, b) => a < b ? a : b);
   }
 
   /// Get max from list
   static double? max(List<double> numbers) {
-    if (numbers.isEmpty) return null;
+    if (numbers.isEmpty) {
+      return null;
+    }
     return numbers.reduce((a, b) => a > b ? a : b);
   }
 }

@@ -1,33 +1,29 @@
 import 'package:equatable/equatable.dart';
 
 class RawMeatProcessing extends Equatable {
+
+  const RawMeatProcessing({
+    required this.batchNumber, required this.grossWeight, required this.basketWeight, required this.basketCount, required this.netWeight, 
+    required this.totalCost, // Added totalCost
+    required this.processingDate, required this.createdBy, this.id,
+    this.supplierId,
+    this.notes,
+    this.createdAt,
+    this.updatedAt,
+  });
   final int? id;
   final String batchNumber;
   final double grossWeight;
   final double basketWeight;
   final int basketCount;
   final double netWeight;
+  final double totalCost; // Total cost of the raw meat batch
   final int? supplierId;
   final DateTime processingDate;
   final String? notes;
   final int createdBy;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-
-  const RawMeatProcessing({
-    this.id,
-    required this.batchNumber,
-    required this.grossWeight,
-    required this.basketWeight,
-    required this.basketCount,
-    required this.netWeight,
-    this.supplierId,
-    required this.processingDate,
-    this.notes,
-    required this.createdBy,
-    this.createdAt,
-    this.updatedAt,
-  });
 
   @override
   List<Object?> get props => [
@@ -37,6 +33,7 @@ class RawMeatProcessing extends Equatable {
         basketWeight,
         basketCount,
         netWeight,
+        totalCost,
         supplierId,
         processingDate,
         notes,
@@ -52,6 +49,7 @@ class RawMeatProcessing extends Equatable {
     double? basketWeight,
     int? basketCount,
     double? netWeight,
+    double? totalCost,
     int? supplierId,
     DateTime? processingDate,
     String? notes,
@@ -66,6 +64,7 @@ class RawMeatProcessing extends Equatable {
       basketWeight: basketWeight ?? this.basketWeight,
       basketCount: basketCount ?? this.basketCount,
       netWeight: netWeight ?? this.netWeight,
+      totalCost: totalCost ?? this.totalCost,
       supplierId: supplierId ?? this.supplierId,
       processingDate: processingDate ?? this.processingDate,
       notes: notes ?? this.notes,

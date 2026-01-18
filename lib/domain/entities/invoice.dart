@@ -1,16 +1,13 @@
+import 'package:meta/meta.dart';
 import 'package:poultry_accounting/core/constants/app_constants.dart';
 import 'package:poultry_accounting/domain/entities/customer.dart';
 import 'package:poultry_accounting/domain/entities/user.dart';
 
 /// Invoice Item entity
+@immutable
 class InvoiceItem {
   const InvoiceItem({
-    this.id,
-    required this.productId,
-    required this.productName,
-    required this.quantity,
-    required this.unitPrice,
-    required this.costAtSale,
+    required this.productId, required this.productName, required this.quantity, required this.unitPrice, required this.costAtSale, this.id,
     this.discount = 0.0,
   });
 
@@ -60,15 +57,11 @@ class InvoiceItem {
 }
 
 /// Sales Invoice entity
+@immutable
 class Invoice {
   const Invoice({
-    this.id,
-    required this.invoiceNumber,
-    required this.customerId,
+    required this.invoiceNumber, required this.customerId, required this.invoiceDate, required this.status, required this.items, this.id,
     this.customer,
-    required this.invoiceDate,
-    required this.status,
-    required this.items,
     this.discount = 0.0,
     this.tax = 0.0,
     this.paidAmount = 0.0,
@@ -104,7 +97,7 @@ class Invoice {
   final DateTime? deletedAt;
 
   /// Calculate subtotal (sum of all items)
-  double get subtotal => items.fold(0.0, (sum, item) => sum + item.total);
+  double get subtotal => items.fold(0, (sum, item) => sum + item.total);
 
   /// Calculate total (subtotal - discount + tax)
   double get total => subtotal - discount + tax;
@@ -113,7 +106,7 @@ class Invoice {
   double get remainingBalance => total - paidAmount;
 
   /// Calculate total cost (for profit calculation)
-  double get totalCost => items.fold(0.0, (sum, item) => sum + (item.quantity * item.costAtSale));
+  double get totalCost => items.fold(0, (sum, item) => sum + (item.quantity * item.costAtSale));
 
   /// Calculate total profit
   double get totalProfit => subtotal - totalCost - discount;

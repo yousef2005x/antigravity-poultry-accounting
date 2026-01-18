@@ -1,10 +1,12 @@
-import 'package:poultry_accounting/core/constants/app_constants.dart';
 import 'package:poultry_accounting/domain/entities/product.dart';
 
 /// Product Repository Interface
 abstract class ProductRepository {
   /// Get all products
   Future<List<Product>> getAllProducts();
+
+  /// Watch all products
+  Stream<List<Product>> watchAllProducts();
 
   /// Get product by ID
   Future<Product?> getProductById(int id);

@@ -13,38 +13,37 @@ class DailyPricingScreen extends ConsumerStatefulWidget {
 class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
   DateTime _selectedDate = DateTime.now();
   final Map<int, TextEditingController> _controllers = {};
-  
-  // In a real app, you'd fetch products from a ProductRepository
-  final List<Map<String, dynamic>> _mockProducts = [
-    {'id': 1, 'name': 'صدور دجاج'},
-    {'id': 2, 'name': 'شاورما'},
-    {'id': 3, 'name': 'فخذ دجاج'},
-    {'id': 4, 'name': 'جناح دجاج'},
-  ];
 
   @override
   void initState() {
     super.initState();
-    for (var product in _mockProducts) {
-      _controllers[product['id']] = TextEditingController();
-    }
-    _loadPrices();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    // Wait for a frame to ensure ref is usable if needed, 
+    // but here we just trigger the load after products are available.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadPrices();
+    });
   }
 
   Future<void> _loadPrices() async {
     final repo = ref.read(priceRepositoryProvider);
     final prices = await repo.getPricesByDate(_selectedDate);
     
-    for (var price in prices) {
-      if (_controllers.containsKey(price.productId)) {
-        _controllers[price.productId]!.text = price.price.toString();
+    setState(() {
+      for (final price in prices) {
+        if (_controllers.containsKey(price.productId)) {
+          _controllers[price.productId]!.text = price.price.toString();
+        }
       }
-    }
+    });
   }
 
   @override
   void dispose() {
-    for (var controller in _controllers.values) {
+    for (final controller in _controllers.values) {
       controller.dispose();
     }
     super.dispose();
@@ -58,34 +57,49 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
         backgroundColor: Colors.green,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             _buildDateSelector(),
             const SizedBox(height: 20),
             Expanded(
-              child: ListView.builder(
-                itemCount: _mockProducts.length,
-                itemBuilder: (context, index) {
-                  final product = _mockProducts[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(product['name']),
-                      trailing: SizedBox(
-                        width: 120,
-                        child: TextField(
-                          controller: _controllers[product['id']],
-                          decoration: const InputDecoration(
-                            suffixText: '₪',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+              child: ref.watch(productsStreamProvider).when(
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (err, stack) => Center(child: Text('خطأ: $err')),
+                    data: (products) {
+                      if (products.isEmpty) {
+                        return const Center(child: Text('لا توجد أصناف مسجلة'));
+                      }
+                      
+                      // Initialize controllers for new products
+                      for (final p in products) {
+                        _controllers.putIfAbsent(p.id!, TextEditingController.new);
+                      }
+
+                      return ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          final product = products[index];
+                          return Card(
+                            child: ListTile(
+                              title: Text(product.name),
+                              trailing: SizedBox(
+                                width: 120,
+                                child: TextField(
+                                  controller: _controllers[product.id],
+                                  decoration: const InputDecoration(
+                                    suffixText: '₪',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -114,7 +128,7 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
         );
         if (picked != null) {
           setState(() => _selectedDate = picked);
-          _loadPrices();
+          await _loadPrices();
         }
       },
       child: Container(
@@ -147,11 +161,13 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
           productId: productId,
           price: price,
           date: DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day),
-        ));
+        ),);
       }
     });
 
-    if (pricesToSave.isEmpty) return;
+    if (pricesToSave.isEmpty) {
+      return;
+    }
 
     try {
       await ref.read(priceRepositoryProvider).updateMultiplePrices(pricesToSave);

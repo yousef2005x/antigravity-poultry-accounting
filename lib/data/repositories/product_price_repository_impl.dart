@@ -1,11 +1,12 @@
+import 'package:drift/drift.dart';
 import 'package:poultry_accounting/data/database/database.dart' as db;
 import 'package:poultry_accounting/domain/entities/product_price.dart';
 import 'package:poultry_accounting/domain/repositories/i_price_repository.dart';
 
 class ProductPriceRepositoryImpl implements IPriceRepository {
-  final db.AppDatabase database;
 
   ProductPriceRepositoryImpl(this.database);
+  final db.AppDatabase database;
 
   @override
   Future<List<ProductPrice>> getPricesByDate(DateTime date) async {
@@ -31,7 +32,7 @@ class ProductPriceRepositoryImpl implements IPriceRepository {
   @override
   Future<void> updatePrice(ProductPrice price) async {
     await database.into(database.productPrices).insertOnConflictUpdate(
-      db.ProductPriceTableCompanion.insert(
+      db.ProductPricesCompanion.insert(
         productId: price.productId,
         price: price.price,
         date: price.date,
@@ -45,7 +46,7 @@ class ProductPriceRepositoryImpl implements IPriceRepository {
       for (final price in prices) {
         batch.insert(
           database.productPrices,
-          db.ProductPriceTableCompanion.insert(
+          db.ProductPricesCompanion.insert(
             productId: price.productId,
             price: price.price,
             date: price.date,
@@ -59,8 +60,8 @@ class ProductPriceRepositoryImpl implements IPriceRepository {
   @override
   Future<List<ProductPrice>> getPriceHistory(int productId, DateTime start, DateTime end) async {
     final query = database.select(database.productPrices)
-      ..where((t) => t.productId.equals(productId) & t.date.isBetweenValues(start, end))
-      ..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.asc)]);
+      ..where((t) => t.productId.equals(productId) & t.date.isBetween(Constant(start), Constant(end)))
+      ..orderBy([(t) => OrderingTerm(expression: t.date)]);
     
     final results = await query.get();
     return results.map(_mapToEntity).toList();

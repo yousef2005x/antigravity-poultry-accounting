@@ -1,13 +1,11 @@
+import 'package:meta/meta.dart';
 import 'package:poultry_accounting/core/constants/app_constants.dart';
 
 /// User domain entity
+@immutable
 class User {
   const User({
-    this.id,
-    required this.username,
-    required this.passwordHash,
-    required this.fullName,
-    required this.role,
+    required this.username, required this.passwordHash, required this.fullName, required this.role, this.id,
     this.isActive = true,
     this.createdAt,
     this.updatedAt,

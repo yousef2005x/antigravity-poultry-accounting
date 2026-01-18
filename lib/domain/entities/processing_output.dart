@@ -1,21 +1,17 @@
 import 'package:equatable/equatable.dart';
 
 class ProcessingOutput extends Equatable {
+
+  const ProcessingOutput({
+    required this.processingId, required this.productId, required this.quantity, required this.yieldPercentage, this.id,
+    this.createdAt,
+  });
   final int? id;
   final int processingId;
   final int productId;
   final double quantity;
   final double yieldPercentage;
   final DateTime? createdAt;
-
-  const ProcessingOutput({
-    this.id,
-    required this.processingId,
-    required this.productId,
-    required this.quantity,
-    required this.yieldPercentage,
-    this.createdAt,
-  });
 
   @override
   List<Object?> get props => [id, processingId, productId, quantity, yieldPercentage, createdAt];

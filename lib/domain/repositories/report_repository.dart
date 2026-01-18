@@ -1,4 +1,5 @@
 /// Report data models and repository interface
+library;
 
 /// Dashboard metrics
 class DashboardMetrics {

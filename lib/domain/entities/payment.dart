@@ -1,21 +1,18 @@
+import 'package:meta/meta.dart';
 import 'package:poultry_accounting/core/constants/app_constants.dart';
 import 'package:poultry_accounting/domain/entities/customer.dart';
 import 'package:poultry_accounting/domain/entities/supplier.dart';
 import 'package:poultry_accounting/domain/entities/user.dart';
 
 /// Payment entity (Receipt or Payment)
+@immutable
 class Payment {
   const Payment({
-    this.id,
-    required this.paymentNumber,
-    required this.type,
+    required this.paymentNumber, required this.type, required this.amount, required this.method, required this.paymentDate, this.id,
     this.customerId,
     this.customer,
     this.supplierId,
     this.supplier,
-    required this.amount,
-    required this.method,
-    required this.paymentDate,
     this.referenceNumber,
     this.notes,
     this.createdBy,

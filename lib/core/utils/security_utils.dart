@@ -41,12 +41,14 @@ class SecurityUtils {
         .replaceAll('"', '')
         .replaceAll("'", '')
         .replaceAll('/', '')
-        .replaceAll('\\', '');
+        .replaceAll(r'\', '');
   }
 
   /// Mask sensitive data (e.g., show last 4 digits of phone)
   static String maskPhone(String phone) {
-    if (phone.length <= 4) return phone;
+    if (phone.length <= 4) {
+      return phone;
+    }
     final visible = phone.substring(phone.length - 4);
     final masked = '*' * (phone.length - 4);
     return masked + visible;
@@ -54,13 +56,17 @@ class SecurityUtils {
 
   /// Mask email (show first char and domain)
   static String maskEmail(String email) {
-    if (!email.contains('@')) return email;
+    if (!email.contains('@')) {
+      return email;
+    }
     
     final parts = email.split('@');
     final username = parts[0];
     final domain = parts[1];
     
-    if (username.isEmpty) return email;
+    if (username.isEmpty) {
+      return email;
+    }
     
     final visibleChar = username[0];
     final masked = visibleChar + ('*' * (username.length - 1));

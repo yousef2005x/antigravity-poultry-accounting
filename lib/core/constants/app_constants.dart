@@ -22,7 +22,7 @@ class AppConstants {
   static const int maxNotesLength = 500;
 
   // Business Rules
-  static const double defaultCreditLimit = 10000.0;
+  static const double defaultCreditLimit = 10000;
   static const int paymentDueDays = 30;
   static const int agingPeriodDays = 30; // 0-30, 31-60, 61-90, 90+
 

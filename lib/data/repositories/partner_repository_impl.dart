@@ -5,9 +5,9 @@ import 'package:poultry_accounting/domain/entities/partner_transaction.dart';
 import 'package:poultry_accounting/domain/repositories/i_partner_repository.dart';
 
 class PartnerRepositoryImpl implements IPartnerRepository {
-  final db.AppDatabase database;
 
   PartnerRepositoryImpl(this.database);
+  final db.AppDatabase database;
 
   @override
   Future<List<Partner>> getAllPartners() async {
@@ -24,8 +24,8 @@ class PartnerRepositoryImpl implements IPartnerRepository {
 
   @override
   Future<int> createPartner(Partner partner) async {
-    return await database.into(database.partners).insert(
-          db.PartnerTableCompanion.insert(
+    return database.into(database.partners).insert(
+          db.PartnersCompanion.insert(
             name: partner.name,
             sharePercentage: Value(partner.sharePercentage),
             isActive: Value(partner.isActive),
@@ -36,7 +36,7 @@ class PartnerRepositoryImpl implements IPartnerRepository {
   @override
   Future<void> updatePartner(Partner partner) async {
     await (database.update(database.partners)..where((t) => t.id.equals(partner.id!))).write(
-          db.PartnerTableCompanion(
+          db.PartnersCompanion(
             name: Value(partner.name),
             sharePercentage: Value(partner.sharePercentage),
             isActive: Value(partner.isActive),
@@ -53,8 +53,8 @@ class PartnerRepositoryImpl implements IPartnerRepository {
 
   @override
   Future<int> createPartnerTransaction(PartnerTransaction transaction) async {
-    return await database.into(database.partnerTransactions).insert(
-          db.PartnerTransactionTableCompanion.insert(
+    return database.into(database.partnerTransactions).insert(
+          db.PartnerTransactionsCompanion.insert(
             partnerId: transaction.partnerId,
             amount: transaction.amount,
             type: transaction.type,

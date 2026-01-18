@@ -1,8 +1,9 @@
 import 'dart:io';
+
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:poultry_accounting/core/constants/app_constants.dart';
 
 part 'database.g.dart';
@@ -32,7 +33,7 @@ class Customers extends Table {
   TextColumn get name => text().withLength(min: 1, max: 100)();
   TextColumn get phone => text().withLength(max: 20).nullable()();
   TextColumn get address => text().withLength(max: 200).nullable()();
-  RealColumn get creditLimit => real().withDefault(const Constant(10000.0))();
+  RealColumn get creditLimit => real().withDefault(const Constant(10000))();
   TextColumn get notes => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -61,7 +62,7 @@ class Products extends Table {
   TextColumn get name => text().withLength(min: 1, max: 100)();
   TextColumn get unitType => text()(); // UnitType enum code (kg, piece, box)
   BoolColumn get isWeighted => boolean().withDefault(const Constant(true))();
-  RealColumn get defaultPrice => real().withDefault(const Constant(0.0))();
+  RealColumn get defaultPrice => real().withDefault(const Constant(0))();
   TextColumn get description => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -74,7 +75,8 @@ class Products extends Table {
 class InventoryBatches extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productId => integer().references(Products, #id)();
-  IntColumn get purchaseInvoiceId => integer().nullable().references(PurchaseInvoices, #id)();
+  IntColumn get purchaseInvoiceId => integer().nullable().references(PurchaseInvoices, #id, onDelete: KeyAction.cascade)();
+  IntColumn get processingId => integer().nullable().references(RawMeatProcessings, #id, onDelete: KeyAction.cascade)();
   RealColumn get quantity => real()(); // Quantity in
   RealColumn get remainingQuantity => real()(); // Remaining (for FIFO)
   RealColumn get unitCost => real()(); // Cost at purchase
@@ -92,11 +94,11 @@ class SalesInvoices extends Table {
   IntColumn get customerId => integer().references(Customers, #id)();
   DateTimeColumn get invoiceDate => dateTime()();
   TextColumn get status => text()(); // InvoiceStatus enum (draft, confirmed, cancelled)
-  RealColumn get subtotal => real().withDefault(const Constant(0.0))();
-  RealColumn get discount => real().withDefault(const Constant(0.0))();
-  RealColumn get tax => real().withDefault(const Constant(0.0))();
-  RealColumn get total => real().withDefault(const Constant(0.0))();
-  RealColumn get paidAmount => real().withDefault(const Constant(0.0))();
+  RealColumn get subtotal => real().withDefault(const Constant(0))();
+  RealColumn get discount => real().withDefault(const Constant(0))();
+  RealColumn get tax => real().withDefault(const Constant(0))();
+  RealColumn get total => real().withDefault(const Constant(0))();
+  RealColumn get paidAmount => real().withDefault(const Constant(0))();
   TextColumn get notes => text().nullable()();
   IntColumn get createdBy => integer().references(Users, #id)();
   DateTimeColumn get confirmedAt => dateTime().nullable()();
@@ -115,7 +117,7 @@ class SalesInvoiceItems extends Table {
   RealColumn get quantity => real()();
   RealColumn get unitPrice => real()();
   RealColumn get costAtSale => real()(); // CRITICAL: for profit calculation
-  RealColumn get discount => real().withDefault(const Constant(0.0))();
+  RealColumn get discount => real().withDefault(const Constant(0))();
   RealColumn get total => real()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -128,12 +130,12 @@ class PurchaseInvoices extends Table {
   IntColumn get supplierId => integer().references(Suppliers, #id)();
   DateTimeColumn get invoiceDate => dateTime()();
   TextColumn get status => text()();
-  RealColumn get subtotal => real().withDefault(const Constant(0.0))();
-  RealColumn get discount => real().withDefault(const Constant(0.0))();
-  RealColumn get tax => real().withDefault(const Constant(0.0))();
-  RealColumn get total => real().withDefault(const Constant(0.0))();
-  RealColumn get paidAmount => real().withDefault(const Constant(0.0))();
-  RealColumn get additionalCosts => real().withDefault(const Constant(0.0))(); // Transport, etc.
+  RealColumn get subtotal => real().withDefault(const Constant(0))();
+  RealColumn get discount => real().withDefault(const Constant(0))();
+  RealColumn get tax => real().withDefault(const Constant(0))();
+  RealColumn get total => real().withDefault(const Constant(0))();
+  RealColumn get paidAmount => real().withDefault(const Constant(0))();
+  RealColumn get additionalCosts => real().withDefault(const Constant(0))(); // Transport, etc.
   TextColumn get notes => text().nullable()();
   IntColumn get createdBy => integer().references(Users, #id)();
   DateTimeColumn get confirmedAt => dateTime().nullable()();
@@ -244,6 +246,7 @@ class RawMeatProcessings extends Table {
   RealColumn get basketWeight => real()();
   IntColumn get basketCount => integer()();
   RealColumn get netWeight => real()(); // grossWeight - (basketWeight * basketCount)
+  RealColumn get totalCost => real().withDefault(const Constant(0))(); // Cost of the raw meat
   IntColumn get supplierId => integer().nullable().references(Suppliers, #id)();
   DateTimeColumn get processingDate => dateTime()();
   TextColumn get notes => text().nullable()();
@@ -268,7 +271,7 @@ class ProcessingOutputs extends Table {
 class Partners extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text().withLength(min: 1, max: 100)();
-  RealColumn get sharePercentage => real().withDefault(const Constant(50.0))();
+  RealColumn get sharePercentage => real().withDefault(const Constant(50))();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
@@ -325,7 +328,7 @@ class CashTransactions extends Table {
   Partners,
   PartnerTransactions,
   CashTransactions,
-])
+],)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -334,13 +337,13 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (Migrator m) async {
+    onCreate: (m) async {
       await m.createAll();
       
       // Seed default data
       await _seedDefaultData();
     },
-    onUpgrade: (Migrator m, int from, int to) async {
+    onUpgrade: (m, from, to) async {
       // Handle future migrations
     },
   );
@@ -348,7 +351,7 @@ class AppDatabase extends _$AppDatabase {
   // Seed default data
   Future<void> _seedDefaultData() async {
     // Create default admin user
-    final hashedPassword = 'admin123'; // Will be properly hashed in production
+    const hashedPassword = 'admin123'; // Will be properly hashed in production
     
     await into(users).insert(
       UsersCompanion.insert(
@@ -383,13 +386,13 @@ class AppDatabase extends _$AppDatabase {
     await into(partners).insert(
       PartnersCompanion.insert(
         name: 'الشريك الأول',
-        sharePercentage: const Value(50.0),
+        sharePercentage: const Value(50),
       ),
     );
     await into(partners).insert(
       PartnersCompanion.insert(
         name: 'الشريك الثاني',
-        sharePercentage: const Value(50.0),
+        sharePercentage: const Value(50),
       ),
     );
   }

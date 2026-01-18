@@ -1,8 +1,10 @@
+import 'package:meta/meta.dart';
+
 /// Supplier domain entity
+@immutable
 class Supplier {
   const Supplier({
-    this.id,
-    required this.name,
+    required this.name, this.id,
     this.phone,
     this.address,
     this.notes,

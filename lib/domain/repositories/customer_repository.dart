@@ -1,10 +1,12 @@
-import 'package:poultry_accounting/core/errors/failures.dart';
 import 'package:poultry_accounting/domain/entities/customer.dart';
 
 /// Customer Repository Interface
 abstract class CustomerRepository {
   /// Get all customers (excluding deleted)
   Future<List<Customer>> getAllCustomers();
+
+  /// Watch all customers (excluding deleted)
+  Stream<List<Customer>> watchAllCustomers();
 
   /// Get customer by ID
   Future<Customer?> getCustomerById(int id);

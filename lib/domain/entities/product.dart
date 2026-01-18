@@ -1,11 +1,11 @@
+import 'package:meta/meta.dart';
 import 'package:poultry_accounting/core/constants/app_constants.dart';
 
 /// Product domain entity
+@immutable
 class Product {
   const Product({
-    this.id,
-    required this.name,
-    required this.unitType,
+    required this.name, required this.unitType, this.id,
     this.isWeighted = true,
     this.defaultPrice = 0.0,
     this.description,
