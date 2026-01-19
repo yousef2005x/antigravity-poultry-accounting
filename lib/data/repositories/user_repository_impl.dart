@@ -49,7 +49,18 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> changePassword(int userId, String newPassword) async {
+  Future<void> changePassword(int userId, String currentPassword, String newPassword) async {
+    final userRow = await (_db.select(_db.users)..where((tbl) => tbl.id.equals(userId))).getSingleOrNull();
+    
+    if (userRow == null) {
+      throw Exception('المستخدم غير موجود');
+    }
+
+    final currentHash = SecurityUtils.hashPassword(currentPassword);
+    if (userRow.passwordHash != currentHash) {
+      throw Exception('كلمة المرور الحالية غير صحيحة');
+    }
+
     final companion = db.UsersCompanion(
       passwordHash: Value(SecurityUtils.hashPassword(newPassword)),
       updatedAt: Value(DateTime.now()),
@@ -77,6 +88,7 @@ class UserRepositoryImpl implements UserRepository {
       id: row.id,
       username: row.username,
       fullName: row.fullName,
+      phoneNumber: row.phoneNumber,
       passwordHash: '', // Not exposed in domain entity
       role: UserRole.fromCode(row.role),
       isActive: row.isActive,

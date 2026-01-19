@@ -5,7 +5,12 @@ import 'package:poultry_accounting/core/constants/app_constants.dart';
 @immutable
 class User {
   const User({
-    required this.username, required this.passwordHash, required this.fullName, required this.role, this.id,
+    required this.username,
+    required this.passwordHash,
+    required this.fullName,
+    required this.role,
+    this.phoneNumber,
+    this.id,
     this.isActive = true,
     this.createdAt,
     this.updatedAt,
@@ -16,6 +21,7 @@ class User {
   final String username;
   final String passwordHash;
   final String fullName;
+  final String? phoneNumber;
   final UserRole role;
   final bool isActive;
   final DateTime? createdAt;
@@ -52,6 +58,7 @@ class User {
     String? username,
     String? passwordHash,
     String? fullName,
+    String? phoneNumber,
     UserRole? role,
     bool? isActive,
     DateTime? createdAt,
@@ -63,6 +70,7 @@ class User {
       username: username ?? this.username,
       passwordHash: passwordHash ?? this.passwordHash,
       fullName: fullName ?? this.fullName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       role: role ?? this.role,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,

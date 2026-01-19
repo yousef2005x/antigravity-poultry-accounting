@@ -20,6 +20,7 @@ class Users extends Table {
   TextColumn get username => text().withLength(min: 3, max: 50).unique()();
   TextColumn get passwordHash => text()();
   TextColumn get fullName => text().withLength(max: 100)();
+  TextColumn get phoneNumber => text().withLength(max: 20).nullable()();
   TextColumn get role => text()(); // UserRole enum code
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
@@ -334,7 +335,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -345,7 +346,10 @@ class AppDatabase extends _$AppDatabase {
       await _seedDefaultData();
     },
     onUpgrade: (m, from, to) async {
-      // Handle future migrations
+      if (from < 2) {
+        // Add phoneNumber column to users table
+        await m.addColumn(users, users.phoneNumber);
+      }
     },
   );
 
