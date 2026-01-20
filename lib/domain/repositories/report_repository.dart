@@ -98,6 +98,58 @@ class AgingReportEntry {
   final double total;
 }
 
+  final double total;
+}
+
+/// Daily Processing statistics
+class ProcessingReport {
+  const ProcessingReport({
+    required this.totalLiveWeight,
+    required this.totalSlaughteredWeight,
+    required this.totalOutputWeight,
+    required this.shrinkageWeight,
+    required this.processingCount,
+  });
+
+  final double totalLiveWeight;
+  final double totalSlaughteredWeight;
+  final double totalOutputWeight;
+  final double shrinkageWeight;
+  final int processingCount;
+}
+
+/// Daily Sales statistics
+class SalesSummary {
+  const SalesSummary({
+    required this.totalAmount,
+    required this.invoiceCount,
+    required this.totalWeightSold,
+    required this.productBreakdown,
+  });
+
+  final double totalAmount;
+  final int invoiceCount;
+  final double totalWeightSold;
+  final List<Map<String, dynamic>> productBreakdown;
+}
+
+/// Comprehensive Daily Report
+class DailyReport {
+  const DailyReport({
+    required this.date,
+    required this.processing,
+    required this.sales,
+    required this.expenses,
+    required this.netCashFlow,
+  });
+
+  final DateTime date;
+  final ProcessingReport processing;
+  final SalesSummary sales;
+  final double expenses;
+  final double netCashFlow;
+}
+
 /// Report Repository Interface
 abstract class ReportRepository {
   /// Get dashboard metrics
@@ -139,8 +191,28 @@ abstract class ReportRepository {
 
   /// Get customer account statement
   Future<List<CustomerStatementEntry>> getCustomerStatement(
-    int customerId, {
     DateTime? fromDate,
     DateTime? toDate,
   });
+
+  /// Get comprehensive daily report
+  Future<DailyReport> getDailyReport(DateTime date);
+
+  /// Get inventory age report
+  Future<List<InventoryAgeEntry>> getInventoryAgeReport();
+}
+
+/// Inventory age entry
+class InventoryAgeEntry {
+  const InventoryAgeEntry({
+    required this.productName,
+    required this.quantity,
+    required this.entryDate,
+    required this.ageInDays,
+  });
+
+  final String productName;
+  final double quantity;
+  final DateTime entryDate;
+  final int ageInDays;
 }

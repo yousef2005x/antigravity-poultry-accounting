@@ -433,4 +433,133 @@ class ReportRepositoryImpl implements ReportRepository {
 
     return entries;
   }
+
+  @override
+  Future<DailyReport> getDailyReport(DateTime date) async {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1)).subtract(const Duration(milliseconds: 1));
+
+    // 1. Processing Report
+    final procQuery = database.select(database.rawMeatProcessings)
+      ..where((tbl) => tbl.processingDate.isBetweenValues(startOfDay, endOfDay));
+    final processes = await procQuery.get();
+
+    double totalLive = 0, totalSlaughtered = 0, totalOutput = 0, shrinkage = 0;
+    for (final p in processes) {
+      totalLive += p.liveNetWeight;
+      totalSlaughtered += p.slaughteredNetWeight;
+      shrinkage += (p.liveNetWeight - p.slaughteredNetWeight).clamp(0, double.infinity);
+    }
+
+    final outputsQuery = database.select(database.processingOutputs).join([
+      innerJoin(database.rawMeatProcessings, database.rawMeatProcessings.id.equalsExp(database.processingOutputs.processingId)),
+    ])..where(database.rawMeatProcessings.processingDate.isBetweenValues(startOfDay, endOfDay));
+    
+    final outputRows = await outputsQuery.get();
+    for (final row in outputRows) {
+      totalOutput += row.readTable(database.processingOutputs).quantity;
+    }
+
+    final processingReport = ProcessingReport(
+      totalLiveWeight: totalLive,
+      totalSlaughteredWeight: totalSlaughtered,
+      totalOutputWeight: totalOutput,
+      shrinkageWeight: shrinkage,
+      processingCount: processes.length,
+    );
+
+    // 2. Sales Summary
+    final salesQuery = database.select(database.salesInvoices)
+      ..where((tbl) => tbl.invoiceDate.isBetweenValues(startOfDay, endOfDay))
+      ..where((tbl) => tbl.status.equals(InvoiceStatus.confirmed.name));
+    final invoices = await salesQuery.get();
+
+    double totalSalesAmount = 0, totalWeightSold = 0;
+    Map<int, Map<String, dynamic>> productBreakdownMap = {};
+
+    for (final inv in invoices) {
+      totalSalesAmount += inv.total;
+      
+      final items = await (database.select(database.salesInvoiceItems).join([
+        innerJoin(database.products, database.products.id.equalsExp(database.salesInvoiceItems.productId)),
+      ])..where(database.salesInvoiceItems.invoiceId.equals(inv.id))).get();
+
+      for (final item in items) {
+        final qty = item.readTable(database.salesInvoiceItems).quantity;
+        final prod = item.readTable(database.products);
+        totalWeightSold += qty;
+
+        if (!productBreakdownMap.containsKey(prod.id)) {
+          productBreakdownMap[prod.id] = {
+            'productId': prod.id,
+            'productName': prod.name,
+            'quantity': 0.0,
+            'amount': 0.0,
+          };
+        }
+        productBreakdownMap[prod.id]!['quantity'] += qty;
+        productBreakdownMap[prod.id]!['amount'] += item.readTable(database.salesInvoiceItems).total;
+      }
+    }
+
+    final salesSummary = SalesSummary(
+      totalAmount: totalSalesAmount,
+      invoiceCount: invoices.length,
+      totalWeightSold: totalWeightSold,
+      productBreakdown: productBreakdownMap.values.toList(),
+    );
+
+    // 3. Expenses
+    final expQuery = database.selectOnly(database.expenses)
+      ..addColumns([database.expenses.amount.sum()])
+      ..where(database.expenses.expenseDate.isBetweenValues(startOfDay, endOfDay));
+    final totalExpenses = await expQuery.map((row) => row.read(database.expenses.amount.sum())).getSingle() ?? 0.0;
+
+    // 4. Net Cash Flow (Simple: Confirmed Sales - Expenses)
+    // Note: User might want Receipts - Expenses, but Sales vs Expenses is Profit-like.
+    // For net cash flow per day usually it's Receipts - Payments - Expenses.
+    final receiptsQuery = database.selectOnly(database.cashTransactions)
+      ..addColumns([database.cashTransactions.amount.sum()])
+      ..where(database.cashTransactions.transactionDate.isBetweenValues(startOfDay, endOfDay))
+      ..where(database.cashTransactions.type.isIn(['in', 'receipt']));
+    final totalIn = await receiptsQuery.map((row) => row.read(database.cashTransactions.amount.sum())).getSingle() ?? 0.0;
+
+    final outQuery = database.selectOnly(database.cashTransactions)
+      ..addColumns([database.cashTransactions.amount.sum()])
+      ..where(database.cashTransactions.transactionDate.isBetweenValues(startOfDay, endOfDay))
+      ..where(database.cashTransactions.type.isIn(['out', 'payment']));
+    final totalOutDirect = await outQuery.map((row) => row.read(database.cashTransactions.amount.sum())).getSingle() ?? 0.0;
+
+    return DailyReport(
+      date: date,
+      processing: processingReport,
+      sales: salesSummary,
+      expenses: totalExpenses,
+      netCashFlow: totalIn - totalOutDirect - totalExpenses,
+    );
+  }
+
+  @override
+  Future<List<InventoryAgeEntry>> getInventoryAgeReport() async {
+    final now = DateTime.now();
+    final query = database.select(database.inventoryBatches).join([
+      innerJoin(database.products, database.products.id.equalsExp(database.inventoryBatches.productId)),
+    ])..where(database.inventoryBatches.remainingQuantity.isBiggerThanValue(0))
+      ..orderBy([OrderingTerm(expression: database.inventoryBatches.createdAt)]);
+
+    final rows = await query.get();
+    return rows.map((row) {
+      final batch = row.readTable(database.inventoryBatches);
+      final product = row.readTable(database.products);
+      final entryDate = batch.createdAt;
+      final age = now.difference(entryDate).inDays;
+
+      return InventoryAgeEntry(
+        productName: product.name,
+        quantity: batch.remainingQuantity,
+        entryDate: entryDate,
+        ageInDays: age,
+      );
+    }).toList();
+  }
 }

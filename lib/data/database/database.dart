@@ -244,11 +244,24 @@ class ProductPrices extends Table {
 class RawMeatProcessings extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get batchNumber => text().unique()();
-  RealColumn get grossWeight => real()();
-  RealColumn get basketWeight => real()();
-  IntColumn get basketCount => integer()();
-  RealColumn get netWeight => real()(); // grossWeight - (basketWeight * basketCount)
-  RealColumn get totalCost => real().withDefault(const Constant(0))(); // Cost of the raw meat
+  
+  // Stage 1: Live (Incoming)
+  RealColumn get liveGrossWeight => real().withDefault(const Constant(0))();
+  RealColumn get liveCrateWeight => real().withDefault(const Constant(0))();
+  IntColumn get liveCrateCount => integer().withDefault(const Constant(0))();
+  RealColumn get liveNetWeight => real().withDefault(const Constant(0))(); // Calculated: Gross - (Crate * Count)
+  
+  // Stage 2: Slaughtered (After processing)
+  RealColumn get slaughteredGrossWeight => real().withDefault(const Constant(0))();
+  RealColumn get slaughteredBasketWeight => real().withDefault(const Constant(0))();
+  IntColumn get slaughteredBasketCount => integer().withDefault(const Constant(0))();
+  RealColumn get slaughteredNetWeight => real().withDefault(const Constant(0))(); // Calculated: Gross - (Basket * Count)
+
+  // Legacy field support (mapped from netWeight if needed)
+  RealColumn get netWeight => real()(); 
+  
+  // Financials and Metadata
+  RealColumn get totalCost => real().withDefault(const Constant(0))(); 
   IntColumn get supplierId => integer().nullable().references(Suppliers, #id)();
   DateTimeColumn get processingDate => dateTime()();
   TextColumn get notes => text().nullable()();
@@ -263,8 +276,14 @@ class ProcessingOutputs extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get processingId => integer().references(RawMeatProcessings, #id, onDelete: KeyAction.cascade)();
   IntColumn get productId => integer().references(Products, #id)();
-  RealColumn get quantity => real()();
-  RealColumn get yieldPercentage => real()(); // (quantity / netWeight) * 100
+  
+  // Weighing details per item
+  RealColumn get grossWeight => real().withDefault(const Constant(0))();
+  RealColumn get basketWeight => real().withDefault(const Constant(0))();
+  IntColumn get basketCount => integer().withDefault(const Constant(0))();
+  RealColumn get quantity => real()(); // This is the Net Weight (Gross - (Basket * Count))
+  
+  RealColumn get yieldPercentage => real()(); // (quantity / slaughteredNetWeight) * 100
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -335,7 +354,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -347,8 +366,14 @@ class AppDatabase extends _$AppDatabase {
     },
     onUpgrade: (m, from, to) async {
       if (from < 2) {
-        // Add phoneNumber column to users table
         await m.addColumn(users, users.phoneNumber);
+      }
+      if (from < 3) {
+        // Migration for Processing tables
+        await m.createTable(rawMeatProcessings);
+        await m.createTable(processingOutputs);
+        // Note: In a real production scenario, we might need to migrate existing data,
+        // but for this MVP, creating/re-creating if necessary is the focus.
       }
     },
   );

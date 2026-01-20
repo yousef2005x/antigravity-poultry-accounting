@@ -3,21 +3,43 @@ import 'package:equatable/equatable.dart';
 class RawMeatProcessing extends Equatable {
 
   const RawMeatProcessing({
-    required this.batchNumber, required this.grossWeight, required this.basketWeight, required this.basketCount, required this.netWeight, 
-    required this.totalCost, // Added totalCost
-    required this.processingDate, required this.createdBy, this.id,
+    required this.batchNumber,
+    required this.liveGrossWeight,
+    required this.liveCrateWeight,
+    required this.liveCrateCount,
+    required this.liveNetWeight,
+    required this.slaughteredGrossWeight,
+    required this.slaughteredBasketWeight,
+    required this.slaughteredBasketCount,
+    required this.slaughteredNetWeight,
+    required this.netWeight, // Legacy/Summary Net Weight
+    required this.totalCost,
+    required this.processingDate,
+    required this.createdBy,
+    this.id,
     this.supplierId,
     this.notes,
     this.createdAt,
     this.updatedAt,
   });
+
   final int? id;
   final String batchNumber;
-  final double grossWeight;
-  final double basketWeight;
-  final int basketCount;
-  final double netWeight;
-  final double totalCost; // Total cost of the raw meat batch
+  
+  // Stage 1: Live
+  final double liveGrossWeight;
+  final double liveCrateWeight;
+  final int liveCrateCount;
+  final double liveNetWeight;
+  
+  // Stage 2: Slaughtered
+  final double slaughteredGrossWeight;
+  final double slaughteredBasketWeight;
+  final int slaughteredBasketCount;
+  final double slaughteredNetWeight;
+
+  final double netWeight; // Overall net weight (usually same as slaughteredNetWeight)
+  final double totalCost;
   final int? supplierId;
   final DateTime processingDate;
   final String? notes;
@@ -29,9 +51,14 @@ class RawMeatProcessing extends Equatable {
   List<Object?> get props => [
         id,
         batchNumber,
-        grossWeight,
-        basketWeight,
-        basketCount,
+        liveGrossWeight,
+        liveCrateWeight,
+        liveCrateCount,
+        liveNetWeight,
+        slaughteredGrossWeight,
+        slaughteredBasketWeight,
+        slaughteredBasketCount,
+        slaughteredNetWeight,
         netWeight,
         totalCost,
         supplierId,
@@ -45,9 +72,14 @@ class RawMeatProcessing extends Equatable {
   RawMeatProcessing copyWith({
     int? id,
     String? batchNumber,
-    double? grossWeight,
-    double? basketWeight,
-    int? basketCount,
+    double? liveGrossWeight,
+    double? liveCrateWeight,
+    int? liveCrateCount,
+    double? liveNetWeight,
+    double? slaughteredGrossWeight,
+    double? slaughteredBasketWeight,
+    int? slaughteredBasketCount,
+    double? slaughteredNetWeight,
     double? netWeight,
     double? totalCost,
     int? supplierId,
@@ -60,9 +92,14 @@ class RawMeatProcessing extends Equatable {
     return RawMeatProcessing(
       id: id ?? this.id,
       batchNumber: batchNumber ?? this.batchNumber,
-      grossWeight: grossWeight ?? this.grossWeight,
-      basketWeight: basketWeight ?? this.basketWeight,
-      basketCount: basketCount ?? this.basketCount,
+      liveGrossWeight: liveGrossWeight ?? this.liveGrossWeight,
+      liveCrateWeight: liveCrateWeight ?? this.liveCrateWeight,
+      liveCrateCount: liveCrateCount ?? this.liveCrateCount,
+      liveNetWeight: liveNetWeight ?? this.liveNetWeight,
+      slaughteredGrossWeight: slaughteredGrossWeight ?? this.slaughteredGrossWeight,
+      slaughteredBasketWeight: slaughteredBasketWeight ?? this.slaughteredBasketWeight,
+      slaughteredBasketCount: slaughteredBasketCount ?? this.slaughteredBasketCount,
+      slaughteredNetWeight: slaughteredNetWeight ?? this.slaughteredNetWeight,
       netWeight: netWeight ?? this.netWeight,
       totalCost: totalCost ?? this.totalCost,
       supplierId: supplierId ?? this.supplierId,

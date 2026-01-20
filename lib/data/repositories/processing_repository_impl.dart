@@ -28,10 +28,15 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
       final id = await database.into(database.rawMeatProcessings).insert(
         db.RawMeatProcessingsCompanion.insert(
           batchNumber: processing.batchNumber,
-          grossWeight: processing.grossWeight,
-          basketWeight: processing.basketWeight,
-          basketCount: processing.basketCount,
-          netWeight: processing.netWeight,
+          liveGrossWeight: Value(processing.liveGrossWeight),
+          liveCrateWeight: Value(processing.liveCrateWeight),
+          liveCrateCount: Value(processing.liveCrateCount),
+          liveNetWeight: Value(processing.liveNetWeight),
+          slaughteredGrossWeight: Value(processing.slaughteredGrossWeight),
+          slaughteredBasketWeight: Value(processing.slaughteredBasketWeight),
+          slaughteredBasketCount: Value(processing.slaughteredBasketCount),
+          slaughteredNetWeight: Value(processing.slaughteredNetWeight),
+          netWeight: processing.netWeight, // Overall summary weight
           totalCost: Value(processing.totalCost),
           supplierId: Value(processing.supplierId),
           processingDate: processing.processingDate,
@@ -44,6 +49,7 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
       for (final output in outputs) {
         totalOutputQty += output.quantity;
       }
+      // Unit cost = total incoming cost / total useful output quantity
       final outputUnitCost = totalOutputQty > 0 ? (processing.totalCost / totalOutputQty) : 0.0;
 
       for (final output in outputs) {
@@ -51,6 +57,9 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
           db.ProcessingOutputsCompanion.insert(
             processingId: id,
             productId: output.productId,
+            grossWeight: Value(output.grossWeight),
+            basketWeight: Value(output.basketWeight),
+            basketCount: Value(output.basketCount),
             quantity: output.quantity,
             yieldPercentage: output.yieldPercentage,
           ),
@@ -60,9 +69,9 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
         await database.into(database.inventoryBatches).insert(
           db.InventoryBatchesCompanion.insert(
             productId: output.productId,
-            processingId: Value(id), // Link to processing
+            processingId: Value(id),
             quantity: output.quantity,
-            remainingQuantity: output.quantity, // New stock
+            remainingQuantity: output.quantity,
             unitCost: outputUnitCost,
             purchaseDate: processing.processingDate,
             batchNumber: Value('${processing.batchNumber}-${output.productId}'),
@@ -78,9 +87,14 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
     await database.transaction(() async {
       await (database.update(database.rawMeatProcessings)..where((t) => t.id.equals(processing.id!))).write(
         db.RawMeatProcessingsCompanion(
-          grossWeight: Value(processing.grossWeight),
-          basketWeight: Value(processing.basketWeight),
-          basketCount: Value(processing.basketCount),
+          liveGrossWeight: Value(processing.liveGrossWeight),
+          liveCrateWeight: Value(processing.liveCrateWeight),
+          liveCrateCount: Value(processing.liveCrateCount),
+          liveNetWeight: Value(processing.liveNetWeight),
+          slaughteredGrossWeight: Value(processing.slaughteredGrossWeight),
+          slaughteredBasketWeight: Value(processing.slaughteredBasketWeight),
+          slaughteredBasketCount: Value(processing.slaughteredBasketCount),
+          slaughteredNetWeight: Value(processing.slaughteredNetWeight),
           netWeight: Value(processing.netWeight),
           totalCost: Value(processing.totalCost),
           notes: Value(processing.notes),
@@ -88,10 +102,8 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
         ),
       );
 
-      // Delete old outputs and replace with new ones
+      // Delete old outputs and replace
       await (database.delete(database.processingOutputs)..where((t) => t.processingId.equals(processing.id!))).go();
-      
-      // Delete associated inventory batches to reset stock (Assumption: Not yet sold)
       await (database.delete(database.inventoryBatches)..where((t) => t.processingId.equals(processing.id!))).go();
 
       double totalOutputQty = 0;
@@ -105,12 +117,14 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
           db.ProcessingOutputsCompanion.insert(
             processingId: processing.id!,
             productId: output.productId,
+            grossWeight: Value(output.grossWeight),
+            basketWeight: Value(output.basketWeight),
+            basketCount: Value(output.basketCount),
             quantity: output.quantity,
             yieldPercentage: output.yieldPercentage,
           ),
         );
 
-        // Re-create Inventory Batch
         await database.into(database.inventoryBatches).insert(
           db.InventoryBatchesCompanion.insert(
             productId: output.productId,
@@ -142,9 +156,14 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
     return RawMeatProcessing(
       id: row.id,
       batchNumber: row.batchNumber,
-      grossWeight: row.grossWeight,
-      basketWeight: row.basketWeight,
-      basketCount: row.basketCount,
+      liveGrossWeight: row.liveGrossWeight,
+      liveCrateWeight: row.liveCrateWeight,
+      liveCrateCount: row.liveCrateCount,
+      liveNetWeight: row.liveNetWeight,
+      slaughteredGrossWeight: row.slaughteredGrossWeight,
+      slaughteredBasketWeight: row.slaughteredBasketWeight,
+      slaughteredBasketCount: row.slaughteredBasketCount,
+      slaughteredNetWeight: row.slaughteredNetWeight,
       netWeight: row.netWeight,
       totalCost: row.totalCost,
       supplierId: row.supplierId,
@@ -161,6 +180,9 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
       id: row.id,
       processingId: row.processingId,
       productId: row.productId,
+      grossWeight: row.grossWeight,
+      basketWeight: row.basketWeight,
+      basketCount: row.basketCount,
       quantity: row.quantity,
       yieldPercentage: row.yieldPercentage,
       createdAt: row.createdAt,
