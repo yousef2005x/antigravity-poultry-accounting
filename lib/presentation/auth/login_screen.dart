@@ -198,13 +198,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        // Forgot password or help
-                      },
-                      child: const Text('هل نسيت كلمة المرور؟'),
-                    ),
+
                   ],
                 ),
               ),

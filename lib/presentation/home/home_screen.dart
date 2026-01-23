@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poultry_accounting/core/providers/database_providers.dart';
 import 'package:poultry_accounting/presentation/admin/settings_screen.dart';
-import 'package:poultry_accounting/presentation/customers/customer_list_screen.dart';
+import 'package:poultry_accounting/presentation/customers/customer_management_screen.dart';
+import 'package:poultry_accounting/presentation/suppliers/supplier_management_screen.dart';
+import 'package:poultry_accounting/presentation/sales/sales_management_screen.dart';
 import 'package:poultry_accounting/presentation/expenses/expense_list_screen.dart';
 import 'package:poultry_accounting/presentation/inventory/stock_dashboard_screen.dart';
 import 'package:poultry_accounting/presentation/partnership/partnership_screen.dart';
@@ -14,14 +16,12 @@ import 'package:poultry_accounting/presentation/products/product_list_screen.dar
 import 'package:poultry_accounting/presentation/purchases/purchase_list_screen.dart';
 import 'package:poultry_accounting/presentation/pricing/daily_pricing_screen.dart';
 import 'package:poultry_accounting/presentation/pricing/live_chicken_pricing_screen.dart';
-import 'package:poultry_accounting/presentation/reports/customer_statement_screen.dart';
-import 'package:poultry_accounting/presentation/reports/supplier_statement_screen.dart';
 import 'package:poultry_accounting/presentation/reports/central_debt_register_screen.dart';
 import 'package:poultry_accounting/presentation/reports/reports_screen.dart';
-import 'package:poultry_accounting/presentation/sales/sales_invoice_list_screen.dart';
+
 import 'package:poultry_accounting/presentation/annual_returns/annual_inventories_screen.dart';
 import 'package:poultry_accounting/presentation/salaries/salary_list_screen.dart';
-import 'package:poultry_accounting/presentation/suppliers/supplier_list_screen.dart';
+
 import 'package:poultry_accounting/core/providers/auth_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -102,64 +102,50 @@ class HomeScreen extends ConsumerWidget {
                   _buildDrawerItem(Icons.dashboard, 'لوحة التحكم', () {
                     Navigator.pop(context);
                   }),
+                  const Divider(height: 8),
                   
-                  _buildExpansionTile(
-                    Icons.home, 
-                    'الرئيسية', 
-                    [
-                      _buildDrawerItem(Icons.analytics, 'التقارير التحليلية', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
-                      }),
-                    ],
-                  ),
+                  // العملاء
+                  _buildDrawerItem(Icons.people, 'العملاء', () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerManagementScreen()));
+                  }, color: Colors.blue),
 
-                  _buildExpansionTile(
-                    Icons.trending_up, 
-                    'المبيعات والعملاء', 
-                    [
-                      _buildDrawerItem(Icons.people, 'العملاء', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerListScreen()));
-                      }),
-                      _buildDrawerItem(Icons.contact_page, 'كشف حساب عميل', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerStatementScreen()));
-                      }),
-                      _buildDrawerItem(Icons.description, 'الفواتير (المبيعات)', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesInvoiceListScreen()));
-                      }),
-                      _buildDrawerItem(Icons.payments, 'المدفوعات', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentListScreen()));
-                      }),
-                      _buildDrawerItem(Icons.price_check, 'تسعيرة الأصناف', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyPricingScreen()));
-                      }),
-                    ],
-                  ),
+                  // الموردين
+                  _buildDrawerItem(Icons.business, 'الموردين', () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierManagementScreen()));
+                  }, color: Colors.orange),
 
+                  // المبيعات والتحصيل
+                  _buildDrawerItem(Icons.point_of_sale, 'المبيعات والتحصيل', () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesManagementScreen()));
+                  }, color: Colors.green),
+
+                  const Divider(height: 8),
+
+                  // المخزون والواردات
                   _buildExpansionTile(
                     Icons.inventory_2, 
-                    'المخزون والمشتريات', 
+                    'المخزون والواردات', 
                     [
-                      _buildDrawerItem(Icons.shopping_bag, 'الأصناف (المنتجات)', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductListScreen()));
-                      }),
-                      _buildDrawerItem(Icons.inventory, 'المخزون', () {
+                      _buildDrawerItem(Icons.inventory, 'لوحة المخزون', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const StockDashboardScreen()));
+                      }),
+                      _buildDrawerItem(Icons.shopping_bag, 'المنتجات', () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductListScreen()));
                       }),
                       _buildDrawerItem(Icons.shopping_cart, 'الواردات', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const PurchaseListScreen()));
                       }),
-                      _buildDrawerItem(Icons.local_shipping, 'الموردين', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierListScreen()));
-                      }),
-                      _buildDrawerItem(Icons.contact_mail, 'كشف حساب مورد', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierStatementScreen()));
+                      _buildDrawerItem(Icons.price_check, 'التسعير اليومي', () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyPricingScreen()));
                       }),
                     ],
+                    iconColor: Colors.purple,
                   ),
 
+                  // المصروفات المالية
                   _buildExpansionTile(
                     Icons.account_balance_wallet, 
-                    'المالية', 
+                    'المصروفات المالية', 
                     [
                       _buildDrawerItem(Icons.money_off, 'المصروفات التشغيلية', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseListScreen()));
@@ -167,32 +153,47 @@ class HomeScreen extends ConsumerWidget {
                       _buildDrawerItem(Icons.badge, 'الرواتب والأجور', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const SalaryListScreen()));
                       }),
-                      _buildDrawerItem(Icons.event_repeat, 'الجرد السنوي', () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnualInventoriesScreen()));
+                    ],
+                    iconColor: Colors.red.shade700,
+                  ),
+
+                  // التقارير والمالية
+                  _buildExpansionTile(
+                    Icons.analytics, 
+                    'التقارير والمالية', 
+                    [
+                      _buildDrawerItem(Icons.bar_chart, 'التقارير التحليلية', () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
                       }),
                       _buildDrawerItem(Icons.account_balance, 'سجل الديون الموحد', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const CentralDebtRegisterScreen()));
+                      }),
+                      _buildDrawerItem(Icons.event_repeat, 'الجرد السنوي', () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnualInventoriesScreen()));
                       }),
                       _buildDrawerItem(Icons.handshake, 'أرباح الشركاء', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const PartnershipScreen()));
                       }),
                     ],
+                    iconColor: Colors.teal,
                   ),
 
+                  // الإدارة والنظام
                   _buildExpansionTile(
-                    Icons.settings_suggest, 
+                    Icons.settings, 
                     'الإدارة والنظام', 
                     [
-                      _buildDrawerItem(Icons.calculate, 'تجهيز الخام (الوزن والنسب)', () {
+                      _buildDrawerItem(Icons.calculate, 'تجهيز الخام', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const RawMeatProcessingScreen()));
                       }),
-                      _buildDrawerItem(Icons.cut, 'تحويل المخزون (التقطيع)', () {
+                      _buildDrawerItem(Icons.cut, 'تحويل المخزون', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const StockConversionScreen()));
                       }),
-                      _buildDrawerItem(Icons.settings, 'الإعدادات والنسخ الاحتياطي', () {
+                      _buildDrawerItem(Icons.settings_applications, 'الإعدادات', () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
                       }),
                     ],
+                    iconColor: Colors.grey.shade700,
                   ),
                 ],
               ),
@@ -305,7 +306,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesInvoiceListScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesManagementScreen()));
         },
         backgroundColor: Colors.green,
         icon: const Icon(Icons.add),
@@ -314,11 +315,12 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildExpansionTile(IconData icon, String title, List<Widget> children) {
+  Widget _buildExpansionTile(IconData icon, String title, List<Widget> children, {Color? iconColor}) {
+    final color = iconColor ?? Colors.green.shade800;
     return Theme(
       data: ThemeData().copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
-        leading: Icon(icon, color: Colors.green.shade800),
+        leading: Icon(icon, color: color),
         title: Text(
           title,
           style: const TextStyle(
@@ -327,7 +329,7 @@ class HomeScreen extends ConsumerWidget {
             color: Colors.black87,
           ),
         ),
-        iconColor: Colors.green,
+        iconColor: color,
         childrenPadding: const EdgeInsets.only(right: 12),
         children: children,
       ),
