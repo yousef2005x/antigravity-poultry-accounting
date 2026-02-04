@@ -205,6 +205,23 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
               ),
             ],
           ),
+          // Bug 2.1 Fix: Allow clearing dates for "All Time" report
+          if (_fromDate != null || _toDate != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _fromDate = null;
+                    _toDate = null;
+                  });
+                  unawaited(_fetchStatement());
+                },
+                icon: const Icon(Icons.clear_all, size: 18),
+                label: const Text('عرض كل الفترات'),
+                style: TextButton.styleFrom(foregroundColor: Colors.grey),
+              ),
+            ),
         ],
       ),
     );

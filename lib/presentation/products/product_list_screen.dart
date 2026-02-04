@@ -29,25 +29,107 @@ class ProductListScreen extends ConsumerWidget {
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
               final product = products[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.green.shade50,
-                  child: const Icon(Icons.egg, color: Colors.green),
+              return Dismissible(
+                key: Key('product_${product.id}'),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 16),
+                  child: const Icon(Icons.delete, color: Colors.white),
                 ),
-                title: Text(
-                  product.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text('الوحدة: ${product.unitType.name} | السعر الافتراضي: ${product.defaultPrice} ₪'),
-                trailing: const Icon(Icons.edit, size: 20),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ProductFormScreen(product: product),
+                confirmDismiss: (direction) async {
+                  return await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('تأكيد الحذف'),
+                      content: Text('هل أنت متأكد من حذف "${product.name}"؟'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('إلغاء'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: TextButton.styleFrom(foregroundColor: Colors.red),
+                          child: const Text('حذف'),
+                        ),
+                      ],
                     ),
-                  );
+                  ) ?? false;
                 },
+                onDismissed: (direction) async {
+                  try {
+                    await ref.read(productRepositoryProvider).deleteProduct(product.id!);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('تم حذف "${product.name}"')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('خطأ في الحذف: $e'), backgroundColor: Colors.red),
+                    );
+                  }
+                },
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.green.shade50,
+                    child: const Icon(Icons.egg, color: Colors.green),
+                  ),
+                  title: Text(
+                    product.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text('الوحدة: ${product.unitType.name} | السعر الافتراضي: ${product.defaultPrice} ₪'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('تأكيد الحذف'),
+                              content: Text('هل أنت متأكد من حذف "${product.name}"؟'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: const Text('إلغاء'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                  child: const Text('حذف'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm == true) {
+                            try {
+                              await ref.read(productRepositoryProvider).deleteProduct(product.id!);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('تم حذف "${product.name}"')),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('خطأ في الحذف: $e'), backgroundColor: Colors.red),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                      const Icon(Icons.edit, size: 20),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductFormScreen(product: product),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           );

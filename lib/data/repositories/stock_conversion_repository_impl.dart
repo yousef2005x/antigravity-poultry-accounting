@@ -96,6 +96,9 @@ class StockConversionRepositoryImpl implements StockConversionRepository {
       final List<StockConversionItem> processedItems = [];
 
       // 3. Add Items & Create New Batches
+      // Bug 6 Note: Cost is allocated by weight (simple but not accurate for products of different value).
+      // A more accurate approach would use value-based ratios (e.g., Breast = 3x, Bones = 0.2x).
+      // TODO: Consider adding costRatio field to StockConversionItem for weighted value allocation.
       for (final item in items) {
         double assignedCost = 0;
         if (totalOutputWeight > 0) {

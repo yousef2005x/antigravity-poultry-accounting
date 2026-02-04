@@ -74,7 +74,7 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
           paidAmount: Value(invoice.paidAmount),
           additionalCosts: Value(invoice.additionalCosts),
           notes: Value(invoice.notes),
-          createdBy: 1,
+          createdBy: 1, // TODO Bug 8: Replace with actual user ID from AuthProvider
         ),
       );
 

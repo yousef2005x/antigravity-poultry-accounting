@@ -31,6 +31,9 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
   // Customer Transfer
   Customer? _selectedCustomer;
   bool _isTransferring = false;
+  
+  // Add to Inventory Option (Bug 4 Fix)
+  bool _addToInventory = false;
 
   @override
   void dispose() {
@@ -209,6 +212,16 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
             _summaryRow('الفاقد (هدر/عظم):', '${_processingLoss.toStringAsFixed(2)} كغ', 
               color: _processingLoss > (_totalSourceQuantity * 0.3) ? Colors.red : Colors.orange,
             ), // Warn if > 30% loss
+            const Divider(),
+            // Bug 4 Fix: Add to Inventory option
+            CheckboxListTile(
+              value: _addToInventory,
+              onChanged: _isTransferring ? null : (val) => setState(() => _addToInventory = val ?? false),
+              title: const Text('إضافة النواتج للمخزون', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('سيتم إضافة الأصناف المُقطّعة للمخزون للبيع لاحقاً'),
+              secondary: const Icon(Icons.inventory_2),
+              contentPadding: EdgeInsets.zero,
+            ),
           ],
         ),
       ),
@@ -353,13 +366,28 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Bug 7.1 Fix: Check stock availability before conversion
+      final availableStock = await ref.read(productRepositoryProvider).getCurrentStock(_sourceProduct!.id!);
+      if (availableStock < _totalSourceQuantity) {
+        setState(() => _isLoading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('لا يوجد مخزون كافي. المتوفر: ${availableStock.toStringAsFixed(2)} كغ'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
       // 1. Perform Conversion
       final conversion = StockConversion(
         conversionDate: DateTime.now(),
         sourceProductId: _sourceProduct!.id!,
         sourceQuantity: _totalSourceQuantity,
         notes: _notesController.text,
-        createdBy: 1,
+        createdBy: 1, // TODO Bug 8: Replace with actual user ID from AuthProvider
       );
 
       // forceInventory: false ensures ONLY intermediate (Whole Chicken) goes to stock
@@ -439,19 +467,34 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // Bug 7.1 Fix: Check stock availability before conversion
+      final availableStock = await ref.read(productRepositoryProvider).getCurrentStock(_sourceProduct!.id!);
+      if (availableStock < _totalSourceQuantity) {
+        setState(() => _isLoading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('لا يوجد مخزون كافي. المتوفر: ${availableStock.toStringAsFixed(2)} كغ'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
       final conversion = StockConversion(
         conversionDate: DateTime.now(),
         sourceProductId: _sourceProduct!.id!,
         sourceQuantity: _totalSourceQuantity,
         notes: _notesController.text,
-        createdBy: 1, // Default admin
+        createdBy: 1, // TODO Bug 8: Replace with actual user ID from AuthProvider
       );
 
-      // forceInventory: false enforces the "Only Whole Chicken in stock" rule
+      // Bug 4 Fix: Use _addToInventory to allow user control over stock entry
       await ref.read(stockConversionRepositoryProvider).convertStock(
         conversion: conversion,
         items: _outputs,
-        forceInventory: false,
+        forceInventory: _addToInventory,
       );
 
       if (mounted) {

@@ -57,6 +57,7 @@ dev_dependencies:
   custom_lint: ^0.5.11
   riverpod_lint: ^2.3.0
   flutter_lints: ^3.0.0
+  msix: ^3.16.13
 
 flutter:
   uses-material-design: true
@@ -71,3 +72,13 @@ flutter:
   #   - family: Cairo
   #     fonts:
   #       - asset: assets/fonts/Cairo-Regular.ttf
+
+msix_config:
+  display_name: Poultry Accounting
+  publisher_display_name: Yousef Accounting Solutions
+  publisher: CN=YousefAccountingSolutions, O=YousefAccountingSolutions, L=Gaza, S=Gaza, C=PS
+  identity_name: com.yousef.poultryaccounting
+  msix_version: 1.0.0.0
+  # logo_path: assets/images/logo.png
+  install_certificate: false
+  capabilities: internetClient, location, microphone, webcam

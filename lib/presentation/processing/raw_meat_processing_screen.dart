@@ -24,6 +24,12 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
   int _currentStep = 0;
   bool _isLoading = false;
   Supplier? _selectedSupplier;
+  
+  // Bug 5 Fix: Option to skip auto-purchase
+  bool _skipAutoPurchase = false;
+  
+  // Bug 7 Fix: Store supplier future in state to avoid rebuilds
+  late Future<List<Supplier>> _suppliersFuture;
 
   // Stage 1: Live
   final _liveGrossController = TextEditingController(text: '0');
@@ -40,6 +46,13 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
   // Stage 3: Sorted Outputs
   final List<ProcessingOutput> _outputs = [];
   final _notesController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Bug 7 Fix: Initialize supplier future once in initState
+    _suppliersFuture = ref.read(supplierRepositoryProvider).getAllSuppliers();
+  }
 
   @override
   void dispose() {
@@ -174,21 +187,38 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8),
-        child: FutureBuilder<List<Supplier>>(
-          future: ref.read(supplierRepositoryProvider).getAllSuppliers(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const LinearProgressIndicator();
-            return DropdownButtonFormField<Supplier>(
-              value: _selectedSupplier,
-              decoration: const InputDecoration(
-                labelText: 'اختر المورد (سيتم إنشاء فاتورة شراء تلقائية)',
-                prefixIcon: Icon(Icons.local_shipping),
-                border: InputBorder.none,
-              ),
-              items: snapshot.data!.map((s) => DropdownMenuItem(value: s, child: Text(s.name))).toList(),
-              onChanged: (val) => setState(() => _selectedSupplier = val),
-            );
-          },
+        child: Column(
+          children: [
+            FutureBuilder<List<Supplier>>(
+              // Bug 7 Fix: Use cached future
+              future: _suppliersFuture,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const LinearProgressIndicator();
+                return DropdownButtonFormField<Supplier>(
+                  value: _selectedSupplier,
+                  decoration: const InputDecoration(
+                    labelText: 'اختر المورد',
+                    prefixIcon: Icon(Icons.local_shipping),
+                    border: InputBorder.none,
+                  ),
+                  items: snapshot.data!.map((s) => DropdownMenuItem(value: s, child: Text(s.name))).toList(),
+                  onChanged: _skipAutoPurchase ? null : (val) => setState(() => _selectedSupplier = val),
+                );
+              },
+            ),
+            // Bug 5 Fix: Option to skip auto-purchase
+            CheckboxListTile(
+              value: _skipAutoPurchase,
+              onChanged: (val) => setState(() {
+                _skipAutoPurchase = val ?? false;
+                if (_skipAutoPurchase) _selectedSupplier = null;
+              }),
+              title: const Text('تخطي إنشاء فاتورة شراء', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('لن يتم إنشاء فاتورة شراء تلقائية (للتجهيز من مخزون موجود)'),
+              secondary: const Icon(Icons.receipt_long),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ],
         ),
       ),
     );
@@ -372,13 +402,14 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
         totalCost: _totalCost,
         operationalExpenses: _operationalExpenses,
         processingDate: DateTime.now(),
-        createdBy: 1,
+        createdBy: 1, // TODO Bug 8: Replace with actual user ID from AuthProvider
         notes: _notesController.text,
       );
 
       final id = await repo.createProcessing(processing, _outputs);
 
-      if (_selectedSupplier != null) {
+      // Bug 5 Fix: Only create auto-purchase if not skipped and supplier selected
+      if (!_skipAutoPurchase && _selectedSupplier != null) {
         await _createAutomaticPurchase(id, processing.batchNumber);
       }
 

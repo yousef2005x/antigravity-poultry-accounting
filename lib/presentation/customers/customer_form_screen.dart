@@ -98,6 +98,18 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 controller: _phoneController,
                 decoration: const InputDecoration(labelText: 'رقم الهاتف', border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
+                maxLength: 15,
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return null; // Phone is optional
+                  }
+                  // Remove spaces and dashes for validation
+                  final cleaned = val.replaceAll(RegExp(r'[\s\-]'), '');
+                  if (!RegExp(r'^\d{7,15}$').hasMatch(cleaned)) {
+                    return 'رقم الهاتف يجب أن يكون بين 7-15 رقم';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               TextFormField(

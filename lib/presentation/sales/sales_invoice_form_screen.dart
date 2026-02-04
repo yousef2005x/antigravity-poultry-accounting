@@ -363,12 +363,15 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
       return;
     }
 
+    // Bug 3.1 & 3.2 Fix: Auto-confirm if fully paid
+    final isFullyPaid = _paidAmount >= _total;
+    
     final invoice = Invoice(
       id: widget.invoice?.id,
       invoiceNumber: _invoiceNumber,
       customerId: _selectedCustomer!.id!,
       invoiceDate: DateTime.now(),
-      status: InvoiceStatus.draft, // Default to draft, can be confirmed late
+      status: isFullyPaid ? InvoiceStatus.confirmed : InvoiceStatus.draft,
       items: _items,
       discount: _discount,
       tax: _tax,
@@ -379,9 +382,20 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
     try {
       final repo = ref.read(invoiceRepositoryProvider);
       if (widget.invoice == null) {
-        await repo.createInvoice(invoice);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ الفاتورة (مسودة)')));
+        final invoiceId = await repo.createInvoice(invoice);
+        
+        // Bug 3.1 Fix: If fully paid, confirm to deduct stock
+        if (isFullyPaid) {
+          await repo.confirmInvoice(invoiceId, 1); // TODO: Use actual user ID
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('تم حفظ الفاتورة (مؤكدة - تم خصم المخزون)')),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ الفاتورة (مسودة)')));
+          }
         }
       } else {
         await repo.updateInvoice(invoice);

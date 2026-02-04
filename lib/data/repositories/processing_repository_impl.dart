@@ -92,6 +92,16 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
 
   @override
   Future<void> updateProcessing(RawMeatProcessing processing, List<ProcessingOutput> outputs) async {
+    // Check if any inventory has been sold from batches linked to this processing
+    final batches = await (database.select(database.inventoryBatches)
+      ..where((t) => t.processingId.equals(processing.id!))).get();
+
+    for (final batch in batches) {
+      if (batch.remainingQuantity < batch.quantity) {
+        throw Exception('لا يمكن تعديل دفعة التجهيز لأن هناك مبيعات تمت من المخزون المرتبط بها. الكمية المباعة: ${batch.quantity - batch.remainingQuantity} كغ');
+      }
+    }
+
     await database.transaction(() async {
       await (database.update(database.rawMeatProcessings)..where((t) => t.id.equals(processing.id!))).write(
         db.RawMeatProcessingsCompanion(
@@ -111,7 +121,7 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
         ),
       );
 
-      // Delete old outputs and replace
+      // Delete old outputs and replace (safe since we verified no sales)
       await (database.delete(database.processingOutputs)..where((t) => t.processingId.equals(processing.id!))).go();
       await (database.delete(database.inventoryBatches)..where((t) => t.processingId.equals(processing.id!))).go();
 

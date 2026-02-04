@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poultry_accounting/core/providers/database_providers.dart';
+import 'package:poultry_accounting/core/constants/app_constants.dart';
 import 'package:poultry_accounting/domain/entities/product.dart';
 
 class StockDashboardScreen extends ConsumerWidget {

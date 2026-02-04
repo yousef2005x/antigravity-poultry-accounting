@@ -263,11 +263,37 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
 
   @override
   Future<void> cancelInvoice(int invoiceId, int userId) async {
-    await (database.update(database.salesInvoices)..where((t) => t.id.equals(invoiceId))).write(
-      db.SalesInvoicesCompanion(
-        status: Value(InvoiceStatus.cancelled.code),
-      ),
-    );
+    await database.transaction(() async {
+      // 1. Get invoice to check if it was confirmed
+      final invoice = await getInvoiceById(invoiceId);
+      if (invoice == null) {
+        return;
+      }
+
+      // 2. Only restore inventory if invoice was confirmed (stock was deducted)
+      if (invoice.status == InvoiceStatus.confirmed) {
+        for (final item in invoice.items) {
+          // Create a restocked batch for each item
+          await database.into(database.inventoryBatches).insert(
+            db.InventoryBatchesCompanion.insert(
+              productId: item.productId,
+              quantity: item.quantity,
+              remainingQuantity: item.quantity,
+              unitCost: item.costAtSale,
+              purchaseDate: DateTime.now(),
+              batchNumber: Value('RESTOCK-INV-$invoiceId-${item.productId}'),
+            ),
+          );
+        }
+      }
+
+      // 3. Update invoice status to cancelled
+      await (database.update(database.salesInvoices)..where((t) => t.id.equals(invoiceId))).write(
+        db.SalesInvoicesCompanion(
+          status: Value(InvoiceStatus.cancelled.code),
+        ),
+      );
+    });
   }
 
   @override
@@ -307,10 +333,33 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
 
   @override
   Future<double> getTotalProfit({DateTime? fromDate, DateTime? toDate}) async {
-    // Basic implementation, in real app would involve COGS
     final totalRevenue = await getTotalRevenue(fromDate: fromDate, toDate: toDate);
-    // Rough estimate or detailed subquery needed for real profit
-    return totalRevenue * 0.1; // Placeholder
+    
+    // Calculate real COGS: sum of (costAtSale * quantity) for all confirmed invoices
+    final query = database.select(database.salesInvoiceItems).join([
+      innerJoin(
+        database.salesInvoices,
+        database.salesInvoices.id.equalsExp(database.salesInvoiceItems.invoiceId),
+      ),
+    ]);
+    
+    query.where(database.salesInvoices.status.equals(InvoiceStatus.confirmed.code));
+    
+    if (fromDate != null) {
+      query.where(database.salesInvoices.invoiceDate.isBiggerOrEqualValue(fromDate));
+    }
+    if (toDate != null) {
+      query.where(database.salesInvoices.invoiceDate.isSmallerOrEqualValue(toDate));
+    }
+    
+    final items = await query.get();
+    double totalCogs = 0;
+    for (final row in items) {
+      final item = row.readTable(database.salesInvoiceItems);
+      totalCogs += item.costAtSale * item.quantity;
+    }
+    
+    return totalRevenue - totalCogs;
   }
 
   @override
