@@ -153,6 +153,11 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
           ),
         );
       }
+      
+      if (invoice.paidAmount > 0) {
+        await _syncPaymentForInvoice(id, invoice.paidAmount, invoice.customerId, invoice.invoiceDate);
+      }
+
       return id;
     });
   }
@@ -192,6 +197,10 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
             total: item.total,
           ),
         );
+      }
+
+      if (invoice.paidAmount > 0) {
+        await _syncPaymentForInvoice(invoice.id!, invoice.paidAmount, invoice.customerId, invoice.invoiceDate);
       }
     });
   }
@@ -390,6 +399,73 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         paidAmount: Value(invoice.paidAmount + amount),
       ),
     );
+
+    await _syncPaymentForInvoice(invoiceId, invoice.paidAmount + amount, invoice.customerId, DateTime.now());
+  }
+
+  Future<void> _syncPaymentForInvoice(int invoiceId, double paidAmount, int customerId, DateTime date) async {
+    // 1. Check if a payment record already exists for this invoice
+    final existing = await (database.select(database.payments)..where((t) => t.invoiceId.equals(invoiceId))).getSingleOrNull();
+
+    if (paidAmount <= 0) {
+      if (existing != null) {
+        // If paidAmount was reset to 0, delete the payment
+        await (database.delete(database.payments)..where((t) => t.id.equals(existing.id))).go();
+        // Also delete from cash transactions
+        await (database.delete(database.cashTransactions)..where((t) => t.relatedPaymentId.equals(existing.id))).go();
+      }
+      return;
+    }
+
+    if (existing != null) {
+      // Update existing payment
+      await (database.update(database.payments)..where((t) => t.id.equals(existing.id))).write(
+        db.PaymentsCompanion(
+          amount: Value(paidAmount),
+          paymentDate: Value(date),
+        ),
+      );
+      // Synchronize cash transaction if needed
+      await (database.update(database.cashTransactions)..where((t) => t.relatedPaymentId.equals(existing.id))).write(
+        db.CashTransactionsCompanion(
+          amount: Value(paidAmount),
+          transactionDate: Value(date),
+        ),
+      );
+    } else {
+      // Create new payment
+      final prefix = 'REC-INV';
+      final query = database.select(database.payments)..orderBy([(t) => OrderingTerm(expression: t.id, mode: OrderingMode.desc)])..limit(1);
+      final last = await query.getSingleOrNull();
+      final nextId = (last?.id ?? 0) + 1;
+      final paymentNumber = '$prefix-${nextId.toString().padLeft(5, '0')}';
+
+      final id = await database.into(database.payments).insert(
+        db.PaymentsCompanion.insert(
+          paymentNumber: paymentNumber,
+          type: 'receipt',
+          amount: paidAmount,
+          method: PaymentMethod.cash.code, // Default to cash for invoice payments
+          paymentDate: date,
+          customerId: Value(customerId),
+          invoiceId: Value(invoiceId),
+          notes: Value('دفعة مقدمة للفاتورة رقم $invoiceId'),
+          createdBy: 1,
+        ),
+      );
+
+      // Create cash transaction
+      await database.into(database.cashTransactions).insert(
+        db.CashTransactionsCompanion.insert(
+          amount: paidAmount,
+          type: 'in',
+          description: 'دفعة مقدمة للفاتورة رقم $invoiceId',
+          transactionDate: date,
+          relatedPaymentId: Value(id),
+          createdBy: 1,
+        ),
+      );
+    }
   }
 
   Customer _mapToCustomerEntity(db.CustomerTable row) {

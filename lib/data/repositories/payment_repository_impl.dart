@@ -294,6 +294,8 @@ class PaymentRepositoryImpl implements PaymentRepository {
       customer: customer,
       supplierId: row.supplierId,
       supplier: supplier,
+      invoiceId: row.invoiceId,
+      purchaseInvoiceId: row.purchaseInvoiceId,
       amount: row.amount,
       method: PaymentMethod.fromCode(row.method),
       paymentDate: row.paymentDate,

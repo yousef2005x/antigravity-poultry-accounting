@@ -354,7 +354,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
     );
   }
 
-  Future<void> _save() async {
+  Future<void> _save({InvoiceStatus? status}) async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -363,15 +363,17 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
       return;
     }
 
-    // Bug 3.1 & 3.2 Fix: Auto-confirm if fully paid
+    setState(() => _isSaving = true);
+
     final isFullyPaid = _paidAmount >= _total;
+    final finalStatus = status ?? (isFullyPaid ? InvoiceStatus.confirmed : InvoiceStatus.draft);
     
     final invoice = Invoice(
       id: widget.invoice?.id,
       invoiceNumber: _invoiceNumber,
       customerId: _selectedCustomer!.id!,
       invoiceDate: DateTime.now(),
-      status: isFullyPaid ? InvoiceStatus.confirmed : InvoiceStatus.draft,
+      status: finalStatus,
       items: _items,
       discount: _discount,
       tax: _tax,
@@ -384,8 +386,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
       if (widget.invoice == null) {
         final invoiceId = await repo.createInvoice(invoice);
         
-        // Bug 3.1 Fix: If fully paid, confirm to deduct stock
-        if (isFullyPaid) {
+        if (finalStatus == InvoiceStatus.confirmed) {
           await repo.confirmInvoice(invoiceId, 1); // TODO: Use actual user ID
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -399,8 +400,16 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
         }
       } else {
         await repo.updateInvoice(invoice);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الفاتورة')));
+        // If it was draft and now we are confirming
+        if (widget.invoice!.status == InvoiceStatus.draft && finalStatus == InvoiceStatus.confirmed) {
+           await repo.confirmInvoice(widget.invoice!.id!, 1); // TODO: Use actual user ID
+           if (mounted) {
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث وتأكيد الفاتورة وخصم المخزون')));
+           }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الفاتورة')));
+          }
         }
       }
       if (mounted) {
@@ -410,6 +419,90 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ: $e')));
       }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
-}
+
+  bool _isSaving = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isConfirmed = widget.invoice?.status == InvoiceStatus.confirmed;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.invoice == null ? 'فاتورة مبيعات جديدة' : 'تعديل فاتورة مبيعات'),
+        actions: [
+          if (!isConfirmed)
+            IconButton(
+              icon: const Icon(Icons.check_circle_outline, color: Colors.green),
+              tooltip: 'حفظ وتأكيد (خصم مخزون)',
+              onPressed: () => _save(status: InvoiceStatus.confirmed),
+            ),
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () => _save(),
+          ),
+        ],
+      ),
+      body: _isSaving 
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isConfirmed)
+                    const Card(
+                      color: Colors.amber,
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Icon(Icons.lock),
+                            SizedBox(width: 8),
+                            Text('هذه الفاتورة مؤكدة وتم خصمها من المخزون. التعديل محدود.', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  _buildHeader(),
+                  const Divider(height: 32),
+                  _buildItemsList(),
+                  const Divider(height: 32),
+                  _buildTotalsSection(),
+                  const SizedBox(height: 32),
+                  if (!isConfirmed)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _save,
+                        icon: const Icon(Icons.save),
+                        label: const Text('حفظ كمسودة (لا يخصم مخزون)'),
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  if (!isConfirmed)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _save(status: InvoiceStatus.confirmed),
+                        icon: const Icon(Icons.check_circle),
+                        label: const Text('حفظ وتأكيد (يخصم من المخزون)'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+    );
+  }

@@ -13,6 +13,8 @@ class Payment {
     this.customer,
     this.supplierId,
     this.supplier,
+    this.invoiceId,
+    this.purchaseInvoiceId,
     this.referenceNumber,
     this.notes,
     this.createdBy,
@@ -29,6 +31,8 @@ class Payment {
   final Customer? customer;
   final int? supplierId;
   final Supplier? supplier;
+  final int? invoiceId;
+  final int? purchaseInvoiceId;
   final double amount;
   final PaymentMethod method;
   final DateTime paymentDate;

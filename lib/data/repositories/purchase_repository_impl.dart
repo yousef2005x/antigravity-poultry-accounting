@@ -15,20 +15,32 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
     DateTime? fromDate,
     DateTime? toDate,
   }) async {
-    final query = database.select(database.purchaseInvoices);
+    final query = database.select(database.purchaseInvoices).join([
+      leftOuterJoin(database.suppliers, database.suppliers.id.equalsExp(database.purchaseInvoices.supplierId)),
+    ]);
+    
     if (status != null) {
-      query.where((t) => t.status.equals(status.toString()));
+      query.where(database.purchaseInvoices.status.equals(status.name));
     }
     if (supplierId != null) {
-      query.where((t) => t.supplierId.equals(supplierId));
+      query.where(database.purchaseInvoices.supplierId.equals(supplierId));
+    }
+    if (fromDate != null) {
+      query.where(database.purchaseInvoices.invoiceDate.isBiggerOrEqualValue(fromDate));
+    }
+    if (toDate != null) {
+      query.where(database.purchaseInvoices.invoiceDate.isSmallerOrEqualValue(toDate));
     }
     
-    final rows = await query.get();
+    final results = await query.get();
     final List<domain.PurchaseInvoice> invoices = [];
     
-    for (final row in rows) {
-      final items = await _getItemsForInvoice(row.id);
-      invoices.add(_mapToEntity(row, items));
+    for (final row in results) {
+      final invoiceRow = row.readTable(database.purchaseInvoices);
+      final supplierRow = row.readTableOrNull(database.suppliers);
+      
+      final items = await _getItemsForInvoice(invoiceRow.id);
+      invoices.add(_mapToEntity(invoiceRow, items, supplier: supplierRow != null ? _mapToSupplierEntity(supplierRow) : null));
     }
     
     return invoices;
@@ -36,11 +48,18 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
 
   @override
   Stream<List<domain.PurchaseInvoice>> watchAllPurchaseInvoices() {
-    return database.select(database.purchaseInvoices).watch().asyncMap((rows) async {
+    final query = database.select(database.purchaseInvoices).join([
+      leftOuterJoin(database.suppliers, database.suppliers.id.equalsExp(database.purchaseInvoices.supplierId)),
+    ]);
+
+    return query.watch().asyncMap((results) async {
       final List<domain.PurchaseInvoice> invoices = [];
-      for (final row in rows) {
-        final items = await _getItemsForInvoice(row.id);
-        invoices.add(_mapToEntity(row, items));
+      for (final row in results) {
+        final invoiceRow = row.readTable(database.purchaseInvoices);
+        final supplierRow = row.readTableOrNull(database.suppliers);
+
+        final items = await _getItemsForInvoice(invoiceRow.id);
+        invoices.add(_mapToEntity(invoiceRow, items, supplier: supplierRow != null ? _mapToSupplierEntity(supplierRow) : null));
       }
       return invoices;
     });
@@ -48,14 +67,20 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
 
   @override
   Future<domain.PurchaseInvoice?> getPurchaseInvoiceById(int id) async {
-    final query = database.select(database.purchaseInvoices)..where((t) => t.id.equals(id));
+    final query = database.select(database.purchaseInvoices).join([
+      leftOuterJoin(database.suppliers, database.suppliers.id.equalsExp(database.purchaseInvoices.supplierId)),
+    ])..where(database.purchaseInvoices.id.equals(id));
+    
     final row = await query.getSingleOrNull();
     if (row == null) {
       return null;
     }
     
-    final items = await _getItemsForInvoice(row.id);
-    return _mapToEntity(row, items);
+    final invoiceRow = row.readTable(database.purchaseInvoices);
+    final supplierRow = row.readTableOrNull(database.suppliers);
+    
+    final items = await _getItemsForInvoice(invoiceRow.id);
+    return _mapToEntity(invoiceRow, items, supplier: supplierRow != null ? _mapToSupplierEntity(supplierRow) : null);
   }
 
   @override
@@ -88,6 +113,10 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
             total: item.calculatedTotal,
           ),
         );
+      }
+      
+      if (invoice.paidAmount > 0) {
+        await _syncPaymentForPurchaseInvoice(id, invoice.paidAmount, invoice.supplierId, invoice.invoiceDate);
       }
       
       return id;
@@ -125,6 +154,10 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
             total: item.calculatedTotal,
           ),
         );
+      }
+
+      if (invoice.paidAmount > 0) {
+        await _syncPaymentForPurchaseInvoice(invoice.id!, invoice.paidAmount, invoice.supplierId, invoice.invoiceDate);
       }
     });
   }
@@ -207,11 +240,12 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
     return items;
   }
 
-  domain.PurchaseInvoice _mapToEntity(db.PurchaseInvoiceTable row, List<domain.PurchaseInvoiceItem> items) {
+  domain.PurchaseInvoice _mapToEntity(db.PurchaseInvoiceTable row, List<domain.PurchaseInvoiceItem> items, {domain.Supplier? supplier}) {
     return domain.PurchaseInvoice(
       id: row.id,
       invoiceNumber: row.invoiceNumber,
       supplierId: row.supplierId,
+      supplier: supplier,
       invoiceDate: row.invoiceDate,
       status: InvoiceStatus.values.firstWhere(
         (e) => e.name == row.status,
@@ -230,5 +264,75 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
       updatedAt: row.updatedAt,
       deletedAt: row.deletedAt,
     );
+  }
+
+  domain.Supplier _mapToSupplierEntity(db.SupplierTable row) {
+    return domain.Supplier(
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      address: row.address,
+      notes: row.notes,
+      isActive: row.isActive,
+      createdAt: row.createdAt,
+    );
+  }
+
+  Future<void> _syncPaymentForPurchaseInvoice(int invoiceId, double paidAmount, int supplierId, DateTime date) async {
+    final existing = await (database.select(database.payments)..where((t) => t.purchaseInvoiceId.equals(invoiceId))).getSingleOrNull();
+
+    if (paidAmount <= 0) {
+      if (existing != null) {
+        await (database.delete(database.payments)..where((t) => t.id.equals(existing.id))).go();
+        await (database.delete(database.cashTransactions)..where((t) => t.relatedPaymentId.equals(existing.id))).go();
+      }
+      return;
+    }
+
+    if (existing != null) {
+      await (database.update(database.payments)..where((t) => t.id.equals(existing.id))).write(
+        db.PaymentsCompanion(
+          amount: Value(paidAmount),
+          paymentDate: Value(date),
+        ),
+      );
+      await (database.update(database.cashTransactions)..where((t) => t.relatedPaymentId.equals(existing.id))).write(
+        db.CashTransactionsCompanion(
+          amount: Value(paidAmount),
+          transactionDate: Value(date),
+        ),
+      );
+    } else {
+      final prefix = 'PAY-PUR';
+      final query = database.select(database.payments)..orderBy([(t) => OrderingTerm(expression: t.id, mode: OrderingMode.desc)])..limit(1);
+      final last = await query.getSingleOrNull();
+      final nextId = (last?.id ?? 0) + 1;
+      final paymentNumber = '$prefix-${nextId.toString().padLeft(5, '0')}';
+
+      final id = await database.into(database.payments).insert(
+        db.PaymentsCompanion.insert(
+          paymentNumber: paymentNumber,
+          type: 'payment',
+          amount: paidAmount,
+          method: PaymentMethod.cash.code,
+          paymentDate: date,
+          supplierId: Value(supplierId),
+          purchaseInvoiceId: Value(invoiceId),
+          notes: Value('دفعة مقدمة للفاتورة رقم $invoiceId'),
+          createdBy: 1,
+        ),
+      );
+
+      await database.into(database.cashTransactions).insert(
+        db.CashTransactionsCompanion.insert(
+          amount: paidAmount,
+          type: 'out',
+          description: 'دفعة مقدمة للفاتورة رقم $invoiceId',
+          transactionDate: date,
+          relatedPaymentId: Value(id),
+          createdBy: 1,
+        ),
+      );
+    }
   }
 }

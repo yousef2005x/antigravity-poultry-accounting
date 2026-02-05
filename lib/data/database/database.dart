@@ -199,6 +199,8 @@ class Payments extends Table {
   TextColumn get type => text()(); // 'receipt' or 'payment'
   IntColumn get customerId => integer().nullable().references(Customers, #id)();
   IntColumn get supplierId => integer().nullable().references(Suppliers, #id)();
+  IntColumn get invoiceId => integer().nullable().references(SalesInvoices, #id, onDelete: KeyAction.cascade)();
+  IntColumn get purchaseInvoiceId => integer().nullable().references(PurchaseInvoices, #id, onDelete: KeyAction.cascade)();
   RealColumn get amount => real()();
   TextColumn get method => text()(); // PaymentMethod enum (cash, bank, check)
   DateTimeColumn get paymentDate => dateTime()();
@@ -427,7 +429,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -565,6 +567,10 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 12) {
         await m.addColumn(rawMeatProcessings, rawMeatProcessings.operationalExpenses);
+      }
+      if (from < 13) {
+        await m.addColumn(payments, payments.invoiceId);
+        await m.addColumn(payments, payments.purchaseInvoiceId);
       }
     },
   );

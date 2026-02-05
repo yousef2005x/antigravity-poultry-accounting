@@ -563,10 +563,11 @@ class ReportRepositoryImpl implements ReportRepository {
           balance: balance,
         ),);
       } else if (tx is PaymentTable) {
+        final method = PaymentMethod.fromCode(tx.method);
         balance -= tx.amount;
         entries.add(CustomerStatementEntry(
           date: tx.paymentDate,
-          description: 'سند قبض - ${tx.method}${tx.notes != null ? ' (${tx.notes})' : ''}',
+          description: 'سند قبض - ${method.nameAr}${tx.notes != null ? ' (${tx.notes})' : ''}',
           reference: tx.paymentNumber,
           debit: 0,
           credit: tx.amount,
@@ -658,10 +659,11 @@ class ReportRepositoryImpl implements ReportRepository {
           isPaid: tx.paidAmount >= tx.total,
         ),);
       } else if (tx is PaymentTable) {
+        final method = PaymentMethod.fromCode(tx.method);
         balance -= tx.amount;
         entries.add(SupplierStatementEntry(
           date: tx.paymentDate,
-          description: 'سند صرف - ${tx.method}${tx.notes != null ? ' (${tx.notes})' : ''}',
+          description: 'سند صرف - ${method.nameAr}${tx.notes != null ? ' (${tx.notes})' : ''}',
           reference: tx.paymentNumber,
           debit: tx.amount,
           credit: 0,
