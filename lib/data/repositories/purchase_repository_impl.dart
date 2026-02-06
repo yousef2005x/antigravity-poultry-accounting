@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:poultry_accounting/core/constants/app_constants.dart';
 import 'package:poultry_accounting/data/database/database.dart' as db;
 import 'package:poultry_accounting/domain/entities/purchase_invoice.dart' as domain;
+import 'package:poultry_accounting/domain/entities/supplier.dart' as domain;
 import 'package:poultry_accounting/domain/repositories/purchase_repository.dart';
 
 class PurchaseRepositoryImpl implements PurchaseRepository {

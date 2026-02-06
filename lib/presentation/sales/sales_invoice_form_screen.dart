@@ -64,58 +64,6 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.invoice == null ? 'فاتورة مبيعات جديدة' : 'تعديل فاتورة مبيعات'),
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: Form(
-        key: _formKey,
-        child: Row(
-          children: [
-            // Items Side
-            Expanded(
-              flex: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _buildCustomerSelector(),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('الأصناف', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        ElevatedButton.icon(
-                          onPressed: _showAddItemDialog,
-                          icon: const Icon(Icons.add_shopping_cart),
-                          label: const Text('إضافة صنف'),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent, foregroundColor: Colors.white),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Expanded(child: _buildItemsTable()),
-                  ],
-                ),
-              ),
-            ),
-            // Totals Side
-            Expanded(
-              child: Container(
-                color: Colors.grey.shade100,
-                padding: const EdgeInsets.all(16),
-                child: _buildSummarySection(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildCustomerSelector() {
     return Card(
       child: Padding(
@@ -506,3 +454,99 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
           ),
     );
   }
+
+  Widget _buildHeader() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'رقم الفاتورة: $_invoiceNumber',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Text(
+                  'التاريخ: ${DateTime.now().toString().split(' ')[0]}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildCustomerSelector(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItemsList() {
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('الأصناف', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ElevatedButton.icon(
+                  onPressed: _showAddItemDialog,
+                  icon: const Icon(Icons.add_shopping_cart),
+                  label: const Text('إضافة صنف'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildItemsTable(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalsSection() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _summaryRow('المجموع:', '$_subtotal ₪'),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _discountController,
+              decoration: const InputDecoration(labelText: 'خصم (₪)', border: OutlineInputBorder()),
+              keyboardType: TextInputType.number,
+              onChanged: (val) => setState(() => _discount = double.tryParse(val) ?? 0.0),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _taxController,
+              decoration: const InputDecoration(labelText: 'ضريبة (₪)', border: OutlineInputBorder()),
+              keyboardType: TextInputType.number,
+              onChanged: (val) => setState(() => _tax = double.tryParse(val) ?? 0.0),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _paidAmountController,
+              decoration: const InputDecoration(labelText: 'المبلغ المدفوع (₪)', border: OutlineInputBorder()),
+              keyboardType: TextInputType.number,
+              onChanged: (val) => setState(() => _paidAmount = double.tryParse(val) ?? 0.0),
+            ),
+            const Divider(thickness: 2),
+            _summaryRow('الصافي:', '$_total ₪', isBold: true, fontSize: 24, color: Colors.blueAccent),
+            _summaryRow('المتبقي (دين):', '${_total - _paidAmount} ₪', color: Colors.red),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -56,3 +56,6 @@ windows/flutter/ephemeral/
 
 # Custom lint logs
 custom_lint.log
+
+# Claude temporary files
+tmpclaude-*-cwd
