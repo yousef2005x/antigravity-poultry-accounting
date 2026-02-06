@@ -30,7 +30,7 @@ class PdfService {
     );
 
     final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
-    final currencyFormat = intl.NumberFormat.currency(symbol: '₪', decimalDigits: 2);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.Page(
@@ -179,7 +179,7 @@ class PdfService {
     
     // Date Formatter
     final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
-    final currencyFormat = intl.NumberFormat.currency(symbol: '₪', decimalDigits: 2);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.MultiPage(
@@ -253,7 +253,7 @@ class PdfService {
     );
 
     final dateFormat = intl.DateFormat('yyyy/MM/dd');
-    final currencyFormat = intl.NumberFormat.currency(symbol: '₪', decimalDigits: 2);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.MultiPage(
@@ -274,6 +274,118 @@ class PdfService {
 
     return pdf.save();
   }
+
+  /// Generates a PDF for a supplier account statement
+  Future<Uint8List> generateSupplierStatementPdf({
+    required String supplierName,
+    required List<SupplierStatementEntry> entries,
+    required double totalPurchases,
+    required double totalPaid,
+    required double remainingBalance,
+    DateTime? fromDate,
+    DateTime? toDate,
+    String? companyName,
+    String? companyPhone,
+    String? companyAddress,
+  }) async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.cairoRegular();
+    final fontBold = await PdfGoogleFonts.cairoBold();
+
+    final theme = pw.ThemeData.withFont(
+      base: font,
+      bold: fontBold,
+    );
+
+    final dateFormat = intl.DateFormat('yyyy/MM/dd');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+
+    pdf.addPage(
+      pw.MultiPage(
+        theme: theme,
+        pageFormat: PdfPageFormat.a4,
+        textDirection: pw.TextDirection.rtl,
+        build: (context) => [
+          // Header
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                      if (companyPhone != null) pw.Text('هاتف: $companyPhone'),
+                    ],
+                  ),
+                  pw.Text('كشف حساب مورد', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.orange)),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text('المورد: $supplierName', style: pw.TextStyle(fontSize: 16)),
+              if (fromDate != null || toDate != null)
+                pw.Text(
+                  'الفترة: ${fromDate != null ? dateFormat.format(fromDate) : '...'} - ${toDate != null ? dateFormat.format(toDate) : '...'}',
+                ),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+          // Summary Cards
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+            children: [
+              _buildSummaryBox('إجمالي المشتريات', currencyFormat.format(totalPurchases), PdfColors.blue),
+              _buildSummaryBox('إجمالي المدفوع', currencyFormat.format(totalPaid), PdfColors.green),
+              _buildSummaryBox('الرصيد المتبقي', currencyFormat.format(remainingBalance), PdfColors.red),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+          // Table
+          pw.TableHelper.fromTextArray(
+            headers: ['التاريخ', 'البيان', 'علينا', 'دفعنا', 'الرصيد', 'الحالة'],
+            data: entries.map((e) => [
+              dateFormat.format(e.date),
+              e.description,
+              e.credit > 0 ? currencyFormat.format(e.credit) : '-',
+              e.debit > 0 ? currencyFormat.format(e.debit) : '-',
+              currencyFormat.format(e.balance),
+              e.type == 'purchase' ? (e.isPaid ? 'مدفوعة' : 'غير مدفوعة') : '-',
+            ]).toList(),
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+            headerDecoration: const pw.BoxDecoration(color: PdfColors.orange),
+            cellAlignment: pw.Alignment.center,
+          ),
+          pw.SizedBox(height: 20),
+          pw.Divider(),
+          _buildFooter(),
+        ],
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  pw.Widget _buildSummaryBox(String title, String value, PdfColor color) {
+    return pw.Container(
+      width: 150,
+      padding: const pw.EdgeInsets.all(10),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: color),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
+      ),
+      child: pw.Column(
+        children: [
+          pw.Text(title, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+          pw.SizedBox(height: 5),
+          pw.Text(value, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: color)),
+        ],
+      ),
+    );
+  }
+
 
   pw.Widget _buildStatementHeader(
     String? name,
@@ -434,6 +546,366 @@ class PdfService {
         pw.Text('حررت هذه الفاتورة إلكترونياً ولا تحتاج إلى توقيع', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
       ],
     );
+  }
+
+  /// Generates a PDF for Profit/Loss Report
+  Future<Uint8List> generateProfitLossPdf({
+    required ProfitLossReport report,
+    String? companyName,
+    String? companyPhone,
+  }) async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.cairoRegular();
+    final fontBold = await PdfGoogleFonts.cairoBold();
+
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
+
+    pdf.addPage(
+      pw.Page(
+        theme: theme,
+        pageFormat: PdfPageFormat.a4,
+        textDirection: pw.TextDirection.rtl,
+        build: (context) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            // Header
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                    if (companyPhone != null) pw.Text('هاتف: $companyPhone'),
+                  ],
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text('تقرير الأرباح والخسائر', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.blue)),
+                    pw.Text('تاريخ الطباعة: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                  ],
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 30),
+            // Report Items
+            _buildReportRow('إجمالي الإيرادات', currencyFormat.format(report.revenue), PdfColors.green),
+            pw.SizedBox(height: 10),
+            _buildReportRow('تكلفة البضاعة المباعة', currencyFormat.format(report.cost), PdfColors.orange),
+            pw.SizedBox(height: 10),
+            _buildReportRow('المصروفات التشغيلية', currencyFormat.format(report.expenses), PdfColors.red),
+            pw.Divider(),
+            _buildReportRow('الربح التشغيلي', currencyFormat.format(report.profit), PdfColors.blue, isBold: true),
+            pw.SizedBox(height: 20),
+            _buildReportRow('الرواتب والأجور', currencyFormat.format(report.salaries), PdfColors.teal),
+            pw.SizedBox(height: 10),
+            _buildReportRow('الجرد السنوي / تسوية', currencyFormat.format(report.annualInventories), PdfColors.indigo),
+            pw.Divider(thickness: 2),
+            pw.SizedBox(height: 10),
+            _buildReportRow(
+              'صافي الربح النهائي', 
+              currencyFormat.format(report.netProfit), 
+              report.netProfit >= 0 ? PdfColors.green : PdfColors.red, 
+              isBold: true,
+              fontSize: 16,
+            ),
+            pw.SizedBox(height: 10),
+            pw.Center(
+              child: pw.Text(
+                'هامش الربح النهائي: ${report.profitMargin.toStringAsFixed(1)}%',
+                style: pw.TextStyle(fontSize: 14, color: report.netProfit >= 0 ? PdfColors.green : PdfColors.red),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  pw.Widget _buildReportRow(String label, String value, PdfColor color, {bool isBold = false, double fontSize = 14}) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.grey300),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
+      ),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(label, style: pw.TextStyle(fontSize: fontSize, fontWeight: isBold ? pw.FontWeight.bold : null)),
+          pw.Text(value, style: pw.TextStyle(fontSize: fontSize, fontWeight: pw.FontWeight.bold, color: color)),
+        ],
+      ),
+    );
+  }
+
+  /// Generates a PDF for Product Sales Report
+  Future<Uint8List> generateProductSalesPdf({
+    required List<Map<String, dynamic>> salesData,
+    String? companyName,
+    String? companyPhone,
+  }) async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.cairoRegular();
+    final fontBold = await PdfGoogleFonts.cairoBold();
+
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
+
+    pdf.addPage(
+      pw.MultiPage(
+        theme: theme,
+        pageFormat: PdfPageFormat.a4,
+        textDirection: pw.TextDirection.rtl,
+        build: (context) => [
+          // Header
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text('تقرير مبيعات الأصناف', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.purple)),
+                  pw.Text('تاريخ الطباعة: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                ],
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+          // Table
+          pw.TableHelper.fromTextArray(
+            headers: ['الصنف', 'الكمية المباعة', 'الإيرادات', 'الأرباح'],
+            data: salesData.map((row) => [
+              row['productName'] ?? '',
+              (row['totalQuantity'] as double).toStringAsFixed(1),
+              currencyFormat.format(row['totalRevenue']),
+              currencyFormat.format(row['profit']),
+            ]).toList(),
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+            headerDecoration: const pw.BoxDecoration(color: PdfColors.purple),
+            cellAlignment: pw.Alignment.center,
+          ),
+        ],
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  /// Generates a PDF for Aging Report
+  Future<Uint8List> generateAgingReportPdf({
+    required List<AgingReportEntry> entries,
+    String? companyName,
+    String? companyPhone,
+  }) async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.cairoRegular();
+    final fontBold = await PdfGoogleFonts.cairoBold();
+
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
+
+    pdf.addPage(
+      pw.MultiPage(
+        theme: theme,
+        pageFormat: PdfPageFormat.a4.landscape,
+        textDirection: pw.TextDirection.rtl,
+        build: (context) => [
+          // Header
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text('تقرير أعمار ذمم العملاء', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.amber)),
+                  pw.Text('تاريخ الطباعة: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                ],
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+          // Table
+          pw.TableHelper.fromTextArray(
+            headers: ['العميل', 'حالياً (0-30)', '30-60 يوم', '60-90 يوم', '>90 يوم', 'الإجمالي'],
+            data: entries.map((e) => [
+              e.customerName,
+              e.current > 0 ? currencyFormat.format(e.current) : '-',
+              e.days30 > 0 ? currencyFormat.format(e.days30) : '-',
+              e.days60 > 0 ? currencyFormat.format(e.days60) : '-',
+              (e.days90 + e.over90) > 0 ? currencyFormat.format(e.days90 + e.over90) : '-',
+              currencyFormat.format(e.total),
+            ]).toList(),
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+            headerDecoration: const pw.BoxDecoration(color: PdfColors.amber),
+            cellAlignment: pw.Alignment.center,
+          ),
+        ],
+      ),
+    );
+
+    return pdf.save();
+  }
+
+  /// Generates a PDF for Cash Flow Report
+  Future<Uint8List> generateCashFlowPdf({
+    required List<CashFlowEntry> entries,
+    String? companyName,
+    String? companyPhone,
+  }) async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.cairoRegular();
+    final fontBold = await PdfGoogleFonts.cairoBold();
+
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final dateFormat = intl.DateFormat('yyyy/MM/dd');
+    final printDateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
+
+    pdf.addPage(
+      pw.MultiPage(
+        theme: theme,
+        pageFormat: PdfPageFormat.a4,
+        textDirection: pw.TextDirection.rtl,
+        build: (context) => [
+          // Header
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text('تقرير حركة الصندوق', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.teal)),
+                  pw.Text('تاريخ الطباعة: ${printDateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                ],
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+          // Table
+          pw.TableHelper.fromTextArray(
+            headers: ['التاريخ', 'البيان', 'النوع', 'المبلغ', 'الرصيد'],
+            data: entries.map((e) {
+              final isIn = e.type == 'in' || e.type == 'receipt';
+              return [
+                dateFormat.format(e.date),
+                e.description,
+                e.type == 'opening' ? 'رصيد افتتاحي' : (isIn ? 'وارد' : 'صادر'),
+                e.type == 'opening' ? '-' : '${isIn ? "+" : "-"}${currencyFormat.format(e.amount)}',
+                currencyFormat.format(e.balance),
+              ];
+            }).toList(),
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+            headerDecoration: const pw.BoxDecoration(color: PdfColors.teal),
+            cellAlignment: pw.Alignment.center,
+          ),
+          pw.SizedBox(height: 20),
+          // Final Balance
+          if (entries.isNotEmpty)
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.end,
+              children: [
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(10),
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.teal),
+                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
+                  ),
+                  child: pw.Text(
+                    'الرصيد النهائي: ${currencyFormat.format(entries.last.balance)}',
+                    style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, color: PdfColors.teal),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+
+    return pdf.save();
+  }
+  /// Generates a PDF for Salary Account Statement (Consolidated)
+  Future<Uint8List> generateSalaryStatementPdf({
+    required DateTime month,
+    required List<Map<String, dynamic>> salaryData,
+    String? companyName,
+    String? companyPhone,
+  }) async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.cairoRegular();
+    final fontBold = await PdfGoogleFonts.cairoBold();
+
+    final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+
+    pdf.addPage(
+      pw.MultiPage(
+        theme: theme,
+        pageFormat: PdfPageFormat.a4,
+        textDirection: pw.TextDirection.rtl,
+        build: (context) => [
+          // Header
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                   pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                   if (companyPhone != null) pw.Text('هاتف: $companyPhone'),
+                ],
+              ),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                   pw.Text('كشف رواتب الموظفين', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.teal)),
+                   pw.Text('عن شهر: ${month.month}/${month.year}', style: pw.TextStyle(fontSize: 14)),
+                ],
+              ),
+            ],
+          ),
+          pw.SizedBox(height: 20),
+          
+          // Table
+          pw.TableHelper.fromTextArray(
+            headers: ['الموظف', 'الراتب الثابت', 'المدفوع', 'المتبقي', 'التوقيع'],
+            data: salaryData.map((e) => [
+              e['name'],
+              currencyFormat.format(e['fixed']),
+              currencyFormat.format(e['paid']),
+              currencyFormat.format(e['remaining']),
+              '',
+            ]).toList(),
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+            headerDecoration: const pw.BoxDecoration(color: PdfColors.teal),
+            cellAlignment: pw.Alignment.center,
+             cellAlignments: {
+              0: pw.Alignment.centerRight,
+            },
+          ),
+          
+          pw.SizedBox(height: 20),
+          pw.Divider(),
+          _buildFooter(),
+        ],
+      ),
+    );
+
+    return pdf.save();
   }
 }
 

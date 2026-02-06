@@ -63,6 +63,7 @@ class SalaryRepositoryImpl implements SalaryRepository {
             amount: salary.amount,
             salaryDate: salary.salaryDate,
             employeeName: salary.employeeName,
+            employeeId: Value(salary.employeeId),
             notes: Value(salary.notes),
             createdBy: salary.createdBy ?? 1,
           ),
@@ -77,6 +78,7 @@ class SalaryRepositoryImpl implements SalaryRepository {
         amount: Value(salary.amount),
         salaryDate: Value(salary.salaryDate),
         employeeName: Value(salary.employeeName),
+        employeeId: Value(salary.employeeId),
         notes: Value(salary.notes),
       ),
     );
@@ -109,6 +111,7 @@ class SalaryRepositoryImpl implements SalaryRepository {
       amount: row.amount,
       salaryDate: row.salaryDate,
       employeeName: row.employeeName,
+      employeeId: row.employeeId,
       notes: row.notes,
       createdBy: row.createdBy,
     );

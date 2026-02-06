@@ -6,11 +6,13 @@ class Salary extends Equatable {
     required this.salaryDate,
     required this.employeeName,
     this.id,
+    this.employeeId,
     this.notes,
     this.createdBy,
   });
 
   final int? id;
+  final int? employeeId;
   final double amount;
   final DateTime salaryDate;
   final String employeeName;
@@ -20,6 +22,7 @@ class Salary extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        employeeId,
         amount,
         salaryDate,
         employeeName,
@@ -29,6 +32,7 @@ class Salary extends Equatable {
 
   Salary copyWith({
     int? id,
+    int? employeeId,
     double? amount,
     DateTime? salaryDate,
     String? employeeName,
@@ -37,6 +41,7 @@ class Salary extends Equatable {
   }) {
     return Salary(
       id: id ?? this.id,
+      employeeId: employeeId ?? this.employeeId,
       amount: amount ?? this.amount,
       salaryDate: salaryDate ?? this.salaryDate,
       employeeName: employeeName ?? this.employeeName,

@@ -16,8 +16,12 @@ import 'package:poultry_accounting/presentation/purchases/purchase_list_screen.d
 import 'package:poultry_accounting/presentation/reports/central_debt_register_screen.dart';
 import 'package:poultry_accounting/presentation/reports/reports_screen.dart';
 import 'package:poultry_accounting/presentation/salaries/salary_list_screen.dart';
+import 'package:poultry_accounting/presentation/salaries/salary_statement_screen.dart';
 import 'package:poultry_accounting/presentation/sales/sales_management_screen.dart';
 import 'package:poultry_accounting/presentation/suppliers/supplier_management_screen.dart';
+import 'package:poultry_accounting/presentation/employees/employee_list_screen.dart';
+import 'package:poultry_accounting/presentation/settings/reset_database_screen.dart';
+import 'package:poultry_accounting/presentation/home/home_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -116,7 +120,7 @@ class HomeScreen extends ConsumerWidget {
                     'الموردين',
                     () {
                       Navigator.pop(context);
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SupplierManagementScreen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => SupplierManagementScreen()));
                     },
                     color: Colors.orange,
                   ),
@@ -168,9 +172,14 @@ class HomeScreen extends ConsumerWidget {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseListScreen()));
                       }),
-                      _buildDrawerItem(Icons.badge, 'الرواتب والأجور', () {
+
+                      _buildDrawerItem(Icons.attach_money, 'الرواتب والأجور', () {
                         Navigator.pop(context);
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SalaryListScreen()));
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const SalaryStatementScreen()));
+                      }),
+                      _buildDrawerItem(Icons.people_alt, 'إدارة الموظفين', () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeListScreen()));
                       }),
                     ],
                     iconColor: Colors.red.shade700,
@@ -218,6 +227,10 @@ class HomeScreen extends ConsumerWidget {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
                       }),
+                      _buildDrawerItem(Icons.delete_forever, 'تصفير قاعدة البيانات', () {
+                        Navigator.pop(context);
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const ResetDatabaseScreen()));
+                      }, color: Colors.red),
                     ],
                     iconColor: Colors.grey.shade700,
                   ),
@@ -264,25 +277,55 @@ class HomeScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: _buildSummaryCard('إجمالي المبيعات', '${data.todaySales.toStringAsFixed(2)} ₪', Colors.blue)),
+                      Expanded(child: _buildSummaryCard(
+                        'إجمالي المبيعات', 
+                        '${data.todaySales.toStringAsFixed(2)} شيكل', 
+                        Colors.blue,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesManagementScreen())),
+                      )),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildSummaryCard('إجمالي التحصيل', '${data.todayReceipts.toStringAsFixed(2)} ₪', Colors.green)),
+                      Expanded(child: _buildSummaryCard(
+                        'إجمالي التحصيل', 
+                        '${data.todayReceipts.toStringAsFixed(2)} شيكل', 
+                        Colors.green,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen())),
+                      )),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _buildSummaryCard('الذمم المستحقة', '${data.totalOutstanding.toStringAsFixed(2)} ₪', Colors.orange)),
+                      Expanded(child: _buildSummaryCard(
+                        'الذمم المستحقة', 
+                        '${data.totalOutstanding.toStringAsFixed(2)} شيكل', 
+                        Colors.orange,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CentralDebtRegisterScreen())),
+                      )),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildSummaryCard('المصروفات', '${data.todayExpenses.toStringAsFixed(2)} ₪', Colors.red)),
+                      Expanded(child: _buildSummaryCard(
+                        'المصروفات', 
+                        '${data.todayExpenses.toStringAsFixed(2)} شيكل', 
+                        Colors.red,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseListScreen())),
+                      )),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Expanded(child: _buildSummaryCard('الواردات (المشتريات)', '${data.todayPurchases.toStringAsFixed(2)} ₪', Colors.deepPurple)),
+                      Expanded(child: _buildSummaryCard(
+                        'الواردات (المشتريات)', 
+                        '${data.todayPurchases.toStringAsFixed(2)} شيكل', 
+                        Colors.deepPurple,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PurchaseListScreen())),
+                      )),
                       const SizedBox(width: 16),
-                      Expanded(child: _buildSummaryCard('الرواتب', '${data.todaySalaries.toStringAsFixed(2)} ₪', Colors.brown)),
+                      Expanded(child: _buildSummaryCard(
+                        'الرواتب', 
+                        '${data.todaySalaries.toStringAsFixed(2)} شيكل', 
+                        Colors.brown,
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SalaryStatementScreen())),
+                      )),
                     ],
                   ),
                 ],
@@ -318,7 +361,7 @@ class HomeScreen extends ConsumerWidget {
                       title: Text('فاتورة رقم #${invoice.id}'), // Or use invoiceNumber if available
                       subtitle: Text('التاريخ: ${invoice.invoiceDate.toString().split(' ')[0]}'),
                       trailing: Text(
-                        '${invoice.total.toStringAsFixed(2)} ₪',
+                        '${invoice.total.toStringAsFixed(2)} شيكل',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     );
@@ -385,21 +428,36 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, Color color) {
+  Widget _buildSummaryCard(String title, String value, Color color, {VoidCallback? onTap}) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text(title, style: const TextStyle(fontSize: 16, color: Colors.grey)),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
-            ),
-          ],
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(title, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                  ),
+                  if (onTap != null) ...[
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey.shade400),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
+              ),
+            ],
+          ),
         ),
       ),
     );

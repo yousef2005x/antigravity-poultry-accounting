@@ -373,6 +373,7 @@ class Salaries extends Table {
   RealColumn get amount => real()();
   DateTimeColumn get salaryDate => dateTime()();
   TextColumn get employeeName => text().withLength(min: 1, max: 100)();
+  IntColumn get employeeId => integer().nullable().references(Employees, #id)();
   TextColumn get notes => text().nullable()();
   @ReferenceName('salaryCreatedByUser')
   IntColumn get createdBy => integer().references(Users, #id)();
@@ -390,6 +391,20 @@ class AnnualInventories extends Table {
   TextColumn get description => text().withLength(max: 200)();
   @ReferenceName('annualInventoryCreatedByUser')
   IntColumn get createdBy => integer().references(Users, #id)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+}
+
+/// Employees table (for fixed monthly salary)
+@DataClassName('EmployeeTable')
+class Employees extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(min: 1, max: 100).unique()();
+  TextColumn get phone => text().withLength(max: 20).nullable()();
+  RealColumn get monthlySalary => real().withDefault(const Constant(0))();
+  DateTimeColumn get hireDate => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().nullable()();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -424,12 +439,13 @@ class AnnualInventories extends Table {
   AnnualInventories,
   StockConversions,
   StockConversionItems,
+  Employees,
 ],)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -572,8 +588,56 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(payments, payments.invoiceId);
         await m.addColumn(payments, payments.purchaseInvoiceId);
       }
+      if (from < 14) {
+        await m.createTable(employees);
+        await m.addColumn(salaries, salaries.employeeId);
+      }
     },
   );
+
+  // Factory Reset
+  Future<void> clearAllData() async {
+    // Disable foreign keys to allow deleting in any order
+    await customStatement('PRAGMA foreign_keys = OFF');
+    
+    try {
+      await delete(salesInvoiceItems).go();
+      await delete(salesInvoices).go();
+      await delete(purchaseInvoiceItems).go();
+      await delete(purchaseInvoices).go();
+      await delete(inventoryBatches).go();
+      await delete(processingOutputs).go();
+      await delete(stockConversionItems).go();
+      await delete(stockConversions).go();
+      await delete(rawMeatProcessings).go();
+      await delete(payments).go();
+      await delete(cashTransactions).go();
+      await delete(expenses).go();
+      await delete(salaries).go();
+      await delete(annualInventories).go();
+      await delete(employees).go();
+      await delete(partnerTransactions).go();
+      await delete(partners).go();
+      await delete(auditLogs).go();
+      await delete(productPrices).go();
+      await delete(products).go();
+      await delete(customers).go();
+      await delete(suppliers).go();
+      await delete(expenseCategories).go();
+      await delete(backups).go();
+      await delete(users).go();
+      
+      // Re-enable foreign keys
+      await customStatement('PRAGMA foreign_keys = ON');
+      
+      // Re-seed default data
+      await _seedDefaultData();
+    } catch (e) {
+      // Ensure FKs are back on even if error
+      await customStatement('PRAGMA foreign_keys = ON');
+      rethrow;
+    }
+  }
 
   // Seed default data
   Future<void> _seedDefaultData() async {

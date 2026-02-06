@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poultry_accounting/core/providers/database_providers.dart';
+import 'package:poultry_accounting/core/services/pdf_service.dart';
 import 'package:poultry_accounting/domain/entities/supplier.dart';
 import 'package:poultry_accounting/domain/repositories/report_repository.dart';
 
@@ -88,12 +91,57 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
   double get _totalPaid => _entries.fold(0, (sum, e) => sum + e.debit);
   double get _remainingBalance => _entries.isEmpty ? 0 : _entries.last.balance;
 
+  Future<void> _exportToPdf() async {
+    if (_selectedSupplier == null || _entries.isEmpty) {
+      return;
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final companyName = prefs.getString('company_name');
+      final companyPhone = prefs.getString('company_phone');
+      final companyAddress = prefs.getString('company_address');
+
+      final pdfData = await ref.read(pdfServiceProvider).generateSupplierStatementPdf(
+            supplierName: _selectedSupplier!.name,
+            entries: _entries,
+            totalPurchases: _totalPurchases,
+            totalPaid: _totalPaid,
+            remainingBalance: _remainingBalance,
+            fromDate: _fromDate,
+            toDate: _toDate,
+            companyName: companyName,
+            companyPhone: companyPhone,
+            companyAddress: companyAddress,
+          );
+
+      await Printing.layoutPdf(
+        onLayout: (format) async => pdfData,
+        name: 'supplier_statement_${_selectedSupplier!.name}.pdf',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطأ في تصدير PDF: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('كشف حساب مورد'),
         backgroundColor: Colors.orange.shade800,
+        actions: [
+          if (_entries.isNotEmpty && _selectedSupplier != null)
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf),
+              tooltip: 'تصدير PDF',
+              onPressed: _exportToPdf,
+            ),
+        ],
       ),
       body: Column(
         children: [

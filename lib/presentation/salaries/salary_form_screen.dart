@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:poultry_accounting/core/providers/database_providers.dart';
+import 'package:poultry_accounting/data/repositories/employee_repository_impl.dart';
 import 'package:poultry_accounting/domain/entities/salary.dart';
 
 class SalaryFormScreen extends ConsumerStatefulWidget {
@@ -17,6 +18,7 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   DateTime _salaryDate = DateTime.now();
+  int? _selectedEmployeeId;
 
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
     _notesController = TextEditingController(text: widget.salary?.notes ?? '');
     if (widget.salary != null) {
       _salaryDate = widget.salary!.salaryDate;
+      _selectedEmployeeId = widget.salary!.employeeId;
     }
   }
 
@@ -49,12 +52,13 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
       amount: double.parse(_amountController.text),
       salaryDate: _salaryDate,
       employeeName: _nameController.text,
+      employeeId: _selectedEmployeeId,
       notes: _notesController.text,
     );
 
     try {
       final repo = ref.read(salaryRepositoryProvider);
-      if (widget.salary == null) {
+      if (widget.salary == null || widget.salary!.id == null) {
         await repo.createSalary(salary);
       } else {
         await repo.updateSalary(salary);
@@ -77,9 +81,12 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final employeesAsync = ref.watch(employeesStreamProvider);
+    final isEditing = widget.salary != null && widget.salary!.id != null;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.salary == null ? 'صرف راتب' : 'تعديل راتب'),
+        title: Text(isEditing ? 'تعديل راتب' : 'صرف راتب'),
         backgroundColor: Colors.teal,
       ),
       body: SingleChildScrollView(
@@ -89,20 +96,49 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'اسم الموظف *',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.person),
-                ),
-                validator: (val) => (val == null || val.isEmpty) ? 'يرجى إدخال اسم الموظف' : null,
+              // Employee Selection
+              employeesAsync.when(
+                data: (employees) {
+                   return Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       DropdownButtonFormField<int>(
+                         value: _selectedEmployeeId,
+                         decoration: const InputDecoration(
+                           labelText: 'اختر الموظف',
+                           border: OutlineInputBorder(),
+                           prefixIcon: Icon(Icons.person),
+                         ),
+                         items: [
+                           ...employees.map((e) => DropdownMenuItem(
+                             value: e.id,
+                             child: Text('${e.name} (${e.monthlySalary} شيكل)'),
+                           )),
+                         ],
+                         onChanged: (id) {
+                           setState(() {
+                             _selectedEmployeeId = id;
+                             if (id != null) {
+                               final emp = employees.firstWhere((e) => e.id == id);
+                               _nameController.text = emp.name;
+                             }
+                           });
+                         },
+                         validator: (val) => val == null && _nameController.text.isEmpty ? 'اختر موظفاً أو ادخل الاسم' : null,
+                       ),
+// ... lines continue ...
+                     ],
+                   );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (e, s) => Text('خطأ في تحميل الموظفين: $e'),
               ),
+              
               const SizedBox(height: 16),
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
-                  labelText: 'المبلغ (₪) *',
+                  labelText: 'المبلغ (شيكل) *',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.attach_money),
                 ),
