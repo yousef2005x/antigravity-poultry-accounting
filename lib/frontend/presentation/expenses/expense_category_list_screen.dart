@@ -1,0 +1,114 @@
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:poultry_accounting/core/providers/database_providers.dart';
+import 'package:poultry_accounting/backend/domain/entities/expense.dart';
+
+class ExpenseCategoryListScreen extends ConsumerWidget {
+  const ExpenseCategoryListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('طھطµظ†ظٹظپط§طھ ط§ظ„ظ…طµط±ظˆظپط§طھ'),
+        backgroundColor: Colors.redAccent,
+      ),
+      body: ref.watch(expenseCategoriesStreamProvider).when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text('ط®ط·ط£: $err')),
+            data: (categories) {
+              if (categories.isEmpty) {
+                return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ طھطµظ†ظٹظپط§طھ ظ…ط¹ط±ظپط©'));
+              }
+
+              return ListView.separated(
+                padding: const EdgeInsets.all(8),
+                itemCount: categories.length,
+                separatorBuilder: (_, __) => const Divider(),
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  return ListTile(
+                    title: Text(
+                      category.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(category.description ?? 'ظ„ط§ ظٹظˆط¬ط¯ ظˆطµظپ'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blueGrey),
+                      onPressed: () => _showCategoryDialog(context, ref, category),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showCategoryDialog(context, ref, null),
+        backgroundColor: Colors.redAccent,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _showCategoryDialog(BuildContext context, WidgetRef ref, ExpenseCategory? category) {
+    final nameController = TextEditingController(text: category?.name ?? '');
+    final descController = TextEditingController(text: category?.description ?? '');
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(category == null ? 'ط¥ط¶ط§ظپط© طھطµظ†ظٹظپ ط¬ط¯ظٹط¯' : 'طھط¹ط¯ظٹظ„ طھطµظ†ظٹظپ'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'ط§ط³ظ… ط§ظ„طھطµظ†ظٹظپ *'),
+                validator: (val) => (val == null || val.isEmpty) ? 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ط§ط³ظ…' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: descController,
+                decoration: const InputDecoration(labelText: 'ط§ظ„ظˆطµظپ'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('ط¥ظ„ط؛ط§ط،'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (!formKey.currentState!.validate()) {
+                return;
+              }
+
+              final newCategory = ExpenseCategory(
+                id: category?.id,
+                name: nameController.text,
+                description: descController.text,
+              );
+
+              final repo = ref.read(expenseRepositoryProvider);
+              if (category == null) {
+                await repo.createCategory(newCategory);
+              } else {
+                await repo.updateCategory(newCategory);
+              }
+
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('ط­ظپط¸'),
+          ),
+        ],
+      ),
+    );
+  }
+}

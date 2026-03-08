@@ -1,13 +1,13 @@
-import 'dart:typed_data';
+﻿import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:poultry_accounting/domain/entities/payment.dart';
-import 'package:poultry_accounting/domain/entities/customer.dart';
-import 'package:poultry_accounting/domain/entities/invoice.dart';
-import 'package:poultry_accounting/domain/repositories/report_repository.dart';
+import 'package:poultry_accounting/backend/domain/entities/payment.dart';
+import 'package:poultry_accounting/backend/domain/entities/customer.dart';
+import 'package:poultry_accounting/backend/domain/entities/invoice.dart';
+import 'package:poultry_accounting/backend/domain/repositories/report_repository.dart';
 import 'package:printing/printing.dart';
 
 /// A service to generate PDF documents for the application.
@@ -30,7 +30,7 @@ class PdfService {
     );
 
     final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.Page(
@@ -66,24 +66,24 @@ class PdfService {
         pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(name ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-            if (phone != null) pw.Text('هاتف: $phone', style: const pw.TextStyle(fontSize: 10)),
+            pw.Text(name ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+            if (phone != null) pw.Text('ظ‡ط§طھظپ: $phone', style: const pw.TextStyle(fontSize: 10)),
           ],
         ),
         pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.center,
           children: [
             pw.Text(
-              payment.type == 'receipt' ? 'سند قبض' : 'سند صرف',
+              payment.type == 'receipt' ? 'ط³ظ†ط¯ ظ‚ط¨ط¶' : 'ط³ظ†ط¯ طµط±ظپ',
               style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: payment.type == 'receipt' ? PdfColors.green : PdfColors.red),
             ),
-            pw.Text('رقم السند: ${payment.paymentNumber}', style: const pw.TextStyle(fontSize: 12)),
+            pw.Text('ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯: ${payment.paymentNumber}', style: const pw.TextStyle(fontSize: 12)),
           ],
         ),
         pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
-            pw.Text('التاريخ: ${dateFormat.format(payment.paymentDate)}', style: const pw.TextStyle(fontSize: 10)),
+            pw.Text('ط§ظ„طھط§ط±ظٹط®: ${dateFormat.format(payment.paymentDate)}', style: const pw.TextStyle(fontSize: 10)),
           ],
         ),
       ],
@@ -91,21 +91,21 @@ class PdfService {
   }
 
   pw.Widget _buildReceiptBody(Payment payment, intl.NumberFormat currency) {
-    final partyName = payment.customer?.name ?? payment.supplier?.name ?? 'جهة غير معروفة';
+    final partyName = payment.customer?.name ?? payment.supplier?.name ?? 'ط¬ظ‡ط© ط؛ظٹط± ظ…ط¹ط±ظˆظپط©';
     
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.Row(
           children: [
-            pw.Text(payment.type == 'receipt' ? 'وصلنا من السيد/ة: ' : 'صرفنا للسيد/ة: ', style: pw.TextStyle(fontSize: 14)),
+            pw.Text(payment.type == 'receipt' ? 'ظˆطµظ„ظ†ط§ ظ…ظ† ط§ظ„ط³ظٹط¯/ط©: ' : 'طµط±ظپظ†ط§ ظ„ظ„ط³ظٹط¯/ط©: ', style: pw.TextStyle(fontSize: 14)),
             pw.Text(partyName, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
           ],
         ),
         pw.SizedBox(height: 10),
         pw.Row(
           children: [
-            pw.Text('مبلغ وقدره: ', style: pw.TextStyle(fontSize: 14)),
+            pw.Text('ظ…ط¨ظ„ط؛ ظˆظ‚ط¯ط±ظ‡: ', style: pw.TextStyle(fontSize: 14)),
             pw.Container(
               padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: const pw.BoxDecoration(color: PdfColors.grey100),
@@ -116,18 +116,18 @@ class PdfService {
         pw.SizedBox(height: 10),
         pw.Row(
           children: [
-            pw.Text('وذلك عن: ', style: pw.TextStyle(fontSize: 14)),
-            pw.Text(payment.notes ?? 'تسديد حساب', style: const pw.TextStyle(fontSize: 14, color: PdfColors.grey700)),
+            pw.Text('ظˆط°ظ„ظƒ ط¹ظ†: ', style: pw.TextStyle(fontSize: 14)),
+            pw.Text(payment.notes ?? 'طھط³ط¯ظٹط¯ ط­ط³ط§ط¨', style: const pw.TextStyle(fontSize: 14, color: PdfColors.grey700)),
           ],
         ),
         pw.SizedBox(height: 10),
         pw.Row(
           children: [
-            pw.Text('طريقة الدفع: ', style: pw.TextStyle(fontSize: 14)),
+            pw.Text('ط·ط±ظٹظ‚ط© ط§ظ„ط¯ظپط¹: ', style: pw.TextStyle(fontSize: 14)),
             pw.Text(payment.methodDisplayName, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             if (payment.referenceNumber != null) ...[
               pw.SizedBox(width: 20),
-              pw.Text('رقم المرجع: ', style: pw.TextStyle(fontSize: 14)),
+              pw.Text('ط±ظ‚ظ… ط§ظ„ظ…ط±ط¬ط¹: ', style: pw.TextStyle(fontSize: 14)),
               pw.Text(payment.referenceNumber!, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             ],
           ],
@@ -142,14 +142,14 @@ class PdfService {
       children: [
         pw.Column(
           children: [
-            pw.Text('توقيع المستلم', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            pw.Text('طھظˆظ‚ظٹط¹ ط§ظ„ظ…ط³طھظ„ظ…', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 30),
             pw.Text('_________________'),
           ],
         ),
         pw.Column(
           children: [
-            pw.Text('توقيع المحاسب', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+            pw.Text('طھظˆظ‚ظٹط¹ ط§ظ„ظ…ط­ط§ط³ط¨', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 30),
             pw.Text('_________________'),
           ],
@@ -179,7 +179,7 @@ class PdfService {
     
     // Date Formatter
     final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.MultiPage(
@@ -217,17 +217,17 @@ class PdfService {
         pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(name ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-            if (phone != null) pw.Text('هاتف: $phone'),
-            if (address != null) pw.Text('العنوان: $address'),
+            pw.Text(name ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+            if (phone != null) pw.Text('ظ‡ط§طھظپ: $phone'),
+            if (address != null) pw.Text('ط§ظ„ط¹ظ†ظˆط§ظ†: $address'),
           ],
         ),
         pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
-            pw.Text('فاتورة مبيعات', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.blue)),
-            pw.Text('رقم الفاتورة: #${invoice.id}'),
-            pw.Text('التاريخ: ${dateFormat.format(invoice.invoiceDate)}'),
+            pw.Text('ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.blue)),
+            pw.Text('ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©: #${invoice.id}'),
+            pw.Text('ط§ظ„طھط§ط±ظٹط®: ${dateFormat.format(invoice.invoiceDate)}'),
           ],
         ),
       ],
@@ -253,7 +253,7 @@ class PdfService {
     );
 
     final dateFormat = intl.DateFormat('yyyy/MM/dd');
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.MultiPage(
@@ -298,7 +298,7 @@ class PdfService {
     );
 
     final dateFormat = intl.DateFormat('yyyy/MM/dd');
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.MultiPage(
@@ -316,18 +316,18 @@ class PdfService {
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                      if (companyPhone != null) pw.Text('هاتف: $companyPhone'),
+                      pw.Text(companyName ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                      if (companyPhone != null) pw.Text('ظ‡ط§طھظپ: $companyPhone'),
                     ],
                   ),
-                  pw.Text('كشف حساب مورد', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.orange)),
+                  pw.Text('ظƒط´ظپ ط­ط³ط§ط¨ ظ…ظˆط±ط¯', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.orange)),
                 ],
               ),
               pw.SizedBox(height: 10),
-              pw.Text('المورد: $supplierName', style: pw.TextStyle(fontSize: 16)),
+              pw.Text('ط§ظ„ظ…ظˆط±ط¯: $supplierName', style: pw.TextStyle(fontSize: 16)),
               if (fromDate != null || toDate != null)
                 pw.Text(
-                  'الفترة: ${fromDate != null ? dateFormat.format(fromDate) : '...'} - ${toDate != null ? dateFormat.format(toDate) : '...'}',
+                  'ط§ظ„ظپطھط±ط©: ${fromDate != null ? dateFormat.format(fromDate) : '...'} - ${toDate != null ? dateFormat.format(toDate) : '...'}',
                 ),
             ],
           ),
@@ -336,22 +336,22 @@ class PdfService {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryBox('إجمالي المشتريات', currencyFormat.format(totalPurchases), PdfColors.blue),
-              _buildSummaryBox('إجمالي المدفوع', currencyFormat.format(totalPaid), PdfColors.green),
-              _buildSummaryBox('الرصيد المتبقي', currencyFormat.format(remainingBalance), PdfColors.red),
+              _buildSummaryBox('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط´طھط±ظٹط§طھ', currencyFormat.format(totalPurchases), PdfColors.blue),
+              _buildSummaryBox('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¯ظپظˆط¹', currencyFormat.format(totalPaid), PdfColors.green),
+              _buildSummaryBox('ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ', currencyFormat.format(remainingBalance), PdfColors.red),
             ],
           ),
           pw.SizedBox(height: 20),
           // Table
           pw.TableHelper.fromTextArray(
-            headers: ['التاريخ', 'البيان', 'علينا', 'دفعنا', 'الرصيد', 'الحالة'],
+            headers: ['ط§ظ„طھط§ط±ظٹط®', 'ط§ظ„ط¨ظٹط§ظ†', 'ط¹ظ„ظٹظ†ط§', 'ط¯ظپط¹ظ†ط§', 'ط§ظ„ط±طµظٹط¯', 'ط§ظ„ط­ط§ظ„ط©'],
             data: entries.map((e) => [
               dateFormat.format(e.date),
               e.description,
               e.credit > 0 ? currencyFormat.format(e.credit) : '-',
               e.debit > 0 ? currencyFormat.format(e.debit) : '-',
               currencyFormat.format(e.balance),
-              e.type == 'purchase' ? (e.isPaid ? 'مدفوعة' : 'غير مدفوعة') : '-',
+              e.type == 'purchase' ? (e.isPaid ? 'ظ…ط¯ظپظˆط¹ط©' : 'ط؛ظٹط± ظ…ط¯ظپظˆط¹ط©') : '-',
             ]).toList(),
             border: pw.TableBorder.all(color: PdfColors.grey300),
             headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
@@ -404,18 +404,18 @@ class PdfService {
             pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text(name ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                if (phone != null) pw.Text('هاتف: $phone'),
+                pw.Text(name ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                if (phone != null) pw.Text('ظ‡ط§طھظپ: $phone'),
               ],
             ),
-            pw.Text('كشف حساب عميل', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.green)),
+            pw.Text('ظƒط´ظپ ط­ط³ط§ط¨ ط¹ظ…ظٹظ„', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold, color: PdfColors.green)),
           ],
         ),
         pw.SizedBox(height: 10),
-        pw.Text('العميل: ${customer.name}', style: pw.TextStyle(fontSize: 16)),
+        pw.Text('ط§ظ„ط¹ظ…ظٹظ„: ${customer.name}', style: pw.TextStyle(fontSize: 16)),
         if (from != null || to != null)
           pw.Text(
-            'الفترة: ${from != null ? intl.DateFormat('yyyy/MM/dd').format(from) : '...'} - ${to != null ? intl.DateFormat('yyyy/MM/dd').format(to) : '...'}',
+            'ط§ظ„ظپطھط±ط©: ${from != null ? intl.DateFormat('yyyy/MM/dd').format(from) : '...'} - ${to != null ? intl.DateFormat('yyyy/MM/dd').format(to) : '...'}',
           ),
       ],
     );
@@ -423,7 +423,7 @@ class PdfService {
 
   pw.Widget _buildStatementTable(List<CustomerStatementEntry> entries, intl.NumberFormat currency, intl.DateFormat dateFormat) {
     return pw.TableHelper.fromTextArray(
-      headers: ['التاريخ', 'البيان', 'المرجع', 'مدين (له)', 'دائن (عليه)', 'الرصيد'],
+      headers: ['ط§ظ„طھط§ط±ظٹط®', 'ط§ظ„ط¨ظٹط§ظ†', 'ط§ظ„ظ…ط±ط¬ط¹', 'ظ…ط¯ظٹظ† (ظ„ظ‡)', 'ط¯ط§ط¦ظ† (ط¹ظ„ظٹظ‡)', 'ط§ظ„ط±طµظٹط¯'],
       data: entries.map((e) => [
         dateFormat.format(e.date),
         e.description,
@@ -454,7 +454,7 @@ class PdfService {
           child: pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text('الرصيد النهائي المستحق:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)),
+              pw.Text('ط§ظ„ط±طµظٹط¯ ط§ظ„ظ†ظ‡ط§ط¦ظٹ ط§ظ„ظ…ط³طھط­ظ‚:', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)),
               pw.Text(currency.format(lastBalance), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14, color: lastBalance > 0 ? PdfColors.red : PdfColors.green)),
             ],
           ),
@@ -472,10 +472,10 @@ class PdfService {
       ),
       child: pw.Row(
         children: [
-          pw.Text('السيد / السادة: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+          pw.Text('ط§ظ„ط³ظٹط¯ / ط§ظ„ط³ط§ط¯ط©: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
           pw.Text(customer.name, style: const pw.TextStyle(fontSize: 16)),
           pw.Spacer(),
-          if (customer.phone != null) pw.Text('جوال: ${customer.phone}'),
+          if (customer.phone != null) pw.Text('ط¬ظˆط§ظ„: ${customer.phone}'),
         ],
       ),
     );
@@ -483,7 +483,7 @@ class PdfService {
 
   pw.Widget _buildInvoiceTable(List<InvoiceItem> items, intl.NumberFormat currency) {
     return pw.TableHelper.fromTextArray(
-      headers: ['م', 'الصنف', 'الكمية', 'السعر الإفرادي', 'الإجمالي'],
+      headers: ['ظ…', 'ط§ظ„طµظ†ظپ', 'ط§ظ„ظƒظ…ظٹط©', 'ط§ظ„ط³ط¹ط± ط§ظ„ط¥ظپط±ط§ط¯ظٹ', 'ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ'],
       data: items.asMap().entries.map((entry) {
         final index = entry.key + 1;
         final item = entry.value;
@@ -513,11 +513,11 @@ class PdfService {
           width: 200,
           child: pw.Column(
             children: [
-              _buildTotalRow('المبيعات', currency.format(invoice.subtotal)),
+              _buildTotalRow('ط§ظ„ظ…ط¨ظٹط¹ط§طھ', currency.format(invoice.subtotal)),
               if (invoice.discount > 0)
-                _buildTotalRow('الخصم', currency.format(invoice.discount), color: PdfColors.red),
+                _buildTotalRow('ط§ظ„ط®طµظ…', currency.format(invoice.discount), color: PdfColors.red),
               pw.Divider(),
-              _buildTotalRow('الصافي المطلوب', currency.format(invoice.total), isBold: true, fontSize: 16),
+              _buildTotalRow('ط§ظ„طµط§ظپظٹ ط§ظ„ظ…ط·ظ„ظˆط¨', currency.format(invoice.total), isBold: true, fontSize: 16),
             ],
           ),
         ),
@@ -542,8 +542,8 @@ class PdfService {
     return pw.Column(
       children: [
         pw.SizedBox(height: 20),
-        pw.Text('شكراً لتعاملكم معنا', style: const pw.TextStyle(fontSize: 14)),
-        pw.Text('حررت هذه الفاتورة إلكترونياً ولا تحتاج إلى توقيع', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
+        pw.Text('ط´ظƒط±ط§ظ‹ ظ„طھط¹ط§ظ…ظ„ظƒظ… ظ…ط¹ظ†ط§', style: const pw.TextStyle(fontSize: 14)),
+        pw.Text('ط­ط±ط±طھ ظ‡ط°ظ‡ ط§ظ„ظپط§طھظˆط±ط© ط¥ظ„ظƒطھط±ظˆظ†ظٹط§ظ‹ ظˆظ„ط§ طھط­طھط§ط¬ ط¥ظ„ظ‰ طھظˆظ‚ظٹط¹', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey)),
       ],
     );
   }
@@ -559,7 +559,7 @@ class PdfService {
     final fontBold = await PdfGoogleFonts.cairoBold();
 
     final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
     final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
 
     pdf.addPage(
@@ -577,36 +577,36 @@ class PdfService {
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
-                    pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                    if (companyPhone != null) pw.Text('هاتف: $companyPhone'),
+                    pw.Text(companyName ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                    if (companyPhone != null) pw.Text('ظ‡ط§طھظپ: $companyPhone'),
                   ],
                 ),
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
-                    pw.Text('تقرير الأرباح والخسائر', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.blue)),
-                    pw.Text('تاريخ الطباعة: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                    pw.Text('طھظ‚ط±ظٹط± ط§ظ„ط£ط±ط¨ط§ط­ ظˆط§ظ„ط®ط³ط§ط¦ط±', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.blue)),
+                    pw.Text('طھط§ط±ظٹط® ط§ظ„ط·ط¨ط§ط¹ط©: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
                   ],
                 ),
               ],
             ),
             pw.SizedBox(height: 30),
             // Report Items
-            _buildReportRow('إجمالي الإيرادات', currencyFormat.format(report.revenue), PdfColors.green),
+            _buildReportRow('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط¥ظٹط±ط§ط¯ط§طھ', currencyFormat.format(report.revenue), PdfColors.green),
             pw.SizedBox(height: 10),
-            _buildReportRow('تكلفة البضاعة المباعة', currencyFormat.format(report.cost), PdfColors.orange),
+            _buildReportRow('طھظƒظ„ظپط© ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…ط¨ط§ط¹ط©', currencyFormat.format(report.cost), PdfColors.orange),
             pw.SizedBox(height: 10),
-            _buildReportRow('المصروفات التشغيلية', currencyFormat.format(report.expenses), PdfColors.red),
+            _buildReportRow('ط§ظ„ظ…طµط±ظˆظپط§طھ ط§ظ„طھط´ط؛ظٹظ„ظٹط©', currencyFormat.format(report.expenses), PdfColors.red),
             pw.Divider(),
-            _buildReportRow('الربح التشغيلي', currencyFormat.format(report.profit), PdfColors.blue, isBold: true),
+            _buildReportRow('ط§ظ„ط±ط¨ط­ ط§ظ„طھط´ط؛ظٹظ„ظٹ', currencyFormat.format(report.profit), PdfColors.blue, isBold: true),
             pw.SizedBox(height: 20),
-            _buildReportRow('الرواتب والأجور', currencyFormat.format(report.salaries), PdfColors.teal),
+            _buildReportRow('ط§ظ„ط±ظˆط§طھط¨ ظˆط§ظ„ط£ط¬ظˆط±', currencyFormat.format(report.salaries), PdfColors.teal),
             pw.SizedBox(height: 10),
-            _buildReportRow('الجرد السنوي / تسوية', currencyFormat.format(report.annualInventories), PdfColors.indigo),
+            _buildReportRow('ط§ظ„ط¬ط±ط¯ ط§ظ„ط³ظ†ظˆظٹ / طھط³ظˆظٹط©', currencyFormat.format(report.annualInventories), PdfColors.indigo),
             pw.Divider(thickness: 2),
             pw.SizedBox(height: 10),
             _buildReportRow(
-              'صافي الربح النهائي', 
+              'طµط§ظپظٹ ط§ظ„ط±ط¨ط­ ط§ظ„ظ†ظ‡ط§ط¦ظٹ', 
               currencyFormat.format(report.netProfit), 
               report.netProfit >= 0 ? PdfColors.green : PdfColors.red, 
               isBold: true,
@@ -615,7 +615,7 @@ class PdfService {
             pw.SizedBox(height: 10),
             pw.Center(
               child: pw.Text(
-                'هامش الربح النهائي: ${report.profitMargin.toStringAsFixed(1)}%',
+                'ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­ ط§ظ„ظ†ظ‡ط§ط¦ظٹ: ${report.profitMargin.toStringAsFixed(1)}%',
                 style: pw.TextStyle(fontSize: 14, color: report.netProfit >= 0 ? PdfColors.green : PdfColors.red),
               ),
             ),
@@ -655,7 +655,7 @@ class PdfService {
     final fontBold = await PdfGoogleFonts.cairoBold();
 
     final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
     final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
 
     pdf.addPage(
@@ -668,12 +668,12 @@ class PdfService {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(companyName ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                  pw.Text('تقرير مبيعات الأصناف', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.purple)),
-                  pw.Text('تاريخ الطباعة: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                  pw.Text('طھظ‚ط±ظٹط± ظ…ط¨ظٹط¹ط§طھ ط§ظ„ط£طµظ†ط§ظپ', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.purple)),
+                  pw.Text('طھط§ط±ظٹط® ط§ظ„ط·ط¨ط§ط¹ط©: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
                 ],
               ),
             ],
@@ -681,7 +681,7 @@ class PdfService {
           pw.SizedBox(height: 20),
           // Table
           pw.TableHelper.fromTextArray(
-            headers: ['الصنف', 'الكمية المباعة', 'الإيرادات', 'الأرباح'],
+            headers: ['ط§ظ„طµظ†ظپ', 'ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط¨ط§ط¹ط©', 'ط§ظ„ط¥ظٹط±ط§ط¯ط§طھ', 'ط§ظ„ط£ط±ط¨ط§ط­'],
             data: salesData.map((row) => [
               row['productName'] ?? '',
               (row['totalQuantity'] as double).toStringAsFixed(1),
@@ -711,7 +711,7 @@ class PdfService {
     final fontBold = await PdfGoogleFonts.cairoBold();
 
     final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
     final dateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
 
     pdf.addPage(
@@ -724,12 +724,12 @@ class PdfService {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(companyName ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                  pw.Text('تقرير أعمار ذمم العملاء', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.amber)),
-                  pw.Text('تاريخ الطباعة: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                  pw.Text('طھظ‚ط±ظٹط± ط£ط¹ظ…ط§ط± ط°ظ…ظ… ط§ظ„ط¹ظ…ظ„ط§ط،', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.amber)),
+                  pw.Text('طھط§ط±ظٹط® ط§ظ„ط·ط¨ط§ط¹ط©: ${dateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
                 ],
               ),
             ],
@@ -737,7 +737,7 @@ class PdfService {
           pw.SizedBox(height: 20),
           // Table
           pw.TableHelper.fromTextArray(
-            headers: ['العميل', 'حالياً (0-30)', '30-60 يوم', '60-90 يوم', '>90 يوم', 'الإجمالي'],
+            headers: ['ط§ظ„ط¹ظ…ظٹظ„', 'ط­ط§ظ„ظٹط§ظ‹ (0-30)', '30-60 ظٹظˆظ…', '60-90 ظٹظˆظ…', '>90 ظٹظˆظ…', 'ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ'],
             data: entries.map((e) => [
               e.customerName,
               e.current > 0 ? currencyFormat.format(e.current) : '-',
@@ -769,7 +769,7 @@ class PdfService {
     final fontBold = await PdfGoogleFonts.cairoBold();
 
     final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
     final dateFormat = intl.DateFormat('yyyy/MM/dd');
     final printDateFormat = intl.DateFormat('yyyy/MM/dd HH:mm');
 
@@ -783,12 +783,12 @@ class PdfService {
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
             children: [
-              pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+              pw.Text(companyName ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                  pw.Text('تقرير حركة الصندوق', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.teal)),
-                  pw.Text('تاريخ الطباعة: ${printDateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
+                  pw.Text('طھظ‚ط±ظٹط± ط­ط±ظƒط© ط§ظ„طµظ†ط¯ظˆظ‚', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.teal)),
+                  pw.Text('طھط§ط±ظٹط® ط§ظ„ط·ط¨ط§ط¹ط©: ${printDateFormat.format(DateTime.now())}', style: const pw.TextStyle(fontSize: 10)),
                 ],
               ),
             ],
@@ -796,13 +796,13 @@ class PdfService {
           pw.SizedBox(height: 20),
           // Table
           pw.TableHelper.fromTextArray(
-            headers: ['التاريخ', 'البيان', 'النوع', 'المبلغ', 'الرصيد'],
+            headers: ['ط§ظ„طھط§ط±ظٹط®', 'ط§ظ„ط¨ظٹط§ظ†', 'ط§ظ„ظ†ظˆط¹', 'ط§ظ„ظ…ط¨ظ„ط؛', 'ط§ظ„ط±طµظٹط¯'],
             data: entries.map((e) {
               final isIn = e.type == 'in' || e.type == 'receipt';
               return [
                 dateFormat.format(e.date),
                 e.description,
-                e.type == 'opening' ? 'رصيد افتتاحي' : (isIn ? 'وارد' : 'صادر'),
+                e.type == 'opening' ? 'ط±طµظٹط¯ ط§ظپطھطھط§ط­ظٹ' : (isIn ? 'ظˆط§ط±ط¯' : 'طµط§ط¯ط±'),
                 e.type == 'opening' ? '-' : '${isIn ? "+" : "-"}${currencyFormat.format(e.amount)}',
                 currencyFormat.format(e.balance),
               ];
@@ -825,7 +825,7 @@ class PdfService {
                     borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
                   ),
                   child: pw.Text(
-                    'الرصيد النهائي: ${currencyFormat.format(entries.last.balance)}',
+                    'ط§ظ„ط±طµظٹط¯ ط§ظ„ظ†ظ‡ط§ط¦ظٹ: ${currencyFormat.format(entries.last.balance)}',
                     style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, color: PdfColors.teal),
                   ),
                 ),
@@ -849,7 +849,7 @@ class PdfService {
     final fontBold = await PdfGoogleFonts.cairoBold();
 
     final theme = pw.ThemeData.withFont(base: font, bold: fontBold);
-    final currencyFormat = intl.NumberFormat.currency(symbol: 'شيكل', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
+    final currencyFormat = intl.NumberFormat.currency(symbol: 'ط´ظٹظƒظ„', decimalDigits: 2, customPattern: '#,##0.00 \u00A4');
 
     pdf.addPage(
       pw.MultiPage(
@@ -864,15 +864,15 @@ class PdfService {
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                   pw.Text(companyName ?? 'اسم المنشأة', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                   if (companyPhone != null) pw.Text('هاتف: $companyPhone'),
+                   pw.Text(companyName ?? 'ط§ط³ظ… ط§ظ„ظ…ظ†ط´ط£ط©', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                   if (companyPhone != null) pw.Text('ظ‡ط§طھظپ: $companyPhone'),
                 ],
               ),
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                   pw.Text('كشف رواتب الموظفين', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.teal)),
-                   pw.Text('عن شهر: ${month.month}/${month.year}', style: pw.TextStyle(fontSize: 14)),
+                   pw.Text('ظƒط´ظپ ط±ظˆط§طھط¨ ط§ظ„ظ…ظˆط¸ظپظٹظ†', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: PdfColors.teal)),
+                   pw.Text('ط¹ظ† ط´ظ‡ط±: ${month.month}/${month.year}', style: pw.TextStyle(fontSize: 14)),
                 ],
               ),
             ],
@@ -881,7 +881,7 @@ class PdfService {
           
           // Table
           pw.TableHelper.fromTextArray(
-            headers: ['الموظف', 'الراتب الثابت', 'المدفوع', 'المتبقي', 'التوقيع'],
+            headers: ['ط§ظ„ظ…ظˆط¸ظپ', 'ط§ظ„ط±ط§طھط¨ ط§ظ„ط«ط§ط¨طھ', 'ط§ظ„ظ…ط¯ظپظˆط¹', 'ط§ظ„ظ…طھط¨ظ‚ظٹ', 'ط§ظ„طھظˆظ‚ظٹط¹'],
             data: salaryData.map((e) => [
               e['name'],
               currencyFormat.format(e['fixed']),

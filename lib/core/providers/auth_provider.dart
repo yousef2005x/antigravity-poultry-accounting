@@ -1,6 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:poultry_accounting/domain/entities/user.dart';
-import 'package:poultry_accounting/domain/repositories/user_repository.dart';
+﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:poultry_accounting/backend/domain/entities/user.dart';
+import 'package:poultry_accounting/backend/domain/repositories/user_repository.dart';
 import 'database_providers.dart';
 
 class AuthState {
@@ -34,7 +34,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(user: user, isLoading: false);
         return true;
       } else {
-        state = state.copyWith(isLoading: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة');
+        state = state.copyWith(isLoading: false, error: 'ط§ط³ظ… ط§ظ„ظ…ط³طھط®ط¯ظ… ط£ظˆ ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط؛ظٹط± طµط­ظٹط­ط©');
         return false;
       }
     } catch (e) {

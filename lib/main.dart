@@ -6,8 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:poultry_accounting/core/providers/auth_provider.dart';
 import 'package:poultry_accounting/core/utils/session_timeout_listener.dart';
 
-import 'presentation/auth/login_screen.dart';
-import 'presentation/home/home_screen.dart';
+import 'frontend/presentation/auth/login_screen.dart';
+import 'frontend/presentation/home/home_screen.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
