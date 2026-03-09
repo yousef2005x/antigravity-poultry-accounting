@@ -61,13 +61,13 @@ class _EmployeeFormScreenState extends ConsumerState<EmployeeFormScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… ط­ظپط¸ ط§ظ„ظ…ظˆط¸ظپ ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم حفظ الموظف بنجاح')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')),
+          SnackBar(content: Text('خطأ في الحفظ: $e')),
         );
       }
     }
@@ -77,7 +77,7 @@ class _EmployeeFormScreenState extends ConsumerState<EmployeeFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.employee == null ? 'ط¥ط¶ط§ظپط© ظ…ظˆط¸ظپ' : 'طھط¹ط¯ظٹظ„ ظ…ظˆط¸ظپ'),
+        title: Text(widget.employee == null ? 'إضافة موظف' : 'تعديل موظف'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -87,29 +87,29 @@ class _EmployeeFormScreenState extends ConsumerState<EmployeeFormScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'ط§ط³ظ… ط§ظ„ظ…ظˆط¸ظپ *', border: OutlineInputBorder()),
-                validator: (val) => val == null || val.isEmpty ? 'ظ…ط·ظ„ظˆط¨' : null,
+                decoration: const InputDecoration(labelText: 'اسم الموظف *', border: OutlineInputBorder()),
+                validator: (val) => val == null || val.isEmpty ? 'مطلوب' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'ط±ظ‚ظ… ط§ظ„ظ‡ط§طھظپ', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'رقم الهاتف', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _salaryController,
-                decoration: const InputDecoration(labelText: 'ط§ظ„ط±ط§طھط¨ ط§ظ„ط´ظ‡ط±ظٹ ط§ظ„ط«ط§ط¨طھ', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'الراتب الشهري الثابت', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                  validator: (val) {
                   if (val != null && val.isNotEmpty && double.tryParse(val) == null) {
-                    return 'ط£ط¯ط®ظ„ ط±ظ‚ظ… طµط­ظٹط­';
+                    return 'أدخل رقم صحيح';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               ListTile(
-                title: const Text('طھط§ط±ظٹط® ط§ظ„طھط¹ظٹظٹظ†'),
+                title: const Text('تاريخ التعيين'),
                 subtitle: Text('${_hireDate.year}-${_hireDate.month}-${_hireDate.day}'),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () async {

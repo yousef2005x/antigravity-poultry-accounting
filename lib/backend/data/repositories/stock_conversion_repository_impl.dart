@@ -88,7 +88,7 @@ class StockConversionRepositoryImpl implements StockConversionRepository {
       }
 
       if (remainingToDeduct > 0.01) {
-        throw Exception('ظ„ط§ ظٹظˆط¬ط¯ ظ…ط®ط²ظˆظ† ظƒط§ظپظچ ظ…ظ† ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظ…ط®طھط§ط± ظ„ط¥ط¬ط±ط§ط، ط§ظ„طھط­ظˆظٹظ„.');
+        throw Exception('لا يوجد مخزون كافٍ من المنتج المختار لإجراء التحويل.');
       }
 
       final totalSourceCost = weightedCostSum;

@@ -14,7 +14,7 @@ class PaymentListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط³ط¬ظ„ ط§ظ„ظ…ط¯ظپظˆط¹ط§طھ ظˆط§ظ„ظ‚ط¨ط¶'),
+        title: const Text('سجل المدفوعات والقبض'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
@@ -33,7 +33,7 @@ class PaymentListScreen extends ConsumerWidget {
                       children: [
                         Icon(Icons.payments_outlined, size: 64, color: Colors.grey),
                         SizedBox(height: 16),
-                        Text('ظ„ط§ ظٹظˆط¬ط¯ ط³ظ†ط¯ط§طھ ظ…ط³ط¬ظ„ط©', style: TextStyle(color: Colors.grey)),
+                        Text('لا يوجد سندات مسجلة', style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   );
@@ -65,11 +65,11 @@ class PaymentListScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              payment.customer?.name ?? payment.supplier?.name ?? 'ط¬ظ‡ط© ط؛ظٹط± ظ…ط¹ط±ظˆظپط©',
+                              payment.customer?.name ?? payment.supplier?.name ?? 'جهة غير معروفة',
                               style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              '${payment.amount.toStringAsFixed(2)} â‚ھ',
+                              '${payment.amount.toStringAsFixed(2)} ₪',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: isReceipt ? Colors.green : Colors.red,
@@ -125,7 +125,7 @@ class PaymentListScreen extends ConsumerWidget {
                             IconButton(
                               icon: const Icon(Icons.print, color: Colors.blue),
                               onPressed: () => _printReceipt(context, ref, payment),
-                              tooltip: 'ط·ط¨ط§ط¹ط© ظˆط±ظٹظپظٹظˆ',
+                              tooltip: 'طباعة وريفيو',
                             ),
                             const Icon(Icons.chevron_left, color: Colors.grey),
                           ],
@@ -183,7 +183,7 @@ class PaymentListScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط·ط¨ط§ط¹ط©: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('خطأ في الطباعة: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -205,10 +205,10 @@ class PaymentListScreen extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            const Text('ط±طµظٹط¯ ط§ظ„طµظ†ط¯ظˆظ‚ ط§ظ„ط­ط§ظ„ظٹ', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            const Text('رصيد الصندوق الحالي', style: TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 8),
             Text(
-              '${balance.toStringAsFixed(2)} â‚ھ',
+              '${balance.toStringAsFixed(2)} ₪',
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green),
             ),
           ],

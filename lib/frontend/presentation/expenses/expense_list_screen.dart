@@ -13,12 +13,12 @@ class ExpenseListScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('طھط£ظƒظٹط¯ ط§ظ„ط­ط°ظپ'),
-        content: Text('ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ…طµط±ظˆظپ "${expense.description}"طں\nط³ظٹطھظ… ط£ظٹط¶ط§ظ‹ ط­ط°ظپ ط­ط±ظƒط© ط§ظ„طµظ†ط¯ظˆظ‚ ط§ظ„ظ…ط±طھط¨ط·ط© ط¨ظ‡.'),
+        title: const Text('تأكيد الحذف'),
+        content: Text('هل أنت متأكد من حذف مصروف "${expense.description}"؟\nسيتم أيضاً حذف حركة الصندوق المرتبطة به.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ط¥ظ„ط؛ط§ط،'),
+            child: const Text('إلغاء'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -34,13 +34,13 @@ class ExpenseListScreen extends ConsumerWidget {
         await ref.read(expenseRepositoryProvider).deleteExpense(expense.id!);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('طھظ… ط­ط°ظپ ط§ظ„ظ…طµط±ظˆظپ ط¨ظ†ط¬ط§ط­')),
+            const SnackBar(content: Text('تم حذف المصروف بنجاح')),
           );
         }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ط°ظپ: $e'), backgroundColor: Colors.red),
+            SnackBar(content: Text('خطأ في الحذف: $e'), backgroundColor: Colors.red),
           );
         }
       }
@@ -51,7 +51,7 @@ class ExpenseListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط³ط¬ظ„ ط§ظ„ظ…طµط±ظˆظپط§طھ'),
+        title: const Text('سجل المصروفات'),
         backgroundColor: Colors.redAccent,
         actions: [
           IconButton(
@@ -60,7 +60,7 @@ class ExpenseListScreen extends ConsumerWidget {
               context,
               MaterialPageRoute(builder: (_) => const ExpenseCategoryListScreen()),
             ),
-            tooltip: 'طھطµظ†ظٹظپط§طھ ط§ظ„ظ…طµط§ط±ظٹظپ',
+            tooltip: 'تصنيفات المصاريف',
           ),
         ],
       ),
@@ -69,7 +69,7 @@ class ExpenseListScreen extends ConsumerWidget {
             error: (err, stack) => Center(child: Text('ط®ط·ط£: $err')),
             data: (expenses) {
               if (expenses.isEmpty) {
-                return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ظ…طµط±ظˆظپط§طھ ظ…ط³ط¬ظ„ط©'));
+                return const Center(child: Text('لا توجد مصروفات مسجلة'));
               }
 
               return ListView.separated(
@@ -90,9 +90,9 @@ class ExpenseListScreen extends ConsumerWidget {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('ط§ظ„طھطµظ†ظٹظپ: ${expense.categoryName ?? "ط؛ظٹط± ظ…طµظ†ظپ"}'),
+                        Text('التصنيف: ${expense.categoryName ?? "غير مصنف"}'),
                         Text(
-                          'ط§ظ„طھط§ط±ظٹط®: ${expense.expenseDate.day}/${expense.expenseDate.month}/${expense.expenseDate.year}',
+                          'التاريخ: ${expense.expenseDate.day}/${expense.expenseDate.month}/${expense.expenseDate.year}',
                         ),
                       ],
                     ),
@@ -100,7 +100,7 @@ class ExpenseListScreen extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '${expense.amount.toStringAsFixed(2)} â‚ھ',
+                          '${expense.amount.toStringAsFixed(2)} ₪',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 18,

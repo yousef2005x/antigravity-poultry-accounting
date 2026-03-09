@@ -36,7 +36,7 @@ class _SupplierManagementScreenState extends ConsumerState<SupplierManagementScr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط¥ط¯ط§ط±ط© ط§ظ„ظ…ظˆط±ط¯ظٹظ†'),
+        title: const Text('إدارة الموردين'),
         backgroundColor: Colors.orange,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -45,8 +45,8 @@ class _SupplierManagementScreenState extends ConsumerState<SupplierManagementScr
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withValues(alpha: 0.85),
           tabs: const [
-            Tab(icon: Icon(Icons.business), text: 'ظ‚ط§ط¦ظ…ط© ط§ظ„ظ…ظˆط±ط¯ظٹظ†'),
-            Tab(icon: Icon(Icons.assessment), text: 'ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨'),
+            Tab(icon: Icon(Icons.business), text: 'قائمة الموردين'),
+            Tab(icon: Icon(Icons.assessment), text: 'كشف الحساب'),
           ],
         ),
       ),
@@ -90,7 +90,7 @@ class _SupplierListTab extends ConsumerWidget {
               children: [
                 Icon(Icons.business_center, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
-                Text('ظ„ط§ ظٹظˆط¬ط¯ ظ…ظˆط±ط¯ظٹظ† ظ…ط¶ط§ظپظٹظ† ط¨ط¹ط¯', style: TextStyle(color: Colors.grey)),
+                Text('لا يوجد موردين مضافين بعد', style: TextStyle(color: Colors.grey)),
               ],
             ),
           );
@@ -198,7 +198,7 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط¬ظ„ط¨ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨: $e')),
+          SnackBar(content: Text('خطأ في جلب كشف الحساب: $e')),
         );
       }
     }
@@ -243,7 +243,7 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
                         children: [
                           Icon(Icons.assignment, size: 64, color: Colors.grey),
                           SizedBox(height: 16),
-                          Text('ط§ط®طھط± ظ…ظˆط±ط¯ط§ظ‹ ظ„ط¹ط±ط¶ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨', style: TextStyle(color: Colors.grey)),
+                          Text('اختر مورداً لعرض كشف الحساب', style: TextStyle(color: Colors.grey)),
                         ],
                       ),
                     )
@@ -259,15 +259,15 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
       child: Row(
         children: [
           Expanded(
-            child: _buildSmallSummaryCard('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط´طھط±ظٹط§طھ', _totalPurchases, Colors.blue),
+            child: _buildSmallSummaryCard('إجمالي المشتريات', _totalPurchases, Colors.blue),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildSmallSummaryCard('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¯ظپظˆط¹', _totalPaid, Colors.green),
+            child: _buildSmallSummaryCard('إجمالي المدفوع', _totalPaid, Colors.green),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildSmallSummaryCard('ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ', _remainingBalance, Colors.red),
+            child: _buildSmallSummaryCard('الرصيد المتبقي', _remainingBalance, Colors.red),
           ),
         ],
       ),
@@ -302,7 +302,7 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
                 data: (suppliers) => DropdownButtonFormField<Supplier>(
                   initialValue: _selectedSupplier,
                   decoration: InputDecoration(
-                    labelText: 'ط§ط®طھط± ط§ظ„ظ…ظˆط±ط¯',
+                    labelText: 'اختر المورد',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.business, color: Colors.orange),
                     filled: true,
@@ -320,16 +320,16 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
                   },
                 ),
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ظ…ظˆط±ط¯ظٹظ†'),
+                error: (_, __) => const Text('خطأ في تحميل الموردين'),
               ),
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildFilterChip('ط§ظ„ظƒظ„', SupplierFilter.all),
+              _buildFilterChip('الكل', SupplierFilter.all),
               const SizedBox(width: 8),
-              _buildFilterChip('ط§ظ„ظ…ط¯ظپظˆط¹ ظپظ‚ط·', SupplierFilter.paid),
+              _buildFilterChip('المدفوع فقط', SupplierFilter.paid),
               const SizedBox(width: 8),
-              _buildFilterChip('ط؛ظٹط± ط§ظ„ظ…ط¯ظپظˆط¹', SupplierFilter.unpaid),
+              _buildFilterChip('غير المدفوع', SupplierFilter.unpaid),
             ],
           ),
           const SizedBox(height: 12),
@@ -351,7 +351,7 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
                   },
                   icon: const Icon(Icons.date_range, size: 16),
                   label: Text(_fromDate == null
-                      ? 'ظ…ظ† طھط§ط±ظٹط®'
+                      ? 'من تاريخ'
                       : '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
                     ),
                 ),
@@ -373,7 +373,7 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
                   },
                   icon: const Icon(Icons.date_range, size: 16),
                   label: Text(_toDate == null
-                      ? 'ط¥ظ„ظ‰ طھط§ط±ظٹط®'
+                      ? 'إلى تاريخ'
                       : '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
                     ),
                 ),
@@ -438,7 +438,7 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      entry.isPaid ? 'ظ…ط¯ظپظˆط¹ط©' : 'ط؛ظٹط± ظ…ط¯ظپظˆط¹ط©',
+                      entry.isPaid ? 'مدفوعة' : 'غير مدفوعة',
                       style: TextStyle(
                         fontSize: 10,
                         color: entry.isPaid ? Colors.green.shade800 : Colors.red.shade800,
@@ -455,13 +455,13 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
                   children: [
                     if (entry.credit > 0)
                       Text(
-                        'ط¹ظ„ظٹظ†ط§: ${entry.credit.toStringAsFixed(1)}',
+                        'علينا: ${entry.credit.toStringAsFixed(1)}',
                         style: const TextStyle(color: Colors.red, fontSize: 13),
                       ),
                     if (entry.credit > 0 && entry.debit > 0) const SizedBox(width: 8),
                     if (entry.debit > 0)
                       Text(
-                        'ط¯ظپط¹ظ†ط§: ${entry.debit.toStringAsFixed(1)}',
+                        'دفعنا: ${entry.debit.toStringAsFixed(1)}',
                         style: const TextStyle(color: Colors.green, fontSize: 13),
                       ),
                   ],
@@ -469,7 +469,7 @@ class _SupplierStatementTabState extends ConsumerState<_SupplierStatementTab> {
               ],
             ),
             trailing: Text(
-              'â‚ھ ${entry.balance.toStringAsFixed(1)}',
+              '₪ ${entry.balance.toStringAsFixed(1)}',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),

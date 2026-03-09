@@ -53,7 +53,7 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط§ظ„طھط³ط¹ظٹط±ط© ط§ظ„ظٹظˆظ…ظٹط© ظ„ظ„ط£طµظ†ط§ظپ'),
+        title: const Text('التسعيرة اليومية للأصناف'),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -73,7 +73,7 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
                     error: (err, stack) => Center(child: Text('ط®ط·ط£: $err')),
                     data: (products) {
                       if (products.isEmpty) {
-                        return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط£طµظ†ط§ظپ ظ…ط³ط¬ظ„ط©'));
+                        return const Center(child: Text('لا توجد أصناف مسجلة'));
                       }
                       
                       // Initialize controllers for new products
@@ -115,7 +115,7 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
                                   controller: _controllers[product.id],
                                   textAlign: TextAlign.center,
                                   decoration: InputDecoration(
-                                    suffixText: 'â‚ھ',
+                                    suffixText: '₪',
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
@@ -146,7 +146,7 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
               child: ElevatedButton.icon(
                 onPressed: _savePrices,
                 icon: const Icon(Icons.save, color: Colors.white),
-                label: const Text('ط­ظپط¸ ط¬ظ…ظٹط¹ ط§ظ„ط£ط³ط¹ط§ط±', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                label: const Text('حفظ جميع الأسعار', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade700,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -193,7 +193,7 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
           children: [
             Icon(Icons.calendar_today, color: Colors.green.shade700, size: 20),
             const SizedBox(width: 12),
-            const Text('ط§ظ„طھط§ط±ظٹط®:', style: TextStyle(fontSize: 16)),
+            const Text('التاريخ:', style: TextStyle(fontSize: 16)),
             const Spacer(),
             Text(
               '${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}',
@@ -227,11 +227,11 @@ class _DailyPricingScreenState extends ConsumerState<DailyPricingScreen> {
     try {
       await ref.read(priceRepositoryProvider).updateMultiplePrices(pricesToSave);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طھظ… ط­ظپط¸ ط§ظ„ط£ط³ط¹ط§ط± ظ„ظ„ظٹظˆظ…')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ الأسعار لليوم')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في الحفظ: $e')));
       }
     }
   }

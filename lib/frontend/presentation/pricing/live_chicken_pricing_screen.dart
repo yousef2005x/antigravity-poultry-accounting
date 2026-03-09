@@ -28,7 +28,7 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
       final products = await ref.read(productRepositoryProvider).getAllProducts();
       // Try to find a product that represents Live Chicken
       final chicken = products.firstWhere(
-        (p) => p.name.contains('ط±ظٹط´') || p.name.contains('ط¯ط¬ط§ط¬') || p.name.contains('ط¬ط§ط¬'),
+        (p) => p.name.contains('ريش') || p.name.contains('دجاج') || p.name.contains('جاج'),
         orElse: () => products.first, // Fallback to first product if none found
       );
       
@@ -68,7 +68,7 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('طھط³ط¹ظٹط±ط© ط§ظ„ط¬ط§ط¬ ط§ظ„ط±ظٹط´'),
+        title: const Text('تسعيرة الجاج الريش'),
         backgroundColor: Colors.green.shade700,
         foregroundColor: Colors.white,
       ),
@@ -96,7 +96,7 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
                    const Icon(Icons.shopping_basket, size: 60, color: Colors.green),
                    const SizedBox(height: 16),
                    const Text(
-                    'ط³ط¹ط± ظƒظٹظ„ظˆ ط§ظ„ط¬ط§ط¬ ط§ظ„ط±ظٹط´',
+                    'سعر كيلو الجاج الريش',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 24),
@@ -106,7 +106,7 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
                     style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.green),
                     decoration: InputDecoration(
                       hintText: '0.00',
-                      suffixText: 'â‚ھ',
+                      suffixText: '₪',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -130,7 +130,7 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
                   elevation: 2,
                 ),
                 child: const Text(
-                  'ط­ظپط¸ ط§ظ„طھط³ط¹ظٹط±ط©',
+                  'حفظ التسعيرة',
                   style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -174,7 +174,7 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
           children: [
             Icon(Icons.calendar_today, color: Colors.green.shade700, size: 20),
             const SizedBox(width: 12),
-            const Text('طھط§ط±ظٹط® ط§ظ„طھط³ط¹ظٹط±ط©:', style: TextStyle(fontSize: 16)),
+            const Text('تاريخ التسعيرة:', style: TextStyle(fontSize: 16)),
             const Spacer(),
             Text(
               '${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}',
@@ -188,7 +188,7 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
 
   Future<void> _savePrice() async {
     if (_chickenProductId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ط®ط·ط£: ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ طµظ†ظپ ط§ظ„ط¬ط§ط¬')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('خطأ: لم يتم العثور على صنف الجاج')));
       return;
     }
 
@@ -205,14 +205,14 @@ class _LiveChickenPricingScreenState extends ConsumerState<LiveChickenPricingScr
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('طھظ… ط­ظپط¸ طھط³ط¹ظٹط±ط© ط§ظ„ط¬ط§ط¬ ط§ظ„ط±ظٹط´ ط¨ظ†ط¬ط§ط­'),
+            content: Text('تم حفظ تسعيرة الجاج الريش بنجاح'),
             backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في الحفظ: $e')));
       }
     }
   }

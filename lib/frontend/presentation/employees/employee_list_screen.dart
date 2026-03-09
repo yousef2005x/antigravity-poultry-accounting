@@ -12,7 +12,7 @@ class EmployeeListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط¥ط¯ط§ط±ط© ط§ظ„ظ…ظˆط¸ظپظٹظ†'),
+        title: const Text('إدارة الموظفين'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -26,7 +26,7 @@ class EmployeeListScreen extends ConsumerWidget {
       body: employeesAsync.when(
         data: (employees) {
           if (employees.isEmpty) {
-            return const Center(child: Text('ظ„ط§ ظٹظˆط¬ط¯ ظ…ظˆط¸ظپظٹظ† ظ…ط³ط¬ظ„ظٹظ†'));
+            return const Center(child: Text('لا يوجد موظفين مسجلين'));
           }
           return ListView.builder(
             itemCount: employees.length,
@@ -34,7 +34,7 @@ class EmployeeListScreen extends ConsumerWidget {
               final employee = employees[index];
               return ListTile(
                 title: Text(employee.name),
-                subtitle: Text('ط§ظ„ط±ط§طھط¨: ${employee.monthlySalary} â‚ھ'),
+                subtitle: Text('الراتب: ${employee.monthlySalary} ₪'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -52,10 +52,10 @@ class EmployeeListScreen extends ConsumerWidget {
                       onPressed: () {
                          // Confirm delete dialog
                          showDialog(context: context, builder: (ctx) => AlertDialog(
-                           title: const Text('ط­ط°ظپ ط§ظ„ظ…ظˆط¸ظپ'),
-                           content: const Text('ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯طں'),
+                           title: const Text('حذف الموظف'),
+                           content: const Text('هل أنت متأكد؟'),
                            actions: [
-                             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('ط¥ظ„ط؛ط§ط،')),
+                             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('إلغاء')),
                              TextButton(onPressed: () async {
                                Navigator.pop(ctx);
                                await ref.read(employeeRepositoryProvider).deleteEmployee(employee.id!);

@@ -57,7 +57,7 @@ class Payment {
   String get methodDisplayName => method.nameAr;
 
   /// Get payment type display name
-  String get typeDisplayName => isReceipt ? 'ط³ظ†ط¯ ظ‚ط¨ط¶' : 'ط³ظ†ط¯ طµط±ظپ';
+  String get typeDisplayName => isReceipt ? 'سند قبض' : 'سند صرف';
 
   /// Get party name (customer or supplier)
   String? get partyName => customer?.name ?? supplier?.name;

@@ -59,13 +59,13 @@ class _AnnualInventoryFormScreenState extends ConsumerState<AnnualInventoryFormS
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… ط­ظپط¸ طھط³ظˆظٹط© ط§ظ„ط¬ط±ط¯ ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم حفظ تسوية الجرد بنجاح')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')),
+          SnackBar(content: Text('خطأ في الحفظ: $e')),
         );
       }
     }
@@ -75,7 +75,7 @@ class _AnnualInventoryFormScreenState extends ConsumerState<AnnualInventoryFormS
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.annualInventory == null ? 'ط¥ط¶ط§ظپط© طھط³ظˆظٹط© ط¬ط±ط¯' : 'طھط¹ط¯ظٹظ„ طھط³ظˆظٹط©'),
+        title: Text(widget.annualInventory == null ? 'إضافة تسوية جرد' : 'تعديل تسوية'),
         backgroundColor: Colors.indigo,
       ),
       body: SingleChildScrollView(
@@ -88,17 +88,17 @@ class _AnnualInventoryFormScreenState extends ConsumerState<AnnualInventoryFormS
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظ„ظ…ط¨ظ„ط؛ (â‚ھ) *',
+                  labelText: 'المبلغ (₪) *',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.attach_money),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (val) {
                   if (val == null || val.isEmpty) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛';
+                    return 'يرجى إدخال المبلغ';
                   }
                   if (double.tryParse(val) == null) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط±ظ‚ظ… طµط­ظٹط­';
+                    return 'يرجى إدخال رقم صحيح';
                   }
                   return null;
                 },
@@ -109,10 +109,10 @@ class _AnnualInventoryFormScreenState extends ConsumerState<AnnualInventoryFormS
               TextFormField(
                 controller: _descController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظ„ظˆطµظپ / ط§ظ„ط¨ظٹط§ظ† *',
+                  labelText: 'الوصف / البيان *',
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.isEmpty) ? 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظˆطµظپ' : null,
+                validator: (val) => (val == null || val.isEmpty) ? 'يرجى إدخال الوصف' : null,
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -124,7 +124,7 @@ class _AnnualInventoryFormScreenState extends ConsumerState<AnnualInventoryFormS
                     backgroundColor: Colors.indigo,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('ط­ظپط¸ ط§ظ„طھط³ظˆظٹط©', style: TextStyle(fontSize: 18)),
+                  child: const Text('حفظ التسوية', style: TextStyle(fontSize: 18)),
                 ),
               ),
             ],
@@ -149,7 +149,7 @@ class _AnnualInventoryFormScreenState extends ConsumerState<AnnualInventoryFormS
       },
       child: InputDecorator(
         decoration: const InputDecoration(
-          labelText: 'ط§ظ„طھط§ط±ظٹط®',
+          labelText: 'التاريخ',
           border: OutlineInputBorder(),
           prefixIcon: Icon(Icons.calendar_today),
         ),

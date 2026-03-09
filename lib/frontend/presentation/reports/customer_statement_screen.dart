@@ -58,7 +58,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط¬ظ„ط¨ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨: $e')),
+          SnackBar(content: Text('خطأ في جلب كشف الحساب: $e')),
         );
       }
     }
@@ -102,7 +102,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ظƒط´ظپ ط­ط³ط§ط¨ ط¹ظ…ظٹظ„'),
+        title: const Text('كشف حساب عميل'),
         backgroundColor: Colors.green,
         actions: [
           if (_entries.isNotEmpty && _selectedCustomer != null)
@@ -120,7 +120,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _entries.isEmpty
-                    ? const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط¨ظٹط§ظ†ط§طھ ظ„ظ„ط¹ط±ط¶'))
+                    ? const Center(child: Text('لا توجد بيانات للعرض'))
                     : _buildStatementList(),
           ),
         ],
@@ -137,7 +137,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
                 data: (customers) => DropdownButtonFormField<Customer>(
                   initialValue: _selectedCustomer,
                   decoration: const InputDecoration(
-                    labelText: 'ط§ظ„ط¹ظ…ظٹظ„',
+                    labelText: 'العميل',
                     border: OutlineInputBorder(),
                   ),
                   items: customers
@@ -153,7 +153,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
                   },
                 ),
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ط¹ظ…ظ„ط§ط،'),
+                error: (_, __) => const Text('خطأ في تحميل العملاء'),
               ),
           const SizedBox(height: 16),
           Row(
@@ -175,7 +175,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
                   icon: const Icon(Icons.date_range),
                   label: Text(
                     _fromDate == null
-                        ? 'ظ…ظ† طھط§ط±ظٹط®'
+                        ? 'من تاريخ'
                         : '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
                   ),
                 ),
@@ -198,7 +198,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
                   icon: const Icon(Icons.date_range),
                   label: Text(
                     _toDate == null
-                        ? 'ط¥ظ„ظ‰ طھط§ط±ظٹط®'
+                        ? 'إلى تاريخ'
                         : '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
                   ),
                 ),
@@ -218,7 +218,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
                   unawaited(_fetchStatement());
                 },
                 icon: const Icon(Icons.clear_all, size: 18),
-                label: const Text('ط¹ط±ط¶ ظƒظ„ ط§ظ„ظپطھط±ط§طھ'),
+                label: const Text('عرض كل الفترات'),
                 style: TextButton.styleFrom(foregroundColor: Colors.grey),
               ),
             ),
@@ -233,7 +233,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final entry = _entries[index];
-        final isOpening = entry.description == 'ط±طµظٹط¯ ط³ط§ط¨ظ‚';
+        final isOpening = entry.description == 'رصيد سابق';
 
         return Container(
           color: isOpening ? Colors.grey.shade100 : Colors.white,
@@ -267,7 +267,7 @@ class _CustomerStatementScreenState extends ConsumerState<CustomerStatementScree
               ],
             ),
             trailing: Text(
-              '${entry.balance.toStringAsFixed(2)} â‚ھ',
+              '${entry.balance.toStringAsFixed(2)} ₪',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

@@ -92,7 +92,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط¯ظˆط±ط© ط§ظ„طھط¬ظ‡ظٹط² ط§ظ„ظٹظˆظ…ظٹط©'),
+        title: const Text('دورة التجهيز اليومية'),
         backgroundColor: Colors.indigo,
       ),
       body: _isLoading 
@@ -127,7 +127,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: Text(
-                          _currentStep == 1 ? 'طھط£ظƒظٹط¯ ظˆط­ظپط¸ ط§ظ„ط¯ظˆط±ط©' : 'ط§ظ„طھط§ظ„ظٹ',
+                          _currentStep == 1 ? 'تأكيد وحفظ الدورة' : 'التالي',
                           style: const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),
@@ -135,7 +135,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
                     const SizedBox(width: 12),
                     TextButton(
                       onPressed: details.onStepCancel,
-                      child: Text(_currentStep == 0 ? 'ط¥ظ„ط؛ط§ط،' : 'ط§ظ„ط³ط§ط¨ظ‚'),
+                      child: Text(_currentStep == 0 ? 'إلغاء' : 'السابق'),
                     ),
                   ],
                 ),
@@ -143,13 +143,13 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
             },
             steps: [
               Step(
-                title: const Text('ط¯ط¬ط§ط¬ ط±ظٹط´'),
+                title: const Text('دجاج ريش'),
                 isActive: _currentStep >= 0,
                 state: _currentStep > 0 ? StepState.complete : StepState.editing,
                 content: _buildLiveIntakeSection(),
               ),
               Step(
-                title: const Text('ط¨ط¹ط¯ ط§ظ„ط°ط¨ط­'),
+                title: const Text('بعد الذبح'),
                 isActive: _currentStep >= 1,
                 state: _currentStep > 1 ? StepState.complete : StepState.editing,
                 content: _buildSlaughterSection(),
@@ -165,20 +165,20 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
       children: [
         _buildSupplierSelector(),
         const SizedBox(height: 16),
-        _buildInfoCard('طھظˆط²ظٹظ† ط§ظ„ط¯ط¬ط§ط¬ ط§ظ„ط­ظٹ (ظپظٹ ط§ظ„طµظ†ط§ط¯ظٹظ‚)'),
+        _buildInfoCard('توزين الدجاج الحي (في الصناديق)'),
         const SizedBox(height: 16),
         _buildWeightInputRow(
           grossController: _liveGrossController,
           countController: _liveCrateCountController,
           tareController: _liveCrateWeightController,
-          grossLabel: 'ط§ظ„ظˆط²ظ† ط§ظ„ظ‚ط§ط¦ظ… (ط±ظٹط´ + طµظ†ط§ط¯ظٹظ‚)',
-          countLabel: 'ط¹ط¯ط¯ ط§ظ„طµظ†ط§ط¯ظٹظ‚',
-          tareLabel: 'ظˆط²ظ† ط§ظ„طµظ†ط¯ظˆظ‚ ط§ظ„ظپط§ط±ط؛',
+          grossLabel: 'الوزن القائم (ريش + صناديق)',
+          countLabel: 'عدد الصناديق',
+          tareLabel: 'وزن الصندوق الفارغ',
         ),
         const SizedBox(height: 16),
         _buildPriceAndCostSection(),
         const SizedBox(height: 16),
-        _buildSummaryBox('ط§ظ„ظˆط²ظ† ط§ظ„ط­ظٹ ط§ظ„طµط§ظپظٹ', _liveNetWeight, 'ظƒط؛', Colors.indigo),
+        _buildSummaryBox('الوزن الحي الصافي', _liveNetWeight, 'كغ', Colors.indigo),
       ],
     );
   }
@@ -197,7 +197,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
                 return DropdownButtonFormField<Supplier>(
                   value: _selectedSupplier,
                   decoration: const InputDecoration(
-                    labelText: 'ط§ط®طھط± ط§ظ„ظ…ظˆط±ط¯',
+                    labelText: 'اختر المورد',
                     prefixIcon: Icon(Icons.local_shipping),
                     border: InputBorder.none,
                   ),
@@ -213,8 +213,8 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
                 _skipAutoPurchase = val ?? false;
                 if (_skipAutoPurchase) _selectedSupplier = null;
               }),
-              title: const Text('طھط®ط·ظٹ ط¥ظ†ط´ط§ط، ظپط§طھظˆط±ط© ط´ط±ط§ط،', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('ظ„ظ† ظٹطھظ… ط¥ظ†ط´ط§ط، ظپط§طھظˆط±ط© ط´ط±ط§ط، طھظ„ظ‚ط§ط¦ظٹط© (ظ„ظ„طھط¬ظ‡ظٹط² ظ…ظ† ظ…ط®ط²ظˆظ† ظ…ظˆط¬ظˆط¯)'),
+              title: const Text('تخطي إنشاء فاتورة شراء', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('لن يتم إنشاء فاتورة شراء تلقائية (للتجهيز من مخزون موجود)'),
               secondary: const Icon(Icons.receipt_long),
               contentPadding: EdgeInsets.zero,
             ),
@@ -228,36 +228,36 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInfoCard('طھظˆط²ظٹظ† ط§ظ„ط¯ط¬ط§ط¬ ط¨ط¹ط¯ ط§ظ„ط°ط¨ط­ ظˆط§ظ„طھظ†ط¸ظٹظپ (ظپظٹ ط§ظ„ط³ظ„ط§ظ„)'),
+        _buildInfoCard('توزين الدجاج بعد الذبح والتنظيف (في السلال)'),
         const SizedBox(height: 16),
         _buildWeightInputRow(
           grossController: _slaughterGrossController,
           countController: _slaughterBasketCountController,
           tareController: _slaughterBasketWeightController,
-          grossLabel: 'ط§ظ„ظˆط²ظ† ط§ظ„ظ‚ط§ط¦ظ… (ظ…ط°ط¨ظˆط­ + ط³ظ„ط§ظ„)',
-          countLabel: 'ط¹ط¯ط¯ ط§ظ„ط³ظ„ط§ظ„',
-          tareLabel: 'ظˆط²ظ† ط§ظ„ط³ظ„ط© ط§ظ„ظپط§ط±ط؛ط©',
+          grossLabel: 'الوزن القائم (مذبوح + سلال)',
+          countLabel: 'عدد السلال',
+          tareLabel: 'وزن السلة الفارغة',
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _operationalExpensesController,
           decoration: const InputDecoration(
-            labelText: 'ظ…طµط§ط±ظٹظپ طھط´ط؛ظٹظ„ظٹط© (â‚ھ)',
+            labelText: 'مصاريف تشغيلية (₪)',
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.money_off),
-            suffixText: 'â‚ھ',
+            suffixText: '₪',
           ),
           keyboardType: TextInputType.number,
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
-        _buildSummaryBox('ط§ظ„ظˆط²ظ† ط§ظ„ظ…ط°ط¨ظˆط­ ط§ظ„طµط§ظپظٹ', _slaughterNetWeight, 'ظƒط؛', Colors.green),
+        _buildSummaryBox('الوزن المذبوح الصافي', _slaughterNetWeight, 'كغ', Colors.green),
         const SizedBox(height: 8),
-        _buildSummaryBox('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ†ظ‚طµ (ط§ظ„ظ‡ط§ظ„ظƒ)', _shrinkageWeight, 'ظƒط؛', Colors.orange),
+        _buildSummaryBox('إجمالي النقص (الهالك)', _shrinkageWeight, 'كغ', Colors.orange),
         const SizedBox(height: 8),
-        _buildSummaryBox('طھظƒظ„ظپط© ط§ظ„ط¬ط§ط¬ ط§ظ„ظ…ط°ط¨ظˆط­ (ط­ظٹ + ظ…طµط§ط±ظٹظپ)', _totalSlaughteredCost, 'â‚ھ', Colors.blue),
+        _buildSummaryBox('تكلفة الجاج المذبوح (حي + مصاريف)', _totalSlaughteredCost, '₪', Colors.blue),
         const SizedBox(height: 8),
-        _buildSummaryBox('طھط­ظˆظٹظ„ ط§ظ„طھظƒظ„ظپط© ظ„ظ„ظƒظٹظ„ظˆ (طµط§ظپظٹ)', _slaughteredUnitCost, 'â‚ھ/ظƒط؛', Colors.indigo),
+        _buildSummaryBox('تحويل التكلفة للكيلو (صافي)', _slaughteredUnitCost, '₪/كغ', Colors.indigo),
         const SizedBox(height: 16),
         const SizedBox(height: 16),
         Container(
@@ -268,15 +268,15 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
             border: Border.all(color: Colors.blue.shade200),
           ),
           child: const ListTile(
-            title: Text('طھط®ط²ظٹظ† طھظ„ظ‚ط§ط¦ظٹ', style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('ط³ظٹطھظ… طھط®ط²ظٹظ† ظƒط§ظ…ظ„ ط§ظ„ظƒظ…ظٹط© ظƒظ€ "ط¯ط¬ط§ط¬ ظƒط§ظ…ظ„" ظ„ظٹطھظ… طھظ‚ط·ظٹط¹ظ‡ ظ„ط§ط­ظ‚ط§ظ‹ ظپظٹ ظ‚ط³ظ… طھط­ظˆظٹظ„ ط§ظ„ظ…ط®ط²ظˆظ†.'),
+            title: Text('تخزين تلقائي', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('سيتم تخزين كامل الكمية كـ "دجاج كامل" ليتم تقطيعه لاحقاً في قسم تحويل المخزون.'),
             leading: Icon(Icons.info_outline, color: Colors.blue),
           ),
         ),
         const SizedBox(height: 16),
         TextField(
           controller: _notesController,
-          decoration: const InputDecoration(labelText: 'ظ…ظ„ط§ط­ط¸ط§طھ ط¥ط¶ط§ظپظٹط©', border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: 'ملاحظات إضافية', border: OutlineInputBorder()),
           maxLines: 2,
         ),
       ],
@@ -332,14 +332,14 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
         Expanded(
           child: TextFormField(
             controller: _pricePerKgController,
-            decoration: const InputDecoration(labelText: 'ط³ط¹ط± ط´ط±ط§ط، ط§ظ„ط­ظٹ ظ„ظ„ظƒظٹظ„ظˆ', border: OutlineInputBorder(), suffixText: 'â‚ھ'),
+            decoration: const InputDecoration(labelText: 'سعر شراء الحي للكيلو', border: OutlineInputBorder(), suffixText: '₪'),
             keyboardType: TextInputType.number,
             onChanged: (_) => setState(() {}),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildSummaryBox('ط¥ط¬ظ…ط§ظ„ظٹ طھظƒظ„ظپط© ط§ظ„ط´ط±ط§ط،', _totalCost, 'â‚ھ', Colors.blue),
+          child: _buildSummaryBox('إجمالي تكلفة الشراء', _totalCost, '₪', Colors.blue),
         ),
       ],
     );
@@ -379,7 +379,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
 
   Future<void> _saveProcessing() async {
     if (_slaughterNetWeight <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ط§ظ„ط±ط¬ط§ط، ط§ظ„طھط£ظƒط¯ ظ…ظ† طھظˆط²ظٹظ† ط§ظ„ط¯ط¬ط§ط¬ ط¨ط¹ط¯ ط§ظ„ط°ط¨ط­')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الرجاء التأكد من توزين الدجاج بعد الذبح')));
       return;
     }
     setState(() => _isLoading = true);
@@ -419,7 +419,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('طھظ… طھط³ط¬ظٹظ„ ط¯ظˆط±ط© ط§ظ„طھط¬ظ‡ظٹط² ط¨ظ†ط¬ط§ط­'),
+          content: Text('تم تسجيل دورة التجهيز بنجاح'),
           behavior: SnackBarBehavior.floating,
         ),
         );
@@ -427,7 +427,7 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„ط­ظپط¸: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('حدث خطأ أثناء الحفظ: $e')));
       }
     } finally {
       if (mounted) {
@@ -456,18 +456,18 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
       final expenseRepo = ref.read(expenseRepositoryProvider);
       final categories = await expenseRepo.getAllCategories();
       
-      int? categoryId = categories.where((c) => c.name.contains('ط°ط¨ط­') || c.name.contains('طھظ‚ط·ظٹط¹') || c.name.contains('طھط´ط؛ظٹظ„')).firstOrNull?.id;
+      int? categoryId = categories.where((c) => c.name.contains('ذبح') || c.name.contains('تقطيع') || c.name.contains('تشغيل')).firstOrNull?.id;
       
       if (categoryId == null) {
-        categoryId = await expenseRepo.createCategory(const ExpenseCategory(name: 'ظ…طµط§ط±ظٹظپ طھظ‚ط·ظٹط¹ ظˆطھط´ط؛ظٹظ„'));
+        categoryId = await expenseRepo.createCategory(const ExpenseCategory(name: 'مصاريف تقطيع وتشغيل'));
       }
 
       await expenseRepo.createExpense(Expense(
         categoryId: categoryId,
         amount: _operationalExpenses,
         expenseDate: DateTime.now(),
-        description: 'ظ…طµط§ط±ظٹظپ طھط´ط؛ظٹظ„ظٹط© ظ„ط¯ظˆط±ط© ط§ظ„طھط¬ظ‡ظٹط²: $batchNumber',
-        notes: 'طھظ… ط¥ظ†ط´ط§ط¤ظ‡ط§ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظ…ظ† ط´ط§ط´ط© ط¯ظˆط±ط© ط§ظ„طھط¬ظ‡ظٹط² ط§ظ„ظٹظˆظ…ظٹط©',
+        description: 'مصاريف تشغيلية لدورة التجهيز: $batchNumber',
+        notes: 'تم إنشاؤها تلقائياً من شاشة دورة التجهيز اليومية',
       ),);
     } catch (e) {
       debugPrint('Error auto-logging expense: $e');
@@ -490,12 +490,12 @@ class _RawMeatProcessingScreenState extends ConsumerState<RawMeatProcessingScree
         items: [
           PurchaseInvoiceItem(
             productId: AppConstants.liveChickenId,
-            productName: liveChicken?.name ?? 'ط¯ط¬ط§ط¬ ط­ظٹ',
+            productName: liveChicken?.name ?? 'دجاج حي',
             quantity: _liveNetWeight,
             unitCost: double.tryParse(_pricePerKgController.text) ?? 0,
           ),
         ],
-        notes: 'طھظ… ط¥ظ†ط´ط§ط¤ظ‡ط§ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظ…ظ† ط¯ظˆط±ط© ط§ظ„طھط¬ظ‡ظٹط²: $batchNumber',
+        notes: 'تم إنشاؤها تلقائياً من دورة التجهيز: $batchNumber',
       );
 
       final invId = await purchaseRepo.createPurchaseInvoice(purchaseInvoice);

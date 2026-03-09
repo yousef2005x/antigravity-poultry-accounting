@@ -11,7 +11,7 @@ class SupplierListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط¥ط¯ط§ط±ط© ط§ظ„ظ…ظˆط±ط¯ظٹظ†'),
+        title: const Text('إدارة الموردين'),
         backgroundColor: Colors.green,
       ),
       body: ref.watch(suppliersStreamProvider).when(
@@ -19,7 +19,7 @@ class SupplierListScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('ط®ط·ط£: $err')),
         data: (suppliers) {
           if (suppliers.isEmpty) {
-            return const Center(child: Text('ظ„ط§ ظٹظˆط¬ط¯ ظ…ظˆط±ط¯ظٹظ† ظ…ط¶ط§ظپظٹظ† ط¨ط¹ط¯'));
+            return const Center(child: Text('لا يوجد موردين مضافين بعد'));
           }
 
           return ListView.builder(
@@ -32,7 +32,7 @@ class SupplierListScreen extends ConsumerWidget {
                   child: const Icon(Icons.business, color: Colors.orange),
                 ),
                 title: Text(supplier.name),
-                subtitle: Text(supplier.phone ?? 'ط¨ط¯ظˆظ† ط±ظ‚ظ… ظ‡ط§طھظپ'),
+                subtitle: Text(supplier.phone ?? 'بدون رقم هاتف'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.push(

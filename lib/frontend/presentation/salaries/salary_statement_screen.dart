@@ -48,7 +48,7 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط·ط¨ط§ط¹ط©: $e')),
+          SnackBar(content: Text('خطأ في الطباعة: $e')),
         );
       }
     }
@@ -88,7 +88,7 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ظƒط´ظپ ط±ظˆط§طھط¨ ط§ظ„ظ…ظˆط¸ظپظٹظ†'),
+        title: const Text('كشف رواتب الموظفين'),
         backgroundColor: Colors.teal,
         actions: [
           employeesAsync.when(
@@ -114,11 +114,11 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
           Expanded(
             child: employeesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => Center(child: Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ظ…ظˆط¸ظپظٹظ†: $e')),
+              error: (e, s) => Center(child: Text('خطأ في تحميل الموظفين: $e')),
               data: (employees) {
                 return salariesAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, s) => Center(child: Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ط±ظˆط§طھط¨: $e')),
+                  error: (e, s) => Center(child: Text('خطأ في تحميل الرواتب: $e')),
                   data: (salaries) {
                     final data = _prepareData(employees, salaries);
                     return _buildSalaryTable(data);
@@ -169,7 +169,7 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
 
   Widget _buildSalaryTable(List<Map<String, dynamic>> data) {
     if (data.isEmpty) {
-      return const Center(child: Text('ظ„ط§ ظٹظˆط¬ط¯ ظ…ظˆط¸ظپظٹظ† ظ…ط³ط¬ظ„ظٹظ†.'));
+      return const Center(child: Text('لا يوجد موظفين مسجلين.'));
     }
 
     double totalFixed = 0;
@@ -191,9 +191,9 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildSummaryColumn('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط±ظˆط§طھط¨', totalFixed, Colors.blue),
-              _buildSummaryColumn('ط§ظ„ظ…ط¯ظپظˆط¹', totalPaid, Colors.green),
-              _buildSummaryColumn('ط§ظ„ظ…طھط¨ظ‚ظٹ', totalRemaining, Colors.red),
+              _buildSummaryColumn('إجمالي الرواتب', totalFixed, Colors.blue),
+              _buildSummaryColumn('المدفوع', totalPaid, Colors.green),
+              _buildSummaryColumn('المتبقي', totalRemaining, Colors.red),
             ],
           ),
         ),
@@ -222,7 +222,7 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
       children: [
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         Text(
-          '${value.toStringAsFixed(0)} ط´ظٹظƒظ„',
+          '${value.toStringAsFixed(0)} شيكل',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
         ),
       ],
@@ -253,11 +253,11 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
           padding: const EdgeInsets.only(top: 8.0),
           child: Row(
             children: [
-              _buildMiniInfo('ط§ظ„ط«ط§ط¨طھ', emp.monthlySalary),
+              _buildMiniInfo('الثابت', emp.monthlySalary),
               const SizedBox(width: 16),
-              _buildMiniInfo('ط§ظ„ظ…ط¯ظپظˆط¹', paid, color: Colors.green),
+              _buildMiniInfo('المدفوع', paid, color: Colors.green),
               const SizedBox(width: 16),
-              _buildMiniInfo('ط§ظ„ظ…طھط¨ظ‚ظٹ', remaining, color: remaining > 0 ? Colors.red : Colors.grey),
+              _buildMiniInfo('المتبقي', remaining, color: remaining > 0 ? Colors.red : Colors.grey),
             ],
           ),
         ),
@@ -268,10 +268,10 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('ط³ط¬ظ„ ط§ظ„ط¯ظپط¹ط§طھ ظ‡ط°ط§ ط§ظ„ط´ظ‡ط±:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                const Text('سجل الدفعات هذا الشهر:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                 const SizedBox(height: 8),
                 if (payments.isEmpty)
-                  const Text('ظ„ط§ طھظˆط¬ط¯ ط¯ظپط¹ط§طھ', style: TextStyle(color: Colors.grey, fontSize: 12))
+                  const Text('لا توجد دفعات', style: TextStyle(color: Colors.grey, fontSize: 12))
                 else
                   ...payments.map((p) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -279,7 +279,7 @@ class _SalaryStatementScreenState extends ConsumerState<SalaryStatementScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('${p.salaryDate.day}/${p.salaryDate.month}', style: const TextStyle(fontSize: 12)),
-                        Text('${p.amount.toStringAsFixed(2)} ط´ظٹظƒظ„', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        Text('${p.amount.toStringAsFixed(2)} شيكل', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   )),

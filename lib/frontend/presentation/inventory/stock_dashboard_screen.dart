@@ -11,7 +11,7 @@ class StockDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ظ„ظˆط­ط© طھط­ظƒظ… ط§ظ„ظ…ط®ط²ظˆظ†'),
+        title: const Text('لوحة تحكم المخزون'),
         backgroundColor: Colors.green,
       ),
       body: FutureBuilder<List<Product>>(
@@ -25,7 +25,7 @@ class StockDashboardScreen extends ConsumerWidget {
           }
           final products = snapshot.data ?? [];
           if (products.isEmpty) {
-            return const Center(child: Text('ظ„ط§ ظٹظˆط¬ط¯ ط£طµظ†ط§ظپ ظ…طھظˆظپط±ط©'));
+            return const Center(child: Text('لا يوجد أصناف متوفرة'));
           }
 
           return ListView.builder(
@@ -57,7 +57,7 @@ class StockDashboardScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              isLowStock ? 'ظ…ط®ط²ظˆظ† ظ…ظ†ط®ظپط¶' : 'ظ…طھظˆظپط±',
+                              isLowStock ? 'مخزون منخفض' : 'متوفر',
                               style: TextStyle(
                                 color: isLowStock ? Colors.red : Colors.green,
                                 fontWeight: FontWeight.bold,
@@ -69,14 +69,14 @@ class StockDashboardScreen extends ConsumerWidget {
                       const Divider(),
                       Row(
                         children: [
-                          _buildStockInfo('ط§ظ„ظƒظ…ظٹط© ط§ظ„ط­ط§ظ„ظٹط©', '${product.currentStock} ${product.unitDisplayName}', Icons.inventory),
+                          _buildStockInfo('الكمية الحالية', '${product.currentStock} ${product.unitDisplayName}', Icons.inventory),
                           const VerticalDivider(),
-                          _buildStockInfo('ظ…طھظˆط³ط· ط§ظ„طھظƒظ„ظپط©', '${product.averageCost.toStringAsFixed(2)} â‚ھ', Icons.monetization_on),
+                          _buildStockInfo('متوسط التكلفة', '${product.averageCost.toStringAsFixed(2)} ₪', Icons.monetization_on),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹط© ظ„ظ„ظ…ط®ط²ظˆظ†: ${(product.currentStock * product.averageCost).toStringAsFixed(2)} â‚ھ',
+                        'القيمة الإجمالية للمخزون: ${(product.currentStock * product.averageCost).toStringAsFixed(2)} ₪',
                         style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.grey),
                       ),
                     ],

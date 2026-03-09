@@ -64,7 +64,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.invoice == null ? 'ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ ط¬ط¯ظٹط¯ط©' : 'طھط¹ط¯ظٹظ„ ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ'),
+        title: Text(widget.invoice == null ? 'فاتورة مشتريات جديدة' : 'تعديل فاتورة مشتريات'),
         backgroundColor: Colors.blueGrey,
       ),
       body: Stack(
@@ -85,13 +85,13 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('ط§ظ„ط£طµظ†ط§ظپ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            const Text('الأصناف', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             const Spacer(),
                             const SizedBox(width: 8),
                             ElevatedButton.icon(
                               onPressed: _isLoading ? null : _addLiveChickenItem,
                               icon: const Icon(Icons.airport_shuttle),
-                              label: const Text('طھظˆط±ظٹط¯ ط¯ط¬ط§ط¬ ط±ظٹط´'),
+                              label: const Text('توريد دجاج ريش'),
                               style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
                             ),
                           ],
@@ -136,7 +136,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
             return DropdownButtonFormField<Supplier>(
               initialValue: _selectedSupplier,
               decoration: const InputDecoration(
-                labelText: 'ط§ط®طھط± ط§ظ„ظ…ظˆط±ط¯',
+                labelText: 'اختر المورد',
                 prefixIcon: Icon(Icons.local_shipping),
                 border: InputBorder.none,
               ),
@@ -158,17 +158,17 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: const Row(
               children: [
-                Expanded(flex: 3, child: Text('ط§ظ„طµظ†ظپ', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(child: Text('ط§ظ„ظƒظ…ظٹط©', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(child: Text('ط³ط¹ط± ط§ظ„طھظƒظ„ظپط©', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(child: Text('ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(flex: 3, child: Text('الصنف', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(child: Text('الكمية', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(child: Text('سعر التكلفة', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(child: Text('الإجمالي', style: TextStyle(fontWeight: FontWeight.bold))),
                 SizedBox(width: 40),
               ],
             ),
           ),
           Expanded(
             child: _items.isEmpty
-                ? const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط£طµظ†ط§ظپ ظ…ط¶ط§ظپط©'))
+                ? const Center(child: Text('لا توجد أصناف مضافة'))
                 : ListView.builder(
                     itemCount: _items.length,
                     itemBuilder: (context, index) {
@@ -178,8 +178,8 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
                           children: [
                             Expanded(flex: 3, child: Text(item.productName)),
                             Expanded(child: Text('${item.quantity}')),
-                            Expanded(child: Text('${item.unitCost} â‚ھ')),
-                            Expanded(child: Text('${item.calculatedTotal} â‚ھ', style: const TextStyle(fontWeight: FontWeight.bold))),
+                            Expanded(child: Text('${item.unitCost} ₪')),
+                            Expanded(child: Text('${item.calculatedTotal} ₪', style: const TextStyle(fontWeight: FontWeight.bold))),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () => setState(() => _items.removeAt(index)),
@@ -199,13 +199,13 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('ظ…ظ„ط®طµ ط§ظ„ظپط§طھظˆط±ط©', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text('ملخص الفاتورة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const Divider(),
-        _summaryRow('ط§ظ„ظ…ط¬ظ…ظˆط¹:', '$_subtotal â‚ھ'),
+        _summaryRow('المجموع:', '$_subtotal ₪'),
         const SizedBox(height: 16),
         TextFormField(
           controller: _discountController,
-          decoration: const InputDecoration(labelText: 'ط®طµظ… (â‚ھ)', border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: 'خصم (₪)', border: OutlineInputBorder()),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             setState(() => _discount = double.tryParse(val) ?? 0.0);
@@ -214,7 +214,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
         const SizedBox(height: 16),
         TextFormField(
           controller: _additionalCostsController,
-          decoration: const InputDecoration(labelText: 'طھظƒط§ظ„ظٹظپ ط¥ط¶ط§ظپظٹط© (â‚ھ)', border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: 'تكاليف إضافية (₪)', border: OutlineInputBorder()),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             setState(() => _additionalCosts = double.tryParse(val) ?? 0.0);
@@ -222,7 +222,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
         ),
         const Spacer(),
         const Divider(thickness: 2),
-        _summaryRow('ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ†ظ‡ط§ط¦ظٹ:', '$_total â‚ھ', isBold: true, fontSize: 24, color: Colors.blueGrey),
+        _summaryRow('الإجمالي النهائي:', '$_total ₪', isBold: true, fontSize: 24, color: Colors.blueGrey),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
@@ -230,7 +230,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
           child: ElevatedButton(
             onPressed: _save,
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueGrey),
-            child: const Text('طھط£ظƒظٹط¯ ظˆط­ظپط¸ ط§ظ„ط´ط±ط§ط،', style: TextStyle(fontSize: 18, color: Colors.white)),
+            child: const Text('تأكيد وحفظ الشراء', style: TextStyle(fontSize: 18, color: Colors.white)),
           ),
         ),
       ],
@@ -286,7 +286,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('ط¥ط¶ط§ظپط© طµظ†ظپ ظ…ط´طھط±ظٹط§طھ'),
+          title: const Text('إضافة صنف مشتريات'),
           content: SizedBox(
             width: 600, // Widen the dialog
             child: Column(
@@ -313,7 +313,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
 
                   return DropdownButtonFormField<Product>(
                     value: matchingProduct,
-                    decoration: const InputDecoration(labelText: 'ط§ظ„طµظ†ظپ'),
+                    decoration: const InputDecoration(labelText: 'الصنف'),
                     items: products.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
                     onChanged: isLive ? null : (val) {
                       setDialogState(() {
@@ -338,14 +338,14 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
                 ),
                 child: Column(
                   children: [
-                    const Text('ط­ط§ط³ط¨ط© ط§ظ„ظˆط²ظ† (ظ„ظ„ط¯ط¬ط§ط¬ ط§ظ„ط±ظٹط´)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('حاسبة الوزن (للدجاج الريش)', style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
                             controller: grossController,
-                            decoration: const InputDecoration(labelText: 'ط§ظ„ظˆط²ظ† ط§ظ„ظ‚ط§ط¦ظ…', isDense: true),
+                            decoration: const InputDecoration(labelText: 'الوزن القائم', isDense: true),
                             keyboardType: TextInputType.number,
                             onChanged: (_) => calculateNet(),
                           ),
@@ -354,7 +354,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
                         Expanded(
                           child: TextField(
                             controller: countController,
-                            decoration: const InputDecoration(labelText: 'ط¹ط¯ط¯ ط§ظ„ط£ظ‚ظپط§طµ', isDense: true),
+                            decoration: const InputDecoration(labelText: 'عدد الأقفاص', isDense: true),
                             keyboardType: TextInputType.number,
                             onChanged: (_) => calculateNet(),
                           ),
@@ -363,7 +363,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
                         Expanded(
                           child: TextField(
                             controller: tareController,
-                            decoration: const InputDecoration(labelText: 'ظˆط²ظ† ط§ظ„ظ‚ظپطµ', isDense: true),
+                            decoration: const InputDecoration(labelText: 'وزن القفص', isDense: true),
                             keyboardType: TextInputType.number,
                             onChanged: (_) => calculateNet(),
                           ),
@@ -377,7 +377,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
               TextField(
                 controller: qtyController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظ„طµط§ظپظٹ (ط§ظ„ظƒظ…ظٹط©)', 
+                  labelText: 'الصافي (الكمية)', 
                   border: OutlineInputBorder(),
                   filled: true,
                 ),
@@ -386,14 +386,14 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: costController,
-                decoration: const InputDecoration(labelText: 'ط³ط¹ط± ط§ظ„طھظƒظ„ظپط© ظ„ظ„ظƒظٹظ„ظˆ', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'سعر التكلفة للكيلو', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
               ),
             ],
           ),
         ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('ط¥ظ„ط؛ط§ط،')),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
             ElevatedButton(
               onPressed: () {
                 if (selectedProduct == null) {
@@ -413,7 +413,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
                   Navigator.pop(context);
                 }
               },
-              child: const Text('ط¥ط¶ط§ظپط©'),
+              child: const Text('إضافة'),
             ),
           ],
         ),
@@ -423,11 +423,11 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
 
   Future<void> _save() async {
     if (_selectedSupplier == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ظ…ظˆط±ط¯')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار المورد')));
       return;
     }
     if (_items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظ„ط§ ظٹظ…ظƒظ† ط­ظپط¸ ظپط§طھظˆط±ط© ظپط§ط±ط؛ط©')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يمكن حفظ فاتورة فارغة')));
       return;
     }
 
@@ -453,12 +453,12 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
       }
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طھظ… ط­ظپط¸ ظˆطھط£ظƒظٹط¯ ظپط§طھظˆط±ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ وتأكيد فاتورة المشتريات')));
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('خطأ في الحفظ: $e')));
       }
     }
   }

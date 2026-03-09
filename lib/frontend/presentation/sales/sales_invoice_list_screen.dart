@@ -16,7 +16,7 @@ class SalesInvoiceListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط³ط¬ظ„ ظپظˆط§طھظٹط± ط§ظ„ظ…ط¨ظٹط¹ط§طھ'),
+        title: const Text('سجل فواتير المبيعات'),
         backgroundColor: Colors.blueAccent,
       ),
       body: ref.watch(invoicesStreamProvider).when(
@@ -24,7 +24,7 @@ class SalesInvoiceListScreen extends ConsumerWidget {
             error: (err, stack) => Center(child: Text('ط®ط·ط£: $err')),
             data: (invoices) {
               if (invoices.isEmpty) {
-                return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ظ…ط¨ظٹط¹ط§طھ ظ…ط³ط¬ظ„ط©'));
+                return const Center(child: Text('لا توجد فواتير مبيعات مسجلة'));
               }
 
               return ListView.separated(
@@ -44,15 +44,15 @@ class SalesInvoiceListScreen extends ConsumerWidget {
                       ),
                     ),
                     title: Text(
-                      'ظپط§طھظˆط±ط© ط±ظ‚ظ…: ${invoice.invoiceNumber}',
+                      'فاتورة رقم: ${invoice.invoiceNumber}',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('ط§ظ„ط¹ظ…ظٹظ„: ${invoice.customer?.name ?? (invoice.customerId == 0 ? "ظ†ظ‚ط¯ظٹ" : "طھط­ظ…ظٹظ„...")}'),
+                        Text('العميل: ${invoice.customer?.name ?? (invoice.customerId == 0 ? "نقدي" : "تحميل...")}'),
                         Text(
-                          'ط§ظ„طھط§ط±ظٹط®: ${invoice.invoiceDate.day}/${invoice.invoiceDate.month}/${invoice.invoiceDate.year}',
+                          'التاريخ: ${invoice.invoiceDate.day}/${invoice.invoiceDate.month}/${invoice.invoiceDate.year}',
                         ),
                       ],
                     ),
@@ -70,7 +70,7 @@ class SalesInvoiceListScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '${invoice.total.toStringAsFixed(2)} â‚ھ',
+                              '${invoice.total.toStringAsFixed(2)} ₪',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -136,7 +136,7 @@ class SalesInvoiceListScreen extends ConsumerWidget {
       
       if (fullInvoice == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ط®ط·ط£: ط§ظ„ظپط§طھظˆط±ط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('خطأ: الفاتورة غير موجودة')));
         }
         return;
       }
@@ -158,7 +158,7 @@ class SalesInvoiceListScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ظپط´ظ„ ط§ظ„ط·ط¨ط§ط¹ط©: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('فشل الطباعة: $e'), backgroundColor: Colors.red),
         );
       }
     }

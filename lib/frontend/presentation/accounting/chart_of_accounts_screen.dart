@@ -24,7 +24,7 @@ class ChartOfAccountsScreen extends ConsumerWidget {
           // Group by root type
           final groupedAccounts = <String, List<Account>>{};
           for (final account in accounts) {
-            groupedAccounts.putIfAbsent(account.rootType, () => []).add(account);
+            groupedAccounts.putIfAbsent(account.rootType ?? 'Other', () => []).add(account);
           }
 
           return ListView.builder(

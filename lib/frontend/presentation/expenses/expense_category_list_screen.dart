@@ -10,7 +10,7 @@ class ExpenseCategoryListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('طھطµظ†ظٹظپط§طھ ط§ظ„ظ…طµط±ظˆظپط§طھ'),
+        title: const Text('تصنيفات المصروفات'),
         backgroundColor: Colors.redAccent,
       ),
       body: ref.watch(expenseCategoriesStreamProvider).when(
@@ -18,7 +18,7 @@ class ExpenseCategoryListScreen extends ConsumerWidget {
             error: (err, stack) => Center(child: Text('ط®ط·ط£: $err')),
             data: (categories) {
               if (categories.isEmpty) {
-                return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ طھطµظ†ظٹظپط§طھ ظ…ط¹ط±ظپط©'));
+                return const Center(child: Text('لا توجد تصنيفات معرفة'));
               }
 
               return ListView.separated(
@@ -32,7 +32,7 @@ class ExpenseCategoryListScreen extends ConsumerWidget {
                       category.name,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text(category.description ?? 'ظ„ط§ ظٹظˆط¬ط¯ ظˆطµظپ'),
+                    subtitle: Text(category.description ?? 'لا يوجد وصف'),
                     trailing: IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blueGrey),
                       onPressed: () => _showCategoryDialog(context, ref, category),
@@ -58,7 +58,7 @@ class ExpenseCategoryListScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(category == null ? 'ط¥ط¶ط§ظپط© طھطµظ†ظٹظپ ط¬ط¯ظٹط¯' : 'طھط¹ط¯ظٹظ„ طھطµظ†ظٹظپ'),
+        title: Text(category == null ? 'إضافة تصنيف جديد' : 'تعديل تصنيف'),
         content: Form(
           key: formKey,
           child: Column(
@@ -66,13 +66,13 @@ class ExpenseCategoryListScreen extends ConsumerWidget {
             children: [
               TextFormField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'ط§ط³ظ… ط§ظ„طھطµظ†ظٹظپ *'),
-                validator: (val) => (val == null || val.isEmpty) ? 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ط§ط³ظ…' : null,
+                decoration: const InputDecoration(labelText: 'اسم التصنيف *'),
+                validator: (val) => (val == null || val.isEmpty) ? 'يرجى إدخال الاسم' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: descController,
-                decoration: const InputDecoration(labelText: 'ط§ظ„ظˆطµظپ'),
+                decoration: const InputDecoration(labelText: 'الوصف'),
               ),
             ],
           ),
@@ -80,7 +80,7 @@ class ExpenseCategoryListScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('ط¥ظ„ط؛ط§ط،'),
+            child: const Text('إلغاء'),
           ),
           ElevatedButton(
             onPressed: () async {

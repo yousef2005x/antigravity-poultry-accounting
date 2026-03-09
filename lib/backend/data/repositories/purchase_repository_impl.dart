@@ -331,7 +331,7 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
           paymentDate: date,
           supplierId: Value(supplierId),
           purchaseInvoiceId: Value(invoiceId),
-          notes: Value('ط¯ظپط¹ط© ظ…ظ‚ط¯ظ…ط© ظ„ظ„ظپط§طھظˆط±ط© ط±ظ‚ظ… $invoiceId'),
+          notes: Value('دفعة مقدمة للفاتورة رقم $invoiceId'),
           createdBy: 1,
         ),
       );
@@ -340,7 +340,7 @@ class PurchaseRepositoryImpl implements PurchaseRepository {
         db.CashTransactionsCompanion.insert(
           amount: paidAmount,
           type: 'out',
-          description: 'ط¯ظپط¹ط© ظ…ظ‚ط¯ظ…ط© ظ„ظ„ظپط§طھظˆط±ط© ط±ظ‚ظ… $invoiceId',
+          description: 'دفعة مقدمة للفاتورة رقم $invoiceId',
           transactionDate: date,
           relatedPaymentId: Value(id),
           createdBy: 1,

@@ -61,13 +61,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… ط­ظپط¸ ط¨ظٹط§ظ†ط§طھ ط§ظ„طµظ†ظپ ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم حفظ بيانات الصنف بنجاح')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')),
+          SnackBar(content: Text('خطأ في الحفظ: $e')),
         );
       }
     }
@@ -77,7 +77,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.product == null ? 'ط¥ط¶ط§ظپط© طµظ†ظپ ط¬ط¯ظٹط¯' : 'طھط¹ط¯ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„طµظ†ظپ'),
+        title: Text(widget.product == null ? 'إضافة صنف جديد' : 'تعديل بيانات الصنف'),
         backgroundColor: Colors.green,
       ),
       body: SingleChildScrollView(
@@ -88,13 +88,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'ط§ط³ظ… ط§ظ„طµظ†ظپ *', border: OutlineInputBorder()),
-                validator: (val) => (val == null || val.isEmpty) ? 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ط§ط³ظ…' : null,
+                decoration: const InputDecoration(labelText: 'اسم الصنف *', border: OutlineInputBorder()),
+                validator: (val) => (val == null || val.isEmpty) ? 'يرجى إدخال الاسم' : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<UnitType>(
                 initialValue: _unitType,
-                decoration: const InputDecoration(labelText: 'ظˆط­ط¯ط© ط§ظ„ظ‚ظٹط§ط³', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'وحدة القياس', border: OutlineInputBorder()),
                 items: UnitType.values.map((u) {
                   return DropdownMenuItem(value: u, child: Text(u.nameAr));
                 }).toList(),
@@ -102,18 +102,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               ),
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('طµظ†ظپ ظ…ظˆط²ظˆظ† (ظٹطھط·ظ„ط¨ ظ…ظٹط²ط§ظ†)'),
+                title: const Text('صنف موزون (يتطلب ميزان)'),
                 value: _isWeighted,
                 onChanged: (val) => setState(() => _isWeighted = val),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _priceController,
-                decoration: const InputDecoration(labelText: 'ط§ظ„ط³ط¹ط± ط§ظ„ط§ظپطھط±ط§ط¶ظٹ (â‚ھ)', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'السعر الافتراضي (₪)', border: OutlineInputBorder()),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (val) {
                   if (val != null && val.isNotEmpty && double.tryParse(val) == null) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط±ظ‚ظ… طµط­ظٹط­';
+                    return 'يرجى إدخال رقم صحيح';
                   }
                   return null;
                 },
@@ -121,7 +121,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _descController,
-                decoration: const InputDecoration(labelText: 'ط§ظ„ظˆطµظپ ط£ظˆ ظ…ظ„ط§ط­ط¸ط§طھ', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'الوصف أو ملاحظات', border: OutlineInputBorder()),
                 maxLines: 3,
               ),
               const SizedBox(height: 24),

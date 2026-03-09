@@ -17,7 +17,7 @@ class BackupRepositoryImpl implements BackupRepository {
     final dbFile = File(dbPath);
 
     if (!await dbFile.exists()) {
-      throw Exception('ظ…ظ„ظپ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ ظپظٹ ط§ظ„ظ…ط³ط§ط±: $dbPath');
+      throw Exception('ملف قاعدة البيانات غير موجود في المسار: $dbPath');
     }
 
     final timestamp = DateFormat('yyyy_MM_dd_HHmm').format(DateTime.now());
@@ -36,7 +36,7 @@ class BackupRepositoryImpl implements BackupRepository {
 
     final sourceFile = File(sourceFilePath);
     if (!await sourceFile.exists()) {
-      throw Exception('ظ…ظ„ظپ ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
+      throw Exception('ملف النسخة الاحتياطية غير موجود');
     }
 
     // Attempt to overwrite the database file.
@@ -47,7 +47,7 @@ class BackupRepositoryImpl implements BackupRepository {
     try {
       await sourceFile.copy(targetFile.path);
     } catch (e) {
-      throw Exception('ظپط´ظ„ ط§ط³طھط¹ط§ط¯ط© ط§ظ„ظ†ط³ط®ط© ط§ظ„ط§ط­طھظٹط§ط·ظٹط©. ظ‚ط¯ ظٹظƒظˆظ† ط§ظ„ظ…ظ„ظپ ظ‚ظٹط¯ ط§ظ„ط§ط³طھط®ط¯ط§ظ…. ط­ط§ظˆظ„ ط¥ط¹ط§ط¯ط© طھط´ط؛ظٹظ„ ط§ظ„ط¨ط±ظ†ط§ظ…ط¬.\nط§ظ„ط®ط·ط£: $e');
+      throw Exception('فشل استعادة النسخة الاحتياطية. قد يكون الملف قيد الاستخدام. حاول إعادة تشغيل البرنامج.\nالخطأ: $e');
     }
   }
 }

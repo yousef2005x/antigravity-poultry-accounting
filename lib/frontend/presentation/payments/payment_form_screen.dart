@@ -27,7 +27,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
   final _referenceController = TextEditingController();
   final _notesController = TextEditingController();
   
-  String _type = 'receipt'; // 'receipt' (ظ‚ط¨ط¶) or 'payment' (طµط±ظپ)
+  String _type = 'receipt'; // 'receipt' (قبض) or 'payment' (صرف)
   int? _selectedCustomerId;
   int? _selectedSupplierId;
   PaymentMethod _method = PaymentMethod.cash;
@@ -106,11 +106,11 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
     }
 
     if (_type == 'receipt' && _selectedCustomerId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ط¹ظ…ظٹظ„')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار العميل')));
       return;
     }
     if (_type == 'payment' && _selectedSupplierId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ظ…ظˆط±ط¯')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار المورد')));
       return;
     }
 
@@ -142,13 +142,13 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
         
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… طھط³ط¬ظٹظ„ ط§ظ„ط¯ظپط¹ط© ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم تسجيل الدفعة بنجاح')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('خطأ في الحفظ: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -161,7 +161,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.payment != null ? 'طھط¹ط¯ظٹظ„ ط¯ظپط¹ط©' : 'طھط³ط¬ظٹظ„ ط¯ظپط¹ط© ط¬ط¯ظٹط¯ط©'),
+        title: Text(widget.payment != null ? 'تعديل دفعة' : 'تسجيل دفعة جديدة'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
@@ -173,13 +173,13 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Type Selection
-              const Text('ظ†ظˆط¹ ط§ظ„ط¹ظ…ظ„ظٹط©:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('نوع العملية:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: RadioListTile<String>(
-                      title: const Text('ظ‚ط¨ط¶ (ظˆط§ط±ط¯)'),
+                      title: const Text('قبض (وارد)'),
                       value: 'receipt',
                       toggleable: true,
                       selected: _type == 'receipt',
@@ -198,7 +198,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                   ),
                   Expanded(
                     child: RadioListTile<String>(
-                      title: const Text('طµط±ظپ (طµط§ط¯ط±)'),
+                      title: const Text('صرف (صادر)'),
                       value: 'payment',
                       toggleable: true,
                       selected: _type == 'payment',
@@ -221,14 +221,14 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
 
               // Party Selection (Customer or Supplier)
               if (_type == 'receipt') ...[
-                const Text('ط§ظ„ط¹ظ…ظٹظ„:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('العميل:', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 customersAsync.when(
                   data: (customers) => DropdownButtonFormField<int>(
                     initialValue: _selectedCustomerId,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'ط§ط®طھط± ط§ظ„ط¹ظ…ظٹظ„',
+                      hintText: 'اختر العميل',
                       prefixIcon: Icon(Icons.person),
                     ),
                     items: customers.map((c) => DropdownMenuItem(
@@ -239,20 +239,20 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                       setState(() => _selectedCustomerId = val);
                       unawaited(_fetchPartyBalance());
                     },
-                    validator: (val) => val == null ? 'ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ط¹ظ…ظٹظ„' : null,
+                    validator: (val) => val == null ? 'يرجى اختيار العميل' : null,
                   ),
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, _) => Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ط¹ظ…ظ„ط§ط،: $err'),
+                  error: (err, _) => Text('خطأ في تحميل العملاء: $err'),
                 ),
               ] else ...[
-                const Text('ط§ظ„ظ…ظˆط±ط¯:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('المورد:', style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 suppliersAsync.when(
                   data: (suppliers) => DropdownButtonFormField<int>(
                     initialValue: _selectedSupplierId,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'ط§ط®طھط± ط§ظ„ظ…ظˆط±ط¯',
+                      hintText: 'اختر المورد',
                       prefixIcon: Icon(Icons.business),
                     ),
                     items: suppliers.map((s) => DropdownMenuItem(
@@ -263,10 +263,10 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                       setState(() => _selectedSupplierId = val);
                       unawaited(_fetchPartyBalance());
                     },
-                    validator: (val) => val == null ? 'ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ظ…ظˆط±ط¯' : null,
+                    validator: (val) => val == null ? 'يرجى اختيار المورد' : null,
                   ),
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, _) => Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ظ…ظˆط±ط¯ظٹظ†: $err'),
+                  error: (err, _) => Text('خطأ في تحميل الموردين: $err'),
                 ),
               ],
 
@@ -284,12 +284,12 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('ط§ظ„ط±طµظٹط¯ ط§ظ„ط­ط§ظ„ظٹ:', style: TextStyle(color: Colors.blueGrey)),
+                        const Text('الرصيد الحالي:', style: TextStyle(color: Colors.blueGrey)),
                         if (_isLoadingBalance)
                           const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                         else
                           Text(
-                            '${_partyBalance?.toStringAsFixed(2) ?? "0.00"} â‚ھ',
+                            '${_partyBalance?.toStringAsFixed(2) ?? "0.00"} ₪',
                             style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 16),
                           ),
                       ],
@@ -303,7 +303,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظ„ظ…ط¨ظ„ط؛ (â‚ھ) *',
+                  labelText: 'المبلغ (₪) *',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.money),
                 ),
@@ -311,10 +311,10 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                 style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 validator: (val) {
                   if (val == null || val.isEmpty) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛';
+                    return 'يرجى إدخال المبلغ';
                   }
                   if (double.tryParse(val) == null || double.parse(val) <= 0) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ظ…ط¨ظ„ط؛ طµط­ظٹط­';
+                    return 'يرجى إدخال مبلغ صحيح';
                   }
                   return null;
                 },
@@ -322,7 +322,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
               const SizedBox(height: 16),
 
               // Payment Method
-              const Text('ط·ط±ظٹظ‚ط© ط§ظ„ط¯ظپط¹:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('طريقة الدفع:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<PaymentMethod>(
                 initialValue: _method,
@@ -346,7 +346,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                 TextFormField(
                   controller: _referenceController,
                   decoration: InputDecoration(
-                    labelText: _method == PaymentMethod.check ? 'ط±ظ‚ظ… ط§ظ„ط´ظٹظƒ' : 'ط±ظ‚ظ… ط§ظ„ط­ظˆط§ظ„ط© / ط§ظ„ظ…ط±ط¬ط¹',
+                    labelText: _method == PaymentMethod.check ? 'رقم الشيك' : 'رقم الحوالة / المرجع',
                     border: const OutlineInputBorder(),
                   ),
                 ),
@@ -354,7 +354,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                 const SizedBox(height: 16),
 
               // Date Picker
-              const Text('ط§ظ„طھط§ط±ظٹط®:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('التاريخ:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               InkWell(
                 onTap: _selectDate,
@@ -379,7 +379,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
               TextFormField(
                 controller: _notesController,
                 decoration: const InputDecoration(
-                  labelText: 'ظ…ظ„ط§ط­ط¸ط§طھ ط¥ط¶ط§ظپظٹط©',
+                  labelText: 'ملاحظات إضافية',
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 2,
@@ -394,7 +394,7 @@ class _PaymentFormScreenState extends ConsumerState<PaymentFormScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _isLoadingBalance ? null : _save,
                   icon: const Icon(Icons.save, color: Colors.white),
-                  label: const Text('ط­ظپط¸ ط§ظ„ط¯ظپط¹ط©', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  label: const Text('حفظ الدفعة', style: TextStyle(fontSize: 18, color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

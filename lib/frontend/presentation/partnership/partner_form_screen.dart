@@ -51,7 +51,7 @@ class _PartnerFormScreenState extends ConsumerState<PartnerFormScreen> {
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('طھظ… ط­ظپط¸ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط´ط±ظٹظƒ ط¨ظ†ط¬ط§ط­')),
+            const SnackBar(content: Text('تم حفظ بيانات الشريك بنجاح')),
           );
           Navigator.pop(context);
         }
@@ -69,7 +69,7 @@ class _PartnerFormScreenState extends ConsumerState<PartnerFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.partner == null ? 'ط¥ط¶ط§ظپط© ط´ط±ظٹظƒ ط¬ط¯ظٹط¯' : 'طھط¹ط¯ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط´ط±ظٹظƒ'),
+        title: Text(widget.partner == null ? 'إضافة شريك جديد' : 'تعديل بيانات الشريك'),
         backgroundColor: Colors.green,
       ),
       body: Padding(
@@ -80,21 +80,21 @@ class _PartnerFormScreenState extends ConsumerState<PartnerFormScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'ط§ط³ظ… ط§ظ„ط´ط±ظٹظƒ', border: OutlineInputBorder()),
-                validator: (value) => value == null || value.isEmpty ? 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ط§ط³ظ…' : null,
+                decoration: const InputDecoration(labelText: 'اسم الشريك', border: OutlineInputBorder()),
+                validator: (value) => value == null || value.isEmpty ? 'يرجى إدخال الاسم' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _shareController,
-                decoration: const InputDecoration(labelText: 'ظ†ط³ط¨ط© ط§ظ„ط´ط±ط§ظƒط© (%)', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'نسبة الشراكة (%)', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ†ط³ط¨ط©';
+                    return 'يرجى إدخال النسبة';
                   }
                   final share = double.tryParse(value);
                   if (share == null || share < 0 || share > 100) {
-                    return 'ظ†ط³ط¨ط© ط؛ظٹط± طµط­ظٹط­ط©';
+                    return 'نسبة غير صحيحة';
                   }
                   return null;
                 },

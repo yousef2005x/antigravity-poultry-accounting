@@ -35,7 +35,7 @@ class _CustomerManagementScreenState extends ConsumerState<CustomerManagementScr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط¥ط¯ط§ط±ط© ط§ظ„ط¹ظ…ظ„ط§ط،'),
+        title: const Text('إدارة العملاء'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -44,8 +44,8 @@ class _CustomerManagementScreenState extends ConsumerState<CustomerManagementScr
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withValues(alpha: 0.85),
           tabs: const [
-            Tab(icon: Icon(Icons.people), text: 'ظ‚ط§ط¦ظ…ط© ط§ظ„ط¹ظ…ظ„ط§ط،'),
-            Tab(icon: Icon(Icons.assessment), text: 'ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨'),
+            Tab(icon: Icon(Icons.people), text: 'قائمة العملاء'),
+            Tab(icon: Icon(Icons.assessment), text: 'كشف الحساب'),
           ],
         ),
       ),
@@ -89,7 +89,7 @@ class _CustomerListTab extends ConsumerWidget {
               children: [
                 Icon(Icons.people_outline, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
-                Text('ظ„ط§ ظٹظˆط¬ط¯ ط¹ظ…ظ„ط§ط، ظ…ط¶ط§ظپظٹظ† ط¨ط¹ط¯', style: TextStyle(color: Colors.grey)),
+                Text('لا يوجد عملاء مضافين بعد', style: TextStyle(color: Colors.grey)),
               ],
             ),
           );
@@ -196,7 +196,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط¬ظ„ط¨ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨: $e')),
+          SnackBar(content: Text('خطأ في جلب كشف الحساب: $e')),
         );
       }
     }
@@ -265,7 +265,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
                         children: [
                           Icon(Icons.assignment, size: 64, color: Colors.grey),
                           SizedBox(height: 16),
-                          Text('ط§ط®طھط± ط¹ظ…ظٹظ„ط§ظ‹ ظ„ط¹ط±ط¶ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨', style: TextStyle(color: Colors.grey)),
+                          Text('اختر عميلاً لعرض كشف الحساب', style: TextStyle(color: Colors.grey)),
                         ],
                       ),
                     )
@@ -284,7 +284,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
                 data: (customers) => DropdownButtonFormField<Customer>(
                   initialValue: _selectedCustomer,
                   decoration: InputDecoration(
-                    labelText: 'ط§ط®طھط± ط§ظ„ط¹ظ…ظٹظ„',
+                    labelText: 'اختر العميل',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.person, color: Colors.blue),
                     filled: true,
@@ -302,7 +302,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
                   },
                 ),
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ط¹ظ…ظ„ط§ط،'),
+                error: (_, __) => const Text('خطأ في تحميل العملاء'),
               ),
           const SizedBox(height: 16),
           Row(
@@ -324,7 +324,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
                   icon: const Icon(Icons.date_range),
                   label: Text(
                     _fromDate == null
-                        ? 'ظ…ظ† طھط§ط±ظٹط®'
+                        ? 'من تاريخ'
                         : '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
                   ),
                 ),
@@ -347,7 +347,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
                   icon: const Icon(Icons.date_range),
                   label: Text(
                     _toDate == null
-                        ? 'ط¥ظ„ظ‰ طھط§ط±ظٹط®'
+                        ? 'إلى تاريخ'
                         : '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
                   ),
                 ),
@@ -365,7 +365,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final entry = _entries[index];
-        final isOpening = entry.description == 'ط±طµظٹط¯ ط³ط§ط¨ظ‚';
+        final isOpening = entry.description == 'رصيد سابق';
 
         return Container(
           color: isOpening ? Colors.grey.shade100 : Colors.white,
@@ -404,7 +404,7 @@ class _CustomerStatementTabState extends ConsumerState<_CustomerStatementTab> {
               ],
             ),
             trailing: Text(
-              '${entry.balance.toStringAsFixed(2)} â‚ھ',
+              '${entry.balance.toStringAsFixed(2)} ₪',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),

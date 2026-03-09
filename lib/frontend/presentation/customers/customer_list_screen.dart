@@ -11,7 +11,7 @@ class CustomerListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط¥ط¯ط§ط±ط© ط§ظ„ط¹ظ…ظ„ط§ط،'),
+        title: const Text('إدارة العملاء'),
         backgroundColor: Colors.green,
       ),
       body: ref.watch(customersStreamProvider).when(
@@ -19,7 +19,7 @@ class CustomerListScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('ط®ط·ط£: $err')),
         data: (customers) {
           if (customers.isEmpty) {
-            return const Center(child: Text('ظ„ط§ ظٹظˆط¬ط¯ ط¹ظ…ظ„ط§ط، ظ…ط¶ط§ظپظٹظ† ط¨ط¹ط¯'));
+            return const Center(child: Text('لا يوجد عملاء مضافين بعد'));
           }
 
           return ListView.builder(
@@ -32,7 +32,7 @@ class CustomerListScreen extends ConsumerWidget {
                   child: const Icon(Icons.person, color: Colors.green),
                 ),
                 title: Text(customer.name),
-                subtitle: Text(customer.phone ?? 'ط¨ط¯ظˆظ† ط±ظ‚ظ… ظ‡ط§طھظپ'),
+                subtitle: Text(customer.phone ?? 'بدون رقم هاتف'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.push(

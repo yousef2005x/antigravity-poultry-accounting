@@ -52,7 +52,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('طھط­ظˆظٹظ„ ط§ظ„ظ…ط®ط²ظˆظ† (ط§ظ„طھظ‚ط·ظٹط¹)'),
+        title: const Text('تحويل المخزون (التقطيع)'),
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
@@ -76,7 +76,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _isTransferring ? _saveAndTransfer : _saveConversion,
                       icon: Icon(_isTransferring ? Icons.send : Icons.save),
-                      label: Text(_isTransferring ? 'ط­ظپط¸ ظˆطھط±ط­ظٹظ„ ظ„ظ„ط¹ظ…ظٹظ„' : 'ط­ظپط¸ ط§ظ„طھط­ظˆظٹظ„'),
+                      label: Text(_isTransferring ? 'حفظ وترحيل للعميل' : 'حفظ التحويل'),
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: _isTransferring ? Colors.blue : Colors.green,
@@ -98,7 +98,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('ط§ظ„ظ…طµط¯ط± (ط§ظ„ط®ط§ظ…)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('المصدر (الخام)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             ref.watch(productsStreamProvider).when(
               data: (products) {
@@ -107,13 +107,13 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
                 return DropdownButtonFormField<Product>(
                   initialValue: _sourceProduct ?? (listToShow.isNotEmpty ? listToShow.first : null),
                   decoration: const InputDecoration(
-                    labelText: 'ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظ…طµط¯ط± (ط¯ط¬ط§ط¬ ظƒط§ظ…ظ„)',
+                    labelText: 'المنتج المصدر (دجاج كامل)',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.inventory),
                   ),
                   items: listToShow.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
                   onChanged: (val) => setState(() => _sourceProduct = val),
-                  validator: (val) => val == null ? 'ظ…ط·ظ„ظˆط¨' : null,
+                  validator: (val) => val == null ? 'مطلوب' : null,
                 );
               },
               loading: () => const LinearProgressIndicator(),
@@ -123,18 +123,18 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
             TextFormField(
               controller: _sourceQuantityController,
               decoration: const InputDecoration(
-                labelText: 'ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط³ط­ظˆط¨ط© (ظƒط؛)',
+                labelText: 'الكمية المسحوبة (كغ)',
                 border: OutlineInputBorder(),
                 suffixText: 'ظƒط؛',
               ),
               keyboardType: TextInputType.number,
               validator: (val) {
                 if (val == null || val.isEmpty) {
-                  return 'ظ…ط·ظ„ظˆط¨';
+                  return 'مطلوب';
                 }
                 final v = double.tryParse(val);
                 if (v == null || v <= 0) {
-                  return 'ظ‚ظٹظ…ط© ط؛ظٹط± طµط§ظ„ط­ط©';
+                  return 'قيمة غير صالحة';
                 }
                 return null;
               },
@@ -153,17 +153,17 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('ط§ظ„ظ†ظˆط§طھط¬ (ط§ظ„ط£طµظ†ط§ظپ)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('النواتج (الأصناف)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             OutlinedButton.icon(
               onPressed: _showAddOutputDialog,
               icon: const Icon(Icons.add),
-              label: const Text('ط¥ط¶ط§ظپط© طµظ†ظپ'),
+              label: const Text('إضافة صنف'),
             ),
           ],
         ),
         const SizedBox(height: 16),
         if (_outputs.isEmpty)
-          const Center(child: Text('ظ„ظ… ظٹطھظ… ط¥ط¶ط§ظپط© ط£طµظ†ط§ظپ ط¨ط¹ط¯', style: TextStyle(color: Colors.grey)))
+          const Center(child: Text('لم يتم إضافة أصناف بعد', style: TextStyle(color: Colors.grey)))
         else
           ListView.builder(
             shrinkWrap: true,
@@ -206,10 +206,10 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _summaryRow('ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط³ط­ظˆط¨ط©:', '${_totalSourceQuantity.toStringAsFixed(2)} ظƒط؛'),
+            _summaryRow('الكمية المسحوبة:', '${_totalSourceQuantity.toStringAsFixed(2)} كغ'),
             const Divider(),
-            _summaryRow('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ†ظˆط§طھط¬:', '${_totalOutputQuantity.toStringAsFixed(2)} ظƒط؛', isBold: true),
-            _summaryRow('ط§ظ„ظپط§ظ‚ط¯ (ظ‡ط¯ط±/ط¹ط¸ظ…):', '${_processingLoss.toStringAsFixed(2)} ظƒط؛', 
+            _summaryRow('إجمالي النواتج:', '${_totalOutputQuantity.toStringAsFixed(2)} كغ', isBold: true),
+            _summaryRow('الفاقد (هدر/عظم):', '${_processingLoss.toStringAsFixed(2)} كغ', 
               color: _processingLoss > (_totalSourceQuantity * 0.3) ? Colors.red : Colors.orange,
             ), // Warn if > 30% loss
             const Divider(),
@@ -217,8 +217,8 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
             CheckboxListTile(
               value: _addToInventory,
               onChanged: _isTransferring ? null : (val) => setState(() => _addToInventory = val ?? false),
-              title: const Text('ط¥ط¶ط§ظپط© ط§ظ„ظ†ظˆط§طھط¬ ظ„ظ„ظ…ط®ط²ظˆظ†', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('ط³ظٹطھظ… ط¥ط¶ط§ظپط© ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ظ…ظڈظ‚ط·ظ‘ط¹ط© ظ„ظ„ظ…ط®ط²ظˆظ† ظ„ظ„ط¨ظٹط¹ ظ„ط§ط­ظ‚ط§ظ‹'),
+              title: const Text('إضافة النواتج للمخزون', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('سيتم إضافة الأصناف المُقطّعة للمخزون للبيع لاحقاً'),
               secondary: const Icon(Icons.inventory_2),
               contentPadding: EdgeInsets.zero,
             ),
@@ -247,7 +247,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
 
   void _showAddOutputDialog() {
     if (_totalSourceQuantity <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظٹط±ط¬ظ‰ طھط­ط¯ظٹط¯ ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط³ط­ظˆط¨ط© ط£ظˆظ„ط§ظ‹')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى تحديد الكمية المسحوبة أولاً')));
       return;
     }
 
@@ -257,13 +257,13 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('ط¥ط¶ط§ظپط© ظ†ط§طھط¬'),
+        title: const Text('إضافة ناتج'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ref.watch(productsStreamProvider).when(
               data: (products) => DropdownButtonFormField<Product>(
-                decoration: const InputDecoration(labelText: 'ط§ظ„طµظ†ظپ ط§ظ„ظ†ط§طھط¬'),
+                decoration: const InputDecoration(labelText: 'الصنف الناتج'),
                 items: products
                   .where((p) => p.productType == ProductType.finalProduct)
                   .map((p) => DropdownMenuItem(value: p, child: Text(p.name)))
@@ -276,13 +276,13 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
             const SizedBox(height: 16),
             TextField(
               controller: qtyController,
-              decoration: const InputDecoration(labelText: 'ط§ظ„ظƒظ…ظٹط© (ظƒط؛)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: 'الكمية (كغ)', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('ط¥ظ„ط؛ط§ط،')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
           ElevatedButton(
             onPressed: () {
               final qty = double.tryParse(qtyController.text);
@@ -303,7 +303,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
                 Navigator.pop(context);
               }
             },
-            child: const Text('ط¥ط¶ط§ظپط©'),
+            child: const Text('إضافة'),
           ),
         ],
       ),
@@ -320,8 +320,8 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
             CheckboxListTile(
               value: _isTransferring,
               onChanged: (val) => setState(() => _isTransferring = val ?? false),
-              title: const Text('طھط±ط­ظٹظ„ ظ…ط¨ط§ط´ط± ظ„ط­ط³ط§ط¨ ط§ظ„ط¹ظ…ظٹظ„', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('ط³ظٹطھظ… ط¥ظ†ط´ط§ط، ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ط¨ظ‡ط°ظ‡ ط§ظ„ط£طµظ†ط§ظپ'),
+              title: const Text('ترحيل مباشر لحساب العميل', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('سيتم إنشاء فاتورة مبيعات تلقائياً بهذه الأصناف'),
               secondary: const Icon(Icons.person_add),
             ),
             if (_isTransferring) ...[
@@ -330,7 +330,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
                 data: (customers) => DropdownButtonFormField<Customer>(
                   initialValue: _selectedCustomer,
                   decoration: const InputDecoration(
-                    labelText: 'ط§ط®طھط± ط§ظ„ط¹ظ…ظٹظ„',
+                    labelText: 'اختر العميل',
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(),
                     filled: true,
@@ -338,7 +338,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
                   ),
                   items: customers.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
                   onChanged: (val) => setState(() => _selectedCustomer = val),
-                  validator: (val) => _isTransferring && val == null ? 'ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ط¹ظ…ظٹظ„' : null,
+                  validator: (val) => _isTransferring && val == null ? 'يرجى اختيار العميل' : null,
                 ),
                 loading: () => const LinearProgressIndicator(),
                 error: (e, _) => Text('Error: $e'),
@@ -355,11 +355,11 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
       return;
     }
     if (_outputs.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظٹط¬ط¨ ط¥ط¶ط§ظپط© طµظ†ظپ ظˆط§ط­ط¯ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يجب إضافة صنف واحد على الأقل')));
       return;
     }
     if (_selectedCustomer == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ط¹ظ…ظٹظ„ ط£ظˆظ„ط§ظ‹')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار العميل أولاً')));
       return;
     }
 
@@ -373,7 +373,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('ظ„ط§ ظٹظˆط¬ط¯ ظ…ط®ط²ظˆظ† ظƒط§ظپظٹ. ط§ظ„ظ…طھظˆظپط±: ${availableStock.toStringAsFixed(2)} ظƒط؛'),
+              content: Text('لا يوجد مخزون كافي. المتوفر: ${availableStock.toStringAsFixed(2)} كغ'),
               backgroundColor: Colors.red,
             ),
           );
@@ -427,14 +427,14 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
         invoiceDate: DateTime.now(),
         status: InvoiceStatus.confirmed,
         items: enrichedItems,
-        notes: 'طھظ… ط¥ظ†ط´ط§ط¤ظ‡ط§ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظ…ظ† ط¹ظ…ظ„ظٹط© ط§ظ„طھط­ظˆظٹظ„',
+        notes: 'تم إنشاؤها تلقائياً من عملية التحويل',
       );
 
       await invoiceRepo.createInvoice(invoice);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('طھظ… ط§ظ„طھط­ظˆظٹظ„ ظˆطھط¨ظ„ط؛ ط§ظ„طھظƒظ„ظپط© ط¨ظ†ط¬ط§ط­ ظˆطھط±ط­ظٹظ„ظ‡ط§ ظ„ظ„ظپط§طھظˆط±ط©'),
+          content: Text('تم التحويل وتبلغ التكلفة بنجاح وترحيلها للفاتورة'),
           behavior: SnackBarBehavior.floating,
         ),
         );
@@ -456,11 +456,11 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
       return;
     }
     if (_outputs.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظٹط¬ط¨ ط¥ط¶ط§ظپط© طµظ†ظپ ظˆط§ط­ط¯ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يجب إضافة صنف واحد على الأقل')));
       return;
     }
     if (_processingLoss < 0) {
-       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ط§ظ„ظ†ظˆط§طھط¬ ط£ظƒط¨ط± ظ…ظ† ط§ظ„ظ…طµط¯ط±!')));
+       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('النواتج أكبر من المصدر!')));
        return;
     }
 
@@ -474,7 +474,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('ظ„ط§ ظٹظˆط¬ط¯ ظ…ط®ط²ظˆظ† ظƒط§ظپظٹ. ط§ظ„ظ…طھظˆظپط±: ${availableStock.toStringAsFixed(2)} ظƒط؛'),
+              content: Text('لا يوجد مخزون كافي. المتوفر: ${availableStock.toStringAsFixed(2)} كغ'),
               backgroundColor: Colors.red,
             ),
           );
@@ -499,7 +499,7 @@ class _StockConversionScreenState extends ConsumerState<StockConversionScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('طھظ… ط­ظپط¸ ط¹ظ…ظ„ظٹط© ط§ظ„طھط­ظˆظٹظ„ ط¨ظ†ط¬ط§ط­ (ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ظ†ظ‡ط§ط¦ظٹط© ظ„ظ… طھط¶ظپ ظ„ظ„ظ…ط®ط²ظˆظ† ط­ط³ط¨ ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ)'),
+          content: Text('تم حفظ عملية التحويل بنجاح (الأصناف النهائية لم تضف للمخزون حسب الإعدادات)'),
           behavior: SnackBarBehavior.floating,
         ),
         );

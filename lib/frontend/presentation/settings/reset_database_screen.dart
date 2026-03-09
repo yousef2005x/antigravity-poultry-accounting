@@ -17,7 +17,7 @@ class _ResetDatabaseScreenState extends ConsumerState<ResetDatabaseScreen> {
   Future<void> _performReset() async {
     if (_confirmController.text != 'ط­ط°ظپ') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ظƒظ„ظ…ط© ط§ظ„طھط£ظƒظٹط¯ ط؛ظٹط± طµط­ظٹط­ط©')),
+        const SnackBar(content: Text('كلمة التأكيد غير صحيحة')),
       );
       return;
     }
@@ -35,7 +35,7 @@ class _ResetDatabaseScreenState extends ConsumerState<ResetDatabaseScreen> {
         );
         
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… طھطµظپظٹط± ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم تصفير قاعدة البيانات بنجاح')),
         );
       }
     } catch (e) {
@@ -58,7 +58,7 @@ class _ResetDatabaseScreenState extends ConsumerState<ResetDatabaseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('طھطµظپظٹط± ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ'),
+        title: const Text('تصفير قاعدة البيانات'),
         backgroundColor: Colors.red,
       ),
       body: Center(
@@ -70,12 +70,12 @@ class _ResetDatabaseScreenState extends ConsumerState<ResetDatabaseScreen> {
               const Icon(Icons.warning_amber_rounded, size: 80, color: Colors.red),
               const SizedBox(height: 20),
               const Text(
-                'طھط­ط°ظٹط± ظ‡ط§ظ…!',
+                'تحذير هام!',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
               ),
               const SizedBox(height: 10),
               const Text(
-                'ظ‡ط°ط§ ط§ظ„ط¥ط¬ط±ط§ط، ط³ظٹظ‚ظˆظ… ط¨ط­ط°ظپ ط¬ظ…ظٹط¹ ط§ظ„ط¨ظٹط§ظ†ط§طھ ظ…ظ† ط§ظ„ظ†ط¸ط§ظ… ط¨ط´ظƒظ„ ظ†ظ‡ط§ط¦ظٹ ظˆظ„ظ† طھطھظ…ظƒظ† ظ…ظ† ط§ط³طھط±ط¬ط§ط¹ظ‡ط§.\n\nط³ظٹطھظ… ط§ظ„ط§ط­طھظپط§ط¸ ظپظ‚ط· ط¨ط§ظ„ظ…ط³طھط®ط¯ظ… ط§ظ„ط±ط¦ظٹط³ظٹ (ط§ظ„ظ…ط¯ظٹط±) ظˆط§ظ„ظ…ظ†طھط¬ط§طھ ط§ظ„ط£ط³ط§ط³ظٹط©.',
+                'هذا الإجراء سيقوم بحذف جميع البيانات من النظام بشكل نهائي ولن تتمكن من استرجاعها.\n\nسيتم الاحتفاظ فقط بالمستخدم الرئيسي (المدير) والمنتجات الأساسية.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16),
               ),
@@ -83,7 +83,7 @@ class _ResetDatabaseScreenState extends ConsumerState<ResetDatabaseScreen> {
               TextField(
                 controller: _confirmController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظƒطھط¨ ظƒظ„ظ…ط© "ط­ط°ظپ" ظ„ظ„طھط£ظƒظٹط¯',
+                  labelText: 'اكتب كلمة "حذف" للتأكيد',
                   border: OutlineInputBorder(),
                 ),
                 textAlign: TextAlign.center,
@@ -100,7 +100,7 @@ class _ResetDatabaseScreenState extends ConsumerState<ResetDatabaseScreen> {
                   ),
                   child: _isLoading 
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('طھطµظپظٹط± ط§ظ„ط¨ظٹط§ظ†ط§طھ (Factory Reset)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    : const Text('تصفير البيانات (Factory Reset)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

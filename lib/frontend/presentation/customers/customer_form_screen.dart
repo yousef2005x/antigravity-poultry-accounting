@@ -63,13 +63,13 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… ط­ظپط¸ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¹ظ…ظٹظ„ ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم حفظ بيانات العميل بنجاح')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')),
+          SnackBar(content: Text('خطأ في الحفظ: $e')),
         );
       }
     }
@@ -79,7 +79,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.customer == null ? 'ط¥ط¶ط§ظپط© ط¹ظ…ظٹظ„ ط¬ط¯ظٹط¯' : 'طھط¹ط¯ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¹ظ…ظٹظ„'),
+        title: Text(widget.customer == null ? 'إضافة عميل جديد' : 'تعديل بيانات العميل'),
         backgroundColor: Colors.green,
       ),
       body: SingleChildScrollView(
@@ -90,13 +90,13 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'ط§ط³ظ… ط§ظ„ط¹ظ…ظٹظ„ *', border: OutlineInputBorder()),
-                validator: (val) => (val == null || val.isEmpty) ? 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ط§ط³ظ…' : null,
+                decoration: const InputDecoration(labelText: 'اسم العميل *', border: OutlineInputBorder()),
+                validator: (val) => (val == null || val.isEmpty) ? 'يرجى إدخال الاسم' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'ط±ظ‚ظ… ط§ظ„ظ‡ط§طھظپ', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'رقم الهاتف', border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
                 maxLength: 15,
                 validator: (val) {
@@ -106,7 +106,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   // Remove spaces and dashes for validation
                   final cleaned = val.replaceAll(RegExp(r'[\s\-]'), '');
                   if (!RegExp(r'^\d{7,15}$').hasMatch(cleaned)) {
-                    return 'ط±ظ‚ظ… ط§ظ„ظ‡ط§طھظپ ظٹط¬ط¨ ط£ظ† ظٹظƒظˆظ† ط¨ظٹظ† 7-15 ط±ظ‚ظ…';
+                    return 'رقم الهاتف يجب أن يكون بين 7-15 رقم';
                   }
                   return null;
                 },
@@ -114,19 +114,19 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _addressController,
-                decoration: const InputDecoration(labelText: 'ط§ظ„ط¹ظ†ظˆط§ظ†', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'العنوان', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _limitController,
-                decoration: const InputDecoration(labelText: 'ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ† (â‚ھ)', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'سقف الائتمان (₪)', border: OutlineInputBorder()),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (val) {
                   if (val == null || val.isEmpty) {
                     return null;
                   }
                   if (double.tryParse(val) == null) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط±ظ‚ظ… طµط­ظٹط­';
+                    return 'يرجى إدخال رقم صحيح';
                   }
                   return null;
                 },
@@ -134,7 +134,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _notesController,
-                decoration: const InputDecoration(labelText: 'ظ…ظ„ط§ط­ط¸ط§طھ', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'ملاحظات', border: OutlineInputBorder()),
                 maxLines: 3,
               ),
               const SizedBox(height: 24),

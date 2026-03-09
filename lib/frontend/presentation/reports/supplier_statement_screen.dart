@@ -60,7 +60,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط¬ظ„ط¨ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨: $e')),
+          SnackBar(content: Text('خطأ في جلب كشف الحساب: $e')),
         );
       }
     }
@@ -76,7 +76,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
       }
       // Actually, if filtering paid/unpaid, user probably wants to see specific invoices.
       // But a statement should be continuous. 
-      // User said: "ط§ظ„ظ…ط´طھط±ظٹط§طھ ط§ظ„ظ…ط¯ظپظˆط¹ط©" and "ط§ظ„ظ…ط´طھط±ظٹط§طھ ط؛ظٹط± ط§ظ„ظ…ط¯ظپظˆط¹ط©"
+      // User said: "المشتريات المدفوعة" and "المشتريات غير المدفوعة"
       if (_filter == SupplierFilter.paid) {
         return e.isPaid;
       }
@@ -132,7 +132,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ظƒط´ظپ ط­ط³ط§ط¨ ظ…ظˆط±ط¯'),
+        title: const Text('كشف حساب مورد'),
         backgroundColor: Colors.orange.shade800,
         actions: [
           if (_entries.isNotEmpty && _selectedSupplier != null)
@@ -152,7 +152,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredEntries.isEmpty
-                    ? const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط¨ظٹط§ظ†ط§طھ ظ„ظ„ط¹ط±ط¶'))
+                    ? const Center(child: Text('لا توجد بيانات للعرض'))
                     : _buildStatementList(),
           ),
         ],
@@ -165,11 +165,11 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Expanded(child: _buildSmallSummaryCard('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط´طھط±ظٹط§طھ', _totalPurchases, Colors.blue)),
+          Expanded(child: _buildSmallSummaryCard('إجمالي المشتريات', _totalPurchases, Colors.blue)),
           const SizedBox(width: 8),
-          Expanded(child: _buildSmallSummaryCard('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¯ظپظˆط¹', _totalPaid, Colors.green)),
+          Expanded(child: _buildSmallSummaryCard('إجمالي المدفوع', _totalPaid, Colors.green)),
           const SizedBox(width: 8),
-          Expanded(child: _buildSmallSummaryCard('ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ', _remainingBalance, Colors.red)),
+          Expanded(child: _buildSmallSummaryCard('الرصيد المتبقي', _remainingBalance, Colors.red)),
         ],
       ),
     );
@@ -202,7 +202,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
                 data: (suppliers) => DropdownButtonFormField<Supplier>(
                   initialValue: _selectedSupplier,
                   decoration: const InputDecoration(
-                    labelText: 'ط§ظ„ظ…ظˆط±ط¯',
+                    labelText: 'المورد',
                     border: OutlineInputBorder(),
                   ),
                   items: suppliers
@@ -218,16 +218,16 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
                   },
                 ),
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ظ…ظˆط±ط¯ظٹظ†'),
+                error: (_, __) => const Text('خطأ في تحميل الموردين'),
               ),
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildFilterChip('ط§ظ„ظƒظ„', SupplierFilter.all),
+              _buildFilterChip('الكل', SupplierFilter.all),
               const SizedBox(width: 8),
-              _buildFilterChip('ط§ظ„ظ…ط¯ظپظˆط¹ ظپظ‚ط·', SupplierFilter.paid),
+              _buildFilterChip('المدفوع فقط', SupplierFilter.paid),
               const SizedBox(width: 8),
-              _buildFilterChip('ط؛ظٹط± ط§ظ„ظ…ط¯ظپظˆط¹', SupplierFilter.unpaid),
+              _buildFilterChip('غير المدفوع', SupplierFilter.unpaid),
             ],
           ),
           const SizedBox(height: 12),
@@ -250,7 +250,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
                   icon: const Icon(Icons.date_range, size: 16),
                   label: Text(
                     _fromDate == null
-                        ? 'ظ…ظ† طھط§ط±ظٹط®'
+                        ? 'من تاريخ'
                         : '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
                   ),
                 ),
@@ -273,7 +273,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
                   icon: const Icon(Icons.date_range, size: 16),
                   label: Text(
                     _toDate == null
-                        ? 'ط¥ظ„ظ‰ طھط§ط±ظٹط®'
+                        ? 'إلى تاريخ'
                         : '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
                   ),
                 ),
@@ -341,7 +341,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      entry.isPaid ? 'ظ…ط¯ظپظˆط¹ط©' : 'ط؛ظٹط± ظ…ط¯ظپظˆط¹ط©',
+                      entry.isPaid ? 'مدفوعة' : 'غير مدفوعة',
                       style: TextStyle(
                         fontSize: 10,
                         color: entry.isPaid ? Colors.green.shade800 : Colors.red.shade800,
@@ -358,13 +358,13 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
                   children: [
                     if (entry.credit > 0)
                       Text(
-                        'ط¹ظ„ظٹظ†ط§: ${entry.credit.toStringAsFixed(1)}',
+                        'علينا: ${entry.credit.toStringAsFixed(1)}',
                         style: const TextStyle(color: Colors.red, fontSize: 13),
                       ),
                     if (entry.credit > 0 && entry.debit > 0) const SizedBox(width: 8),
                     if (entry.debit > 0)
                       Text(
-                        'ط¯ظپط¹ظ†ط§: ${entry.debit.toStringAsFixed(1)}',
+                        'دفعنا: ${entry.debit.toStringAsFixed(1)}',
                         style: const TextStyle(color: Colors.green, fontSize: 13),
                       ),
                   ],
@@ -372,7 +372,7 @@ class _SupplierStatementScreenState extends ConsumerState<SupplierStatementScree
               ],
             ),
             trailing: Text(
-              '${entry.balance.toStringAsFixed(1)} â‚ھ',
+              '${entry.balance.toStringAsFixed(1)} ₪',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

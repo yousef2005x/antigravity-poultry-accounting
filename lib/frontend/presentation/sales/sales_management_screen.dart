@@ -37,7 +37,7 @@ class _SalesManagementScreenState extends ConsumerState<SalesManagementScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„طھط­طµظٹظ„'),
+        title: const Text('المبيعات والتحصيل'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
         bottom: TabBar(
@@ -46,8 +46,8 @@ class _SalesManagementScreenState extends ConsumerState<SalesManagementScreen>
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withValues(alpha: 0.85),
           tabs: const [
-            Tab(icon: Icon(Icons.receipt_long), text: 'ط§ظ„ظپظˆط§طھظٹط±'),
-            Tab(icon: Icon(Icons.payments), text: 'ط§ظ„ظ…ط¯ظپظˆط¹ط§طھ'),
+            Tab(icon: Icon(Icons.receipt_long), text: 'الفواتير'),
+            Tab(icon: Icon(Icons.payments), text: 'المدفوعات'),
           ],
         ),
       ),
@@ -76,7 +76,7 @@ class _SalesManagementScreenState extends ConsumerState<SalesManagementScreen>
         },
         backgroundColor: Colors.green,
         icon: const Icon(Icons.add),
-        label: Text(_tabController.index == 0 ? 'ظپط§طھظˆط±ط© ط¬ط¯ظٹط¯ط©' : 'ط¯ظپط¹ط© ط¬ط¯ظٹط¯ط©'),
+        label: Text(_tabController.index == 0 ? 'فاتورة جديدة' : 'دفعة جديدة'),
       ),
     );
   }
@@ -97,7 +97,7 @@ class _InvoicesTab extends ConsumerWidget {
               children: [
                 Icon(Icons.receipt, size: 64, color: Colors.grey),
                 SizedBox(height: 16),
-                Text('ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ظ…ط¨ظٹط¹ط§طھ ظ…ط³ط¬ظ„ط©', style: TextStyle(color: Colors.grey)),
+                Text('لا توجد فواتير مبيعات مسجلة', style: TextStyle(color: Colors.grey)),
               ],
             ),
           );
@@ -122,15 +122,15 @@ class _InvoicesTab extends ConsumerWidget {
                   ),
                 ),
                 title: Text(
-                  'ظپط§طھظˆط±ط© ط±ظ‚ظ…: ${invoice.invoiceNumber}',
+                  'فاتورة رقم: ${invoice.invoiceNumber}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('ط§ظ„ط¹ظ…ظٹظ„: ${invoice.customer?.name ?? (invoice.customerId == 0 ? "ظ†ظ‚ط¯ظٹ" : "طھط­ظ…ظٹظ„...")}'),
+                    Text('العميل: ${invoice.customer?.name ?? (invoice.customerId == 0 ? "نقدي" : "تحميل...")}'),
                     Text(
-                      'ط§ظ„طھط§ط±ظٹط®: ${invoice.invoiceDate.day}/${invoice.invoiceDate.month}/${invoice.invoiceDate.year}',
+                      'التاريخ: ${invoice.invoiceDate.day}/${invoice.invoiceDate.month}/${invoice.invoiceDate.year}',
                     ),
                   ],
                 ),
@@ -141,14 +141,14 @@ class _InvoicesTab extends ConsumerWidget {
                       IconButton(
                         icon: const Icon(Icons.print, color: Colors.green),
                         onPressed: () => _printInvoice(context, ref, invoice),
-                        tooltip: 'ط·ط¨ط§ط¹ط©',
+                        tooltip: 'طباعة',
                       ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${invoice.total.toStringAsFixed(2)} â‚ھ',
+                          '${invoice.total.toStringAsFixed(2)} ₪',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -192,7 +192,7 @@ class _InvoicesTab extends ConsumerWidget {
       if (fullInvoice == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ط®ط·ط£: ط§ظ„ظپط§طھظˆط±ط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©')),
+            const SnackBar(content: Text('خطأ: الفاتورة غير موجودة')),
           );
         }
         return;
@@ -215,7 +215,7 @@ class _InvoicesTab extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ظپط´ظ„ ط§ظ„ط·ط¨ط§ط¹ط©: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('فشل الطباعة: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -241,7 +241,7 @@ class _PaymentsTab extends ConsumerWidget {
                     children: [
                       Icon(Icons.account_balance_wallet, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
-                      Text('ظ„ط§ ظٹظˆط¬ط¯ ط¹ظ…ظ„ظٹط§طھ ظ…ط³ط¬ظ„ط©', style: TextStyle(color: Colors.grey)),
+                      Text('لا يوجد عمليات مسجلة', style: TextStyle(color: Colors.grey)),
                     ],
                   ),
                 );
@@ -266,7 +266,7 @@ class _PaymentsTab extends ConsumerWidget {
                         ),
                       ),
                       title: Text(
-                        payment.customer?.name ?? payment.supplier?.name ?? 'ط¬ظ‡ط© ط؛ظٹط± ظ…ط¹ط±ظˆظپط©',
+                        payment.customer?.name ?? payment.supplier?.name ?? 'جهة غير معروفة',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
@@ -278,10 +278,10 @@ class _PaymentsTab extends ConsumerWidget {
                           IconButton(
                             icon: const Icon(Icons.print, color: Colors.blue),
                             onPressed: () => _printReceipt(context, ref, payment),
-                            tooltip: 'ط·ط¨ط§ط¹ط© ظˆط±ظٹظپظٹظˆ',
+                            tooltip: 'طباعة وريفيو',
                           ),
                           Text(
-                            '${payment.amount.toStringAsFixed(2)} â‚ھ',
+                            '${payment.amount.toStringAsFixed(2)} ₪',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -328,7 +328,7 @@ class _PaymentsTab extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط·ط¨ط§ط¹ط©: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('خطأ في الطباعة: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -357,12 +357,12 @@ class _PaymentsTab extends ConsumerWidget {
         child: Column(
           children: [
             const Text(
-              'ط±طµظٹط¯ ط§ظ„طµظ†ط¯ظˆظ‚ ط§ظ„ط­ط§ظ„ظٹ',
+              'رصيد الصندوق الحالي',
               style: TextStyle(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 8),
             Text(
-              '${balance.toStringAsFixed(2)} â‚ھ',
+              '${balance.toStringAsFixed(2)} ₪',
               style: const TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,

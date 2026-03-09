@@ -34,7 +34,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ظ†ط¸ط§ظ… ظ…ط­ط§ط³ط¨ط© ط§ظ„ط¯ظˆط§ط¬ظ† - ظ„ظˆط­ط© ط§ظ„طھط­ظƒظ…'),
+        title: const Text('نظام محاسبة الدواجن - لوحة التحكم'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
@@ -75,7 +75,7 @@ class HomeScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 12),
                         const Text(
-                          'ظ†ط¸ط§ظ… ط§ظ„ط¯ظˆط§ط¬ظ†',
+                          'نظام الدواجن',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -83,7 +83,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          ref.watch(authProvider).user?.fullName ?? 'ط§ظ„ظ…ط³ط¤ظˆظ„',
+                          ref.watch(authProvider).user?.fullName ?? 'المسؤول',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
@@ -99,15 +99,15 @@ class HomeScreen extends ConsumerWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: [
-                  _buildDrawerItem(Icons.dashboard, 'ظ„ظˆط­ط© ط§ظ„طھط­ظƒظ…', () {
+                  _buildDrawerItem(Icons.dashboard, 'لوحة التحكم', () {
                     Navigator.pop(context);
                   }),
                   const Divider(height: 8),
                   
-                  // ط§ظ„ط¹ظ…ظ„ط§ط،
+                  // العملاء
                   _buildDrawerItem(
                     Icons.people,
-                    'ط§ظ„ط¹ظ…ظ„ط§ط،',
+                    'العملاء',
                     () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerManagementScreen()));
@@ -115,10 +115,10 @@ class HomeScreen extends ConsumerWidget {
                     color: Colors.blue,
                   ),
 
-                  // ط§ظ„ظ…ظˆط±ط¯ظٹظ†
+                  // الموردين
                   _buildDrawerItem(
                     Icons.business,
-                    'ط§ظ„ظ…ظˆط±ط¯ظٹظ†',
+                    'الموردين',
                     () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (_) => SupplierManagementScreen()));
@@ -126,10 +126,10 @@ class HomeScreen extends ConsumerWidget {
                     color: Colors.orange,
                   ),
 
-                  // ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„طھط­طµظٹظ„
+                  // المبيعات والتحصيل
                   _buildDrawerItem(
                     Icons.point_of_sale,
-                    'ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„طھط­طµظٹظ„',
+                    'المبيعات والتحصيل',
                     () {
                       Navigator.pop(context);
                       Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesManagementScreen()));
@@ -150,24 +150,24 @@ class HomeScreen extends ConsumerWidget {
                     color: Colors.blueAccent,
                   ),
 
-                  // ط§ظ„ظ…ط®ط²ظˆظ† ظˆط§ظ„ظˆط§ط±ط¯ط§طھ
+                  // المخزون والواردات
                   _buildExpansionTile(
                     Icons.inventory_2, 
-                    'ط§ظ„ظ…ط®ط²ظˆظ† ظˆط§ظ„ظˆط§ط±ط¯ط§طھ', 
+                    'المخزون والواردات', 
                     [
-                      _buildDrawerItem(Icons.inventory, 'ظ„ظˆط­ط© ط§ظ„ظ…ط®ط²ظˆظ†', () {
+                      _buildDrawerItem(Icons.inventory, 'لوحة المخزون', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const StockDashboardScreen()));
                       }),
-                      _buildDrawerItem(Icons.shopping_bag, 'ط§ظ„ظ…ظ†طھط¬ط§طھ', () {
+                      _buildDrawerItem(Icons.shopping_bag, 'المنتجات', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductListScreen()));
                       }),
-                      _buildDrawerItem(Icons.shopping_cart, 'ط§ظ„ظˆط§ط±ط¯ط§طھ', () {
+                      _buildDrawerItem(Icons.shopping_cart, 'الواردات', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const PurchaseListScreen()));
                       }),
-                      _buildDrawerItem(Icons.price_check, 'ط§ظ„طھط³ط¹ظٹط± ط§ظ„ظٹظˆظ…ظٹ', () {
+                      _buildDrawerItem(Icons.price_check, 'التسعير اليومي', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyPricingScreen()));
                       }),
@@ -175,21 +175,21 @@ class HomeScreen extends ConsumerWidget {
                     iconColor: Colors.purple,
                   ),
 
-                  // ط§ظ„ظ…طµط±ظˆظپط§طھ ط§ظ„ظ…ط§ظ„ظٹط©
+                  // المصروفات المالية
                   _buildExpansionTile(
                     Icons.account_balance_wallet, 
-                    'ط§ظ„ظ…طµط±ظˆظپط§طھ ط§ظ„ظ…ط§ظ„ظٹط©', 
+                    'المصروفات المالية', 
                     [
-                      _buildDrawerItem(Icons.money_off, 'ط§ظ„ظ…طµط±ظˆظپط§طھ ط§ظ„طھط´ط؛ظٹظ„ظٹط©', () {
+                      _buildDrawerItem(Icons.money_off, 'المصروفات التشغيلية', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseListScreen()));
                       }),
 
-                      _buildDrawerItem(Icons.attach_money, 'ط§ظ„ط±ظˆط§طھط¨ ظˆط§ظ„ط£ط¬ظˆط±', () {
+                      _buildDrawerItem(Icons.attach_money, 'الرواتب والأجور', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const SalaryStatementScreen()));
                       }),
-                      _buildDrawerItem(Icons.people_alt, 'ط¥ط¯ط§ط±ط© ط§ظ„ظ…ظˆط¸ظپظٹظ†', () {
+                      _buildDrawerItem(Icons.people_alt, 'إدارة الموظفين', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeListScreen()));
                       }),
@@ -197,24 +197,24 @@ class HomeScreen extends ConsumerWidget {
                     iconColor: Colors.red.shade700,
                   ),
 
-                  // ط§ظ„طھظ‚ط§ط±ظٹط± ظˆط§ظ„ظ…ط§ظ„ظٹط©
+                  // التقارير والمالية
                   _buildExpansionTile(
                     Icons.analytics, 
-                    'ط§ظ„طھظ‚ط§ط±ظٹط± ظˆط§ظ„ظ…ط§ظ„ظٹط©', 
+                    'التقارير والمالية', 
                     [
-                      _buildDrawerItem(Icons.bar_chart, 'ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„طھط­ظ„ظٹظ„ظٹط©', () {
+                      _buildDrawerItem(Icons.bar_chart, 'التقارير التحليلية', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen()));
                       }),
-                      _buildDrawerItem(Icons.account_balance, 'ط³ط¬ظ„ ط§ظ„ط¯ظٹظˆظ† ط§ظ„ظ…ظˆط­ط¯', () {
+                      _buildDrawerItem(Icons.account_balance, 'سجل الديون الموحد', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const CentralDebtRegisterScreen()));
                       }),
-                      _buildDrawerItem(Icons.event_repeat, 'ط§ظ„ط¬ط±ط¯ ط§ظ„ط³ظ†ظˆظٹ', () {
+                      _buildDrawerItem(Icons.event_repeat, 'الجرد السنوي', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const AnnualInventoriesScreen()));
                       }),
-                      _buildDrawerItem(Icons.handshake, 'ط£ط±ط¨ط§ط­ ط§ظ„ط´ط±ظƒط§ط،', () {
+                      _buildDrawerItem(Icons.handshake, 'أرباح الشركاء', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const PartnershipScreen()));
                       }),
@@ -222,24 +222,24 @@ class HomeScreen extends ConsumerWidget {
                     iconColor: Colors.teal,
                   ),
 
-                  // ط§ظ„ط¥ط¯ط§ط±ط© ظˆط§ظ„ظ†ط¸ط§ظ…
+                  // الإدارة والنظام
                   _buildExpansionTile(
                     Icons.settings, 
-                    'ط§ظ„ط¥ط¯ط§ط±ط© ظˆط§ظ„ظ†ط¸ط§ظ…', 
+                    'الإدارة والنظام', 
                     [
-                      _buildDrawerItem(Icons.calculate, 'طھط¬ظ‡ظٹط² ط§ظ„ط®ط§ظ…', () {
+                      _buildDrawerItem(Icons.calculate, 'تجهيز الخام', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const RawMeatProcessingScreen()));
                       }),
-                      _buildDrawerItem(Icons.cut, 'طھط­ظˆظٹظ„ ط§ظ„ظ…ط®ط²ظˆظ†', () {
+                      _buildDrawerItem(Icons.cut, 'تحويل المخزون', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const StockConversionScreen()));
                       }),
-                      _buildDrawerItem(Icons.settings_applications, 'ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ', () {
+                      _buildDrawerItem(Icons.settings_applications, 'الإعدادات', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
                       }),
-                      _buildDrawerItem(Icons.delete_forever, 'طھطµظپظٹط± ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ', () {
+                      _buildDrawerItem(Icons.delete_forever, 'تصفير قاعدة البيانات', () {
                         Navigator.pop(context);
                         Navigator.push(context, MaterialPageRoute(builder: (_) => const ResetDatabaseScreen()));
                       }, color: Colors.red),
@@ -259,7 +259,7 @@ class HomeScreen extends ConsumerWidget {
                 tileColor: Colors.red.shade50,
                 leading: const Icon(Icons.logout, color: Colors.red),
                 title: const Text(
-                  'طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬',
+                  'تسجيل الخروج',
                   style: TextStyle(
                     color: Colors.red,
                     fontWeight: FontWeight.bold,
@@ -279,7 +279,7 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'ظ†ط¸ط±ط© ط¹ط§ظ…ط© (ط§ظ„ظٹظˆظ…)',
+              'نظرة عامة (اليوم)',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
@@ -290,15 +290,15 @@ class HomeScreen extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(child: _buildSummaryCard(
-                        'ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¨ظٹط¹ط§طھ', 
-                        '${data.todaySales.toStringAsFixed(2)} ط´ظٹظƒظ„', 
+                        'إجمالي المبيعات', 
+                        '${data.todaySales.toStringAsFixed(2)} شيكل', 
                         Colors.blue,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SalesManagementScreen())),
                       )),
                       const SizedBox(width: 16),
                       Expanded(child: _buildSummaryCard(
-                        'ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„طھط­طµظٹظ„', 
-                        '${data.todayReceipts.toStringAsFixed(2)} ط´ظٹظƒظ„', 
+                        'إجمالي التحصيل', 
+                        '${data.todayReceipts.toStringAsFixed(2)} شيكل', 
                         Colors.green,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsScreen())),
                       )),
@@ -308,15 +308,15 @@ class HomeScreen extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(child: _buildSummaryCard(
-                        'ط§ظ„ط°ظ…ظ… ط§ظ„ظ…ط³طھط­ظ‚ط©', 
-                        '${data.totalOutstanding.toStringAsFixed(2)} ط´ظٹظƒظ„', 
+                        'الذمم المستحقة', 
+                        '${data.totalOutstanding.toStringAsFixed(2)} شيكل', 
                         Colors.orange,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CentralDebtRegisterScreen())),
                       )),
                       const SizedBox(width: 16),
                       Expanded(child: _buildSummaryCard(
-                        'ط§ظ„ظ…طµط±ظˆظپط§طھ', 
-                        '${data.todayExpenses.toStringAsFixed(2)} ط´ظٹظƒظ„', 
+                        'المصروفات', 
+                        '${data.todayExpenses.toStringAsFixed(2)} شيكل', 
                         Colors.red,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ExpenseListScreen())),
                       )),
@@ -326,15 +326,15 @@ class HomeScreen extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(child: _buildSummaryCard(
-                        'ط§ظ„ظˆط§ط±ط¯ط§طھ (ط§ظ„ظ…ط´طھط±ظٹط§طھ)', 
-                        '${data.todayPurchases.toStringAsFixed(2)} ط´ظٹظƒظ„', 
+                        'الواردات (المشتريات)', 
+                        '${data.todayPurchases.toStringAsFixed(2)} شيكل', 
                         Colors.deepPurple,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PurchaseListScreen())),
                       )),
                       const SizedBox(width: 16),
                       Expanded(child: _buildSummaryCard(
-                        'ط§ظ„ط±ظˆط§طھط¨', 
-                        '${data.todaySalaries.toStringAsFixed(2)} ط´ظٹظƒظ„', 
+                        'الرواتب', 
+                        '${data.todaySalaries.toStringAsFixed(2)} شيكل', 
                         Colors.brown,
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SalaryStatementScreen())),
                       )),
@@ -343,18 +343,18 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ط¨ظٹط§ظ†ط§طھ: $err')),
+              error: (err, stack) => Center(child: Text('خطأ في تحميل البيانات: $err')),
             ),
             const SizedBox(height: 30),
             const Text(
-              'ط¢ط®ط± ط§ظ„ظپظˆط§طھظٹط±',
+              'آخر الفواتير',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             invoicesAsync.when(
               data: (invoices) {
                 if (invoices.isEmpty) {
-                  return const Text('ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ط­ط¯ظٹط«ط©');
+                  return const Text('لا توجد فواتير حديثة');
                 }
                 // Take last 5 invoices
                 final recentInvoices = invoices.take(5).toList();
@@ -370,10 +370,10 @@ class HomeScreen extends ConsumerWidget {
                         backgroundColor: Colors.green,
                         child: Icon(Icons.receipt, color: Colors.white),
                       ),
-                      title: Text('ظپط§طھظˆط±ط© ط±ظ‚ظ… #${invoice.id}'), // Or use invoiceNumber if available
-                      subtitle: Text('ط§ظ„طھط§ط±ظٹط®: ${invoice.invoiceDate.toString().split(' ')[0]}'),
+                      title: Text('فاتورة رقم #${invoice.id}'), // Or use invoiceNumber if available
+                      subtitle: Text('التاريخ: ${invoice.invoiceDate.toString().split(' ')[0]}'),
                       trailing: Text(
-                        '${invoice.total.toStringAsFixed(2)} ط´ظٹظƒظ„',
+                        '${invoice.total.toStringAsFixed(2)} شيكل',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     );
@@ -381,7 +381,7 @@ class HomeScreen extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Text('ط®ط·ط£: $err'),
+              error: (err, stack) => Text('خطأ: $err'),
             ),
           ],
         ),
@@ -392,7 +392,7 @@ class HomeScreen extends ConsumerWidget {
         },
         backgroundColor: Colors.green,
         icon: const Icon(Icons.add),
-        label: const Text('ظپط§طھظˆط±ط© ط¬ط¯ظٹط¯ط©'),
+        label: const Text('فاتورة جديدة'),
       ),
     );
   }

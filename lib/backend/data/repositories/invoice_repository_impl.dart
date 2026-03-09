@@ -490,7 +490,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
           paymentDate: date,
           customerId: Value(customerId),
           invoiceId: Value(invoiceId),
-          notes: Value('ط¯ظپط¹ط© ظ…ظ‚ط¯ظ…ط© ظ„ظ„ظپط§طھظˆط±ط© ط±ظ‚ظ… $invoiceId'),
+          notes: Value('دفعة مقدمة للفاتورة رقم $invoiceId'),
           createdBy: 1,
         ),
       );
@@ -500,7 +500,7 @@ class InvoiceRepositoryImpl implements InvoiceRepository {
         db.CashTransactionsCompanion.insert(
           amount: paidAmount,
           type: 'in',
-          description: 'ط¯ظپط¹ط© ظ…ظ‚ط¯ظ…ط© ظ„ظ„ظپط§طھظˆط±ط© ط±ظ‚ظ… $invoiceId',
+          description: 'دفعة مقدمة للفاتورة رقم $invoiceId',
           transactionDate: date,
           relatedPaymentId: Value(id),
           createdBy: 1,

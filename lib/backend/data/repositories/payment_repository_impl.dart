@@ -96,7 +96,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
           db.CashTransactionsCompanion.insert(
             amount: payment.amount,
             type: 'in',
-            description: 'ط³ظ†ط¯ ظ‚ط¨ط¶ ط±ظ‚ظ… $paymentNumber',
+            description: 'سند قبض رقم $paymentNumber',
             transactionDate: payment.paymentDate,
             relatedPaymentId: Value(id),
             createdBy: payment.createdBy ?? 1,
@@ -146,7 +146,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
           db.CashTransactionsCompanion.insert(
             amount: payment.amount,
             type: 'out',
-            description: 'ط³ظ†ط¯ طµط±ظپ ط±ظ‚ظ… $paymentNumber',
+            description: 'سند صرف رقم $paymentNumber',
             transactionDate: payment.paymentDate,
             relatedPaymentId: Value(id),
             createdBy: payment.createdBy ?? 1,

@@ -48,7 +48,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
 
     if (_selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± طھطµظ†ظٹظپ ط§ظ„ظ…طµط±ظˆظپ')),
+        const SnackBar(content: Text('يرجى اختيار تصنيف المصروف')),
       );
       return;
     }
@@ -73,13 +73,13 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… ط­ظپط¸ ط§ظ„ظ…طµط±ظˆظپ ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم حفظ المصروف بنجاح')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')),
+          SnackBar(content: Text('خطأ في الحفظ: $e')),
         );
       }
     }
@@ -89,12 +89,12 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('طھط£ظƒظٹط¯ ط§ظ„ط­ط°ظپ'),
-        content: const Text('ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ‡ط°ط§ ط§ظ„ظ…طµط±ظˆظپطں\nط³ظٹطھظ… ط£ظٹط¶ط§ظ‹ ط­ط°ظپ ط­ط±ظƒط© ط§ظ„طµظ†ط¯ظˆظ‚ ط§ظ„ظ…ط±طھط¨ط·ط© ط¨ظ‡.'),
+        title: const Text('تأكيد الحذف'),
+        content: const Text('هل أنت متأكد من حذف هذا المصروف؟\nسيتم أيضاً حذف حركة الصندوق المرتبطة به.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('ط¥ظ„ط؛ط§ط،'),
+            child: const Text('إلغاء'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
@@ -111,13 +111,13 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
         if (mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('طھظ… ط­ط°ظپ ط§ظ„ظ…طµط±ظˆظپ ط¨ظ†ط¬ط§ط­')),
+            const SnackBar(content: Text('تم حذف المصروف بنجاح')),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ط°ظپ: $e'), backgroundColor: Colors.red),
+            SnackBar(content: Text('خطأ في الحذف: $e'), backgroundColor: Colors.red),
           );
         }
       }
@@ -128,7 +128,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.expense == null ? 'ط¥ط¶ط§ظپط© ظ…طµط±ظˆظپ' : 'طھط¹ط¯ظٹظ„ ظ…طµط±ظˆظپ'),
+        title: Text(widget.expense == null ? 'إضافة مصروف' : 'تعديل مصروف'),
         backgroundColor: Colors.redAccent,
         actions: [
           if (widget.expense != null)
@@ -150,17 +150,17 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظ„ظ…ط¨ظ„ط؛ (â‚ھ) *',
+                  labelText: 'المبلغ (₪) *',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.attach_money),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (val) {
                   if (val == null || val.isEmpty) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛';
+                    return 'يرجى إدخال المبلغ';
                   }
                   if (double.tryParse(val) == null) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط±ظ‚ظ… طµط­ظٹط­';
+                    return 'يرجى إدخال رقم صحيح';
                   }
                   return null;
                 },
@@ -171,16 +171,16 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
               TextFormField(
                 controller: _descController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظ„ظˆطµظپ / ط§ظ„ط¨ظٹط§ظ† *',
+                  labelText: 'الوصف / البيان *',
                   border: OutlineInputBorder(),
                 ),
-                validator: (val) => (val == null || val.isEmpty) ? 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظˆطµظپ' : null,
+                validator: (val) => (val == null || val.isEmpty) ? 'يرجى إدخال الوصف' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _notesController,
                 decoration: const InputDecoration(
-                  labelText: 'ظ…ظ„ط§ط­ط¸ط§طھ ط¥ط¶ط§ظپظٹط©',
+                  labelText: 'ملاحظات إضافية',
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
@@ -195,7 +195,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     backgroundColor: Colors.redAccent,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('ط­ظپط¸ ط§ظ„ظ…طµط±ظˆظپ', style: TextStyle(fontSize: 18)),
+                  child: const Text('حفظ المصروف', style: TextStyle(fontSize: 18)),
                 ),
               ),
             ],
@@ -208,12 +208,12 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   Widget _buildCategoryDropdown() {
     return ref.watch(expenseCategoriesStreamProvider).when(
           loading: () => const LinearProgressIndicator(),
-          error: (err, stack) => Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„طھطµظ†ظٹظپط§طھ: $err'),
+          error: (err, stack) => Text('خطأ في تحميل التصنيفات: $err'),
           data: (categories) {
             return DropdownButtonFormField<int>(
               initialValue: _selectedCategoryId,
               decoration: const InputDecoration(
-                labelText: 'ط§ظ„طھطµظ†ظٹظپ *',
+                labelText: 'التصنيف *',
                 border: OutlineInputBorder(),
               ),
               items: categories.map((c) {
@@ -223,7 +223,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                 );
               }).toList(),
               onChanged: (val) => setState(() => _selectedCategoryId = val),
-              validator: (val) => val == null ? 'ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„طھطµظ†ظٹظپ' : null,
+              validator: (val) => val == null ? 'يرجى اختيار التصنيف' : null,
             );
           },
         );
@@ -244,7 +244,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       },
       child: InputDecorator(
         decoration: const InputDecoration(
-          labelText: 'ط§ظ„طھط§ط±ظٹط®',
+          labelText: 'التاريخ',
           border: OutlineInputBorder(),
           prefixIcon: Icon(Icons.calendar_today),
         ),

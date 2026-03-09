@@ -18,7 +18,7 @@ class _PartnershipScreenState extends ConsumerState<PartnershipScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط¥ط¯ط§ط±ط© ط§ظ„ط´ط±ظƒط§ط، ظˆط§ظ„ط£ط±ط¨ط§ط­'),
+        title: const Text('إدارة الشركاء والأرباح'),
         backgroundColor: Colors.green,
       ),
       body: Padding(
@@ -27,7 +27,7 @@ class _PartnershipScreenState extends ConsumerState<PartnershipScreen> {
           children: [
             _buildProfitSummaryCard(),
             const SizedBox(height: 24),
-            const Text('ط§ظ„ط´ط±ظƒط§ط، ط§ظ„ظ…ط³طھظپظٹط¯ظˆظ† (ط§ظ„ظ…ظ†ط§طµظپط© 50/50)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('الشركاء المستفيدون (المناصفة 50/50)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
             Expanded(child: _buildPartnersList()),
           ],
@@ -66,18 +66,18 @@ class _PartnershipScreenState extends ConsumerState<PartnershipScreen> {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                const Text('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط±ط¨ط­ ط§ظ„طµط§ظپظٹ ط§ظ„ط¬ط§ظ‡ط² ظ„ظ„طھظˆط²ظٹط¹', style: TextStyle(color: Colors.white70, fontSize: 16)),
+                const Text('إجمالي الربح الصافي الجاهز للتوزيع', style: TextStyle(color: Colors.white70, fontSize: 16)),
                 const SizedBox(height: 10),
                 Text(
-                  '${report.profit.toStringAsFixed(2)} â‚ھ',
+                  '${report.profit.toStringAsFixed(2)} ₪',
                   style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const Divider(color: Colors.white24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildShareColumn('ط§ظ„ط¥ظٹط±ط§ط¯ط§طھ', report.revenue),
-                    _buildShareColumn('ط§ظ„ظ…طµط±ظˆظپط§طھ', report.expenses + report.cost), // Total costs
+                    _buildShareColumn('الإيرادات', report.revenue),
+                    _buildShareColumn('المصروفات', report.expenses + report.cost), // Total costs
                   ], 
                 ),
               ],
@@ -93,7 +93,7 @@ class _PartnershipScreenState extends ConsumerState<PartnershipScreen> {
       children: [
         Text(title, style: const TextStyle(color: Colors.white70)),
         Text(
-          '${amount.toStringAsFixed(2)} â‚ھ',
+          '${amount.toStringAsFixed(2)} ₪',
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ],
@@ -117,10 +117,10 @@ class _PartnershipScreenState extends ConsumerState<PartnershipScreen> {
               child: ListTile(
                 leading: const CircleAvatar(child: Icon(Icons.person)),
                 title: Text(partner.name),
-                subtitle: Text('ط§ظ„ظ†ط³ط¨ط©: ${partner.sharePercentage}%'),
+                subtitle: Text('النسبة: ${partner.sharePercentage}%'),
                 trailing: ElevatedButton(
                   onPressed: () => _showDrawingDialog(partner),
-                  child: const Text('ط³ط­ط¨ ط£ط±ط¨ط§ط­'),
+                  child: const Text('سحب أرباح'),
                 ),
               ),
             );
@@ -135,14 +135,14 @@ class _PartnershipScreenState extends ConsumerState<PartnershipScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('ط³ط­ط¨ ط£ط±ط¨ط§ط­ - ${partner.name}'),
+        title: Text('سحب أرباح - ${partner.name}'),
         content: TextField(
           controller: amountController,
-          decoration: const InputDecoration(labelText: 'ط§ظ„ظ…ط¨ظ„ط؛ (â‚ھ)'),
+          decoration: const InputDecoration(labelText: 'المبلغ (₪)'),
           keyboardType: TextInputType.number,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('ط¥ظ„ط؛ط§ط،')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
           ElevatedButton(
             onPressed: () async {
               final amount = double.tryParse(amountController.text) ?? 0.0;
@@ -154,15 +154,15 @@ class _PartnershipScreenState extends ConsumerState<PartnershipScreen> {
                   type: 'drawing',
                   transactionDate: DateTime.now(),
                   createdBy: 1,
-                  notes: 'ط³ط­ط¨ ط£ط±ط¨ط§ط­ ظٹط¯ظˆظٹ',
+                  notes: 'سحب أرباح يدوي',
                 ),);
                 if (context.mounted) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طھظ… طھط³ط¬ظٹظ„ ط¹ظ…ظ„ظٹط© ط§ظ„ط³ط­ط¨')));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل عملية السحب')));
                 }
               }
             },
-            child: const Text('طھط£ظƒظٹط¯ ط§ظ„ط³ط­ط¨'),
+            child: const Text('تأكيد السحب'),
           ),
         ],
       ),

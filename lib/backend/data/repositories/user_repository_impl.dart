@@ -53,12 +53,12 @@ class UserRepositoryImpl implements UserRepository {
     final userRow = await (_db.select(_db.users)..where((tbl) => tbl.id.equals(userId))).getSingleOrNull();
     
     if (userRow == null) {
-      throw Exception('ط§ظ„ظ…ط³طھط®ط¯ظ… ط؛ظٹط± ظ…ظˆط¬ظˆط¯');
+      throw Exception('المستخدم غير موجود');
     }
 
     final currentHash = SecurityUtils.hashPassword(currentPassword);
     if (userRow.passwordHash != currentHash) {
-      throw Exception('ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط§ظ„ط­ط§ظ„ظٹط© ط؛ظٹط± طµط­ظٹط­ط©');
+      throw Exception('كلمة المرور الحالية غير صحيحة');
     }
 
     final companion = db.UsersCompanion(

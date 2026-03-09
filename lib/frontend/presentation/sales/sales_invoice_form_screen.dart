@@ -75,13 +75,13 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                 return DropdownButtonFormField<Customer>(
                   initialValue: _selectedCustomer,
                   decoration: const InputDecoration(
-                    labelText: 'ط§ط®طھط± ط§ظ„ط¹ظ…ظٹظ„ *',
+                    labelText: 'اختر العميل *',
                     prefixIcon: Icon(Icons.person),
                     border: InputBorder.none,
                   ),
                   items: customers.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
                   onChanged: (val) => setState(() => _selectedCustomer = val),
-                  validator: (val) => val == null ? 'ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ط¹ظ…ظٹظ„' : null,
+                  validator: (val) => val == null ? 'يرجى اختيار العميل' : null,
                 );
               },
             ),
@@ -98,17 +98,17 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: const Row(
               children: [
-                Expanded(flex: 3, child: Text('ط§ظ„طµظ†ظپ', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(child: Text('ط§ظ„ظƒظ…ظٹط©', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(child: Text('ط³ط¹ط± ط§ظ„ظˆط­ط¯ط©', style: TextStyle(fontWeight: FontWeight.bold))),
-                Expanded(child: Text('ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(flex: 3, child: Text('الصنف', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(child: Text('الكمية', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(child: Text('سعر الوحدة', style: TextStyle(fontWeight: FontWeight.bold))),
+                Expanded(child: Text('الإجمالي', style: TextStyle(fontWeight: FontWeight.bold))),
                 SizedBox(width: 40),
               ],
             ),
           ),
           Expanded(
             child: _items.isEmpty
-                ? const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط£طµظ†ط§ظپ ظ…ط¶ط§ظپط©'))
+                ? const Center(child: Text('لا توجد أصناف مضافة'))
                 : ListView.builder(
                     itemCount: _items.length,
                     itemBuilder: (context, index) {
@@ -118,8 +118,8 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                           children: [
                             Expanded(flex: 3, child: Text(item.productName)),
                             Expanded(child: Text('${item.quantity}')),
-                            Expanded(child: Text('${item.unitPrice} â‚ھ')),
-                            Expanded(child: Text('${item.total} â‚ھ', style: const TextStyle(fontWeight: FontWeight.bold))),
+                            Expanded(child: Text('${item.unitPrice} ₪')),
+                            Expanded(child: Text('${item.total} ₪', style: const TextStyle(fontWeight: FontWeight.bold))),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),
                               onPressed: () => setState(() => _items.removeAt(index)),
@@ -139,34 +139,34 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('ظ…ظ„ط®طµ ط§ظ„ظپط§طھظˆط±ط©', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const Text('ملخص الفاتورة', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const Divider(),
-        _summaryRow('ط§ظ„ظ…ط¬ظ…ظˆط¹:', '$_subtotal â‚ھ'),
+        _summaryRow('المجموع:', '$_subtotal ₪'),
         const SizedBox(height: 16),
         TextFormField(
           controller: _discountController,
-          decoration: const InputDecoration(labelText: 'ط®طµظ… (â‚ھ)', border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: 'خصم (₪)', border: OutlineInputBorder()),
           keyboardType: TextInputType.number,
           onChanged: (val) => setState(() => _discount = double.tryParse(val) ?? 0.0),
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _taxController,
-          decoration: const InputDecoration(labelText: 'ط¶ط±ظٹط¨ط© (â‚ھ)', border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: 'ضريبة (₪)', border: OutlineInputBorder()),
           keyboardType: TextInputType.number,
           onChanged: (val) => setState(() => _tax = double.tryParse(val) ?? 0.0),
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _paidAmountController,
-          decoration: const InputDecoration(labelText: 'ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط¯ظپظˆط¹ (â‚ھ)', border: OutlineInputBorder()),
+          decoration: const InputDecoration(labelText: 'المبلغ المدفوع (₪)', border: OutlineInputBorder()),
           keyboardType: TextInputType.number,
           onChanged: (val) => setState(() => _paidAmount = double.tryParse(val) ?? 0.0),
         ),
         const Spacer(),
         const Divider(thickness: 2),
-        _summaryRow('ط§ظ„طµط§ظپظٹ:', '$_total â‚ھ', isBold: true, fontSize: 24, color: Colors.blueAccent),
-        _summaryRow('ط§ظ„ظ…طھط¨ظ‚ظٹ (ط¯ظٹظ†):', '${_total - _paidAmount} â‚ھ', color: Colors.red),
+        _summaryRow('الصافي:', '$_total ₪', isBold: true, fontSize: 24, color: Colors.blueAccent),
+        _summaryRow('المتبقي (دين):', '${_total - _paidAmount} ₪', color: Colors.red),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
@@ -174,7 +174,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
           child: ElevatedButton(
             onPressed: _save,
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
-            child: const Text('ط­ظپط¸ ط§ظ„ظپط§طھظˆط±ط©', style: TextStyle(fontSize: 18, color: Colors.white)),
+            child: const Text('حفظ الفاتورة', style: TextStyle(fontSize: 18, color: Colors.white)),
           ),
         ),
       ],
@@ -200,7 +200,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('ط¥ط¶ط§ظپط© طµظ†ظپ ظ„ظ„ظپط§طھظˆط±ط©'),
+          title: const Text('إضافة صنف للفاتورة'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -210,7 +210,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                     data: (products) {
                       return DropdownButtonFormField<Product>(
                         initialValue: selectedProduct,
-                        decoration: const InputDecoration(labelText: 'ط§ظ„طµظ†ظپ'),
+                        decoration: const InputDecoration(labelText: 'الصنف'),
                         items: products.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
                         onChanged: (val) async {
                           setDialogState(() => selectedProduct = val);
@@ -231,7 +231,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…طھظˆظپط±ط© ظ…ظ† ${val.name}: $stock ظƒط؛'),
+                                  content: Text('الكمية المتوفرة من ${val.name}: $stock كغ'),
                                   duration: const Duration(seconds: 2),
                                 ),
                               );
@@ -244,19 +244,19 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
               const SizedBox(height: 16),
               TextField(
                 controller: qtyController,
-                decoration: const InputDecoration(labelText: 'ط§ظ„ظƒظ…ظٹط©', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'الكمية', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: priceController,
-                decoration: const InputDecoration(labelText: 'ط³ط¹ط± ط§ظ„ط¨ظٹط¹', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'سعر البيع', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
               ),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('ط¥ظ„ط؛ط§ط،')),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
             ElevatedButton(
               onPressed: () async {
                 if (selectedProduct == null) {
@@ -270,7 +270,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('ط®ط·ط£: ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط·ظ„ظˆط¨ط© ($qty) ط£ظƒط¨ط± ظ…ظ† ط§ظ„ظ…طھظˆظپط± ($stock)'),
+                        content: Text('خطأ: الكمية المطلوبة ($qty) أكبر من المتوفر ($stock)'),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -294,7 +294,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                   }
                 }
               },
-              child: const Text('ط¥ط¶ط§ظپط©'),
+              child: const Text('إضافة'),
             ),
           ],
         ),
@@ -307,7 +307,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
       return;
     }
     if (_items.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ظ„ط§ ظٹظ…ظƒظ† ط­ظپط¸ ظپط§طھظˆط±ط© ظپط§ط±ط؛ط©')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('لا يمكن حفظ فاتورة فارغة')));
       return;
     }
 
@@ -338,12 +338,12 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
           await repo.confirmInvoice(invoiceId, 1); // TODO: Use actual user ID
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('طھظ… ط­ظپط¸ ط§ظ„ظپط§طھظˆط±ط© (ظ…ط¤ظƒط¯ط© - طھظ… ط®طµظ… ط§ظ„ظ…ط®ط²ظˆظ†)')),
+              const SnackBar(content: Text('تم حفظ الفاتورة (مؤكدة - تم خصم المخزون)')),
             );
           }
         } else {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طھظ… ط­ظپط¸ ط§ظ„ظپط§طھظˆط±ط© (ظ…ط³ظˆط¯ط©)')));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ الفاتورة (مسودة)')));
           }
         }
       } else {
@@ -352,11 +352,11 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
         if (widget.invoice!.status == InvoiceStatus.draft && finalStatus == InvoiceStatus.confirmed) {
            await repo.confirmInvoice(widget.invoice!.id!, 1); // TODO: Use actual user ID
            if (mounted) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طھظ… طھط­ط¯ظٹط« ظˆطھط£ظƒظٹط¯ ط§ظ„ظپط§طھظˆط±ط© ظˆط®طµظ… ط§ظ„ظ…ط®ط²ظˆظ†')));
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث وتأكيد الفاتورة وخصم المخزون')));
            }
         } else {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طھظ… طھط­ط¯ظٹط« ط§ظ„ظپط§طھظˆط±ط©')));
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تحديث الفاتورة')));
           }
         }
       }
@@ -382,12 +382,12 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.invoice == null ? 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط¬ط¯ظٹط¯ط©' : 'طھط¹ط¯ظٹظ„ ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ'),
+        title: Text(widget.invoice == null ? 'فاتورة مبيعات جديدة' : 'تعديل فاتورة مبيعات'),
         actions: [
           if (!isConfirmed)
             IconButton(
               icon: const Icon(Icons.check_circle_outline, color: Colors.green),
-              tooltip: 'ط­ظپط¸ ظˆطھط£ظƒظٹط¯ (ط®طµظ… ظ…ط®ط²ظˆظ†)',
+              tooltip: 'حفظ وتأكيد (خصم مخزون)',
               onPressed: () => _save(status: InvoiceStatus.confirmed),
             ),
           IconButton(
@@ -414,7 +414,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                           children: [
                             Icon(Icons.lock),
                             SizedBox(width: 8),
-                            Text('ظ‡ط°ظ‡ ط§ظ„ظپط§طھظˆط±ط© ظ…ط¤ظƒط¯ط© ظˆطھظ… ط®طµظ…ظ‡ط§ ظ…ظ† ط§ظ„ظ…ط®ط²ظˆظ†. ط§ظ„طھط¹ط¯ظٹظ„ ظ…ط­ط¯ظˆط¯.', style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text('هذه الفاتورة مؤكدة وتم خصمها من المخزون. التعديل محدود.', style: TextStyle(fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -431,7 +431,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                       child: ElevatedButton.icon(
                         onPressed: _save,
                         icon: const Icon(Icons.save),
-                        label: const Text('ط­ظپط¸ ظƒظ…ط³ظˆط¯ط© (ظ„ط§ ظٹط®طµظ… ظ…ط®ط²ظˆظ†)'),
+                        label: const Text('حفظ كمسودة (لا يخصم مخزون)'),
                       ),
                     ),
                   const SizedBox(height: 12),
@@ -441,7 +441,7 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
                       child: ElevatedButton.icon(
                         onPressed: () => _save(status: InvoiceStatus.confirmed),
                         icon: const Icon(Icons.check_circle),
-                        label: const Text('ط­ظپط¸ ظˆطھط£ظƒظٹط¯ (ظٹط®طµظ… ظ…ظ† ط§ظ„ظ…ط®ط²ظˆظ†)'),
+                        label: const Text('حفظ وتأكيد (يخصم من المخزون)'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
@@ -466,12 +466,12 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
               children: [
                 Expanded(
                   child: Text(
-                    'ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©: $_invoiceNumber',
+                    'رقم الفاتورة: $_invoiceNumber',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Text(
-                  'ط§ظ„طھط§ط±ظٹط®: ${DateTime.now().toString().split(' ')[0]}',
+                  'التاريخ: ${DateTime.now().toString().split(' ')[0]}',
                   style: const TextStyle(fontSize: 16),
                 ),
               ],
@@ -494,11 +494,11 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('ط§ظ„ط£طµظ†ط§ظپ', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('الأصناف', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ElevatedButton.icon(
                   onPressed: _showAddItemDialog,
                   icon: const Icon(Icons.add_shopping_cart),
-                  label: const Text('ط¥ط¶ط§ظپط© طµظ†ظپ'),
+                  label: const Text('إضافة صنف'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
@@ -519,31 +519,31 @@ class _SalesInvoiceFormScreenState extends ConsumerState<SalesInvoiceFormScreen>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _summaryRow('ط§ظ„ظ…ط¬ظ…ظˆط¹:', '$_subtotal â‚ھ'),
+            _summaryRow('المجموع:', '$_subtotal ₪'),
             const SizedBox(height: 16),
             TextFormField(
               controller: _discountController,
-              decoration: const InputDecoration(labelText: 'ط®طµظ… (â‚ھ)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: 'خصم (₪)', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
               onChanged: (val) => setState(() => _discount = double.tryParse(val) ?? 0.0),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _taxController,
-              decoration: const InputDecoration(labelText: 'ط¶ط±ظٹط¨ط© (â‚ھ)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: 'ضريبة (₪)', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
               onChanged: (val) => setState(() => _tax = double.tryParse(val) ?? 0.0),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _paidAmountController,
-              decoration: const InputDecoration(labelText: 'ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط¯ظپظˆط¹ (â‚ھ)', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: 'المبلغ المدفوع (₪)', border: OutlineInputBorder()),
               keyboardType: TextInputType.number,
               onChanged: (val) => setState(() => _paidAmount = double.tryParse(val) ?? 0.0),
             ),
             const Divider(thickness: 2),
-            _summaryRow('ط§ظ„طµط§ظپظٹ:', '$_total â‚ھ', isBold: true, fontSize: 24, color: Colors.blueAccent),
-            _summaryRow('ط§ظ„ظ…طھط¨ظ‚ظٹ (ط¯ظٹظ†):', '${_total - _paidAmount} â‚ھ', color: Colors.red),
+            _summaryRow('الصافي:', '$_total ₪', isBold: true, fontSize: 24, color: Colors.blueAccent),
+            _summaryRow('المتبقي (دين):', '${_total - _paidAmount} ₪', color: Colors.red),
           ],
         ),
       ),

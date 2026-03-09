@@ -98,7 +98,7 @@ class ProcessingRepositoryImpl implements IProcessingRepository {
 
     for (final batch in batches) {
       if (batch.remainingQuantity < batch.quantity) {
-        throw Exception('ظ„ط§ ظٹظ…ظƒظ† طھط¹ط¯ظٹظ„ ط¯ظپط¹ط© ط§ظ„طھط¬ظ‡ظٹط² ظ„ط£ظ† ظ‡ظ†ط§ظƒ ظ…ط¨ظٹط¹ط§طھ طھظ…طھ ظ…ظ† ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ…ط±طھط¨ط· ط¨ظ‡ط§. ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط¨ط§ط¹ط©: ${batch.quantity - batch.remainingQuantity} ظƒط؛');
+        throw Exception('لا يمكن تعديل دفعة التجهيز لأن هناك مبيعات تمت من المخزون المرتبط بها. الكمية المباعة: ${batch.quantity - batch.remainingQuantity} كغ');
       }
     }
 

@@ -34,7 +34,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(user: user, isLoading: false);
         return true;
       } else {
-        state = state.copyWith(isLoading: false, error: 'ط§ط³ظ… ط§ظ„ظ…ط³طھط®ط¯ظ… ط£ظˆ ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط؛ظٹط± طµط­ظٹط­ط©');
+        state = state.copyWith(isLoading: false, error: 'اسم المستخدم أو كلمة المرور غير صحيحة');
         return false;
       }
     } catch (e) {

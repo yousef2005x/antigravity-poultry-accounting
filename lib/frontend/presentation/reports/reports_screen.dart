@@ -34,7 +34,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> with SingleTicker
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„طھط­ظ„ظٹظ„ظٹط©'),
+        title: const Text('التقارير التحليلية'),
         backgroundColor: Colors.green,
         bottom: TabBar(
           controller: _tabController,
@@ -42,10 +42,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> with SingleTicker
           unselectedLabelColor: Colors.white.withValues(alpha: 0.85),
           indicatorColor: Colors.white,
           tabs: const [
-            Tab(text: 'ط§ظ„ط£ط±ط¨ط§ط­ ظˆط§ظ„ط®ط³ط§ط¦ط±'),
-            Tab(text: 'ظ…ط¨ظٹط¹ط§طھ ط§ظ„ط£طµظ†ط§ظپ'),
-            Tab(text: 'ط£ط¹ظ…ط§ط± ط§ظ„ط°ظ…ظ…'),
-            Tab(text: 'ط­ط±ظƒط© ط§ظ„طµظ†ط¯ظˆظ‚'),
+            Tab(text: 'الأرباح والخسائر'),
+            Tab(text: 'مبيعات الأصناف'),
+            Tab(text: 'أعمار الذمم'),
+            Tab(text: 'حركة الصندوق'),
           ],
         ),
       ),
@@ -102,7 +102,7 @@ class ProductSalesReportTab extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'طھط­ظ„ظٹظ„ ظ…ط¨ظٹط¹ط§طھ ط§ظ„ط£طµظ†ط§ظپ (ط§ظ„ط£ط¹ظ„ظ‰ ظ…ط¨ظٹط¹ط§ظ‹)',
+                'تحليل مبيعات الأصناف (الأعلى مبيعاً)',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               reportAsync.whenOrNull(
@@ -121,24 +121,24 @@ class ProductSalesReportTab extends ConsumerWidget {
           child: reportAsync.when(
             data: (data) {
               if (data.isEmpty) {
-                return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ظ…ط¨ظٹط¹ط§طھ ظ…ط³ط¬ظ„ط©'));
+                return const Center(child: Text('لا توجد مبيعات مسجلة'));
               }
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: const [
-                    DataColumn(label: Text('ط§ظ„طµظ†ظپ')),
-                    DataColumn(label: Text('ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط¨ط§ط¹ط©'), numeric: true),
-                    DataColumn(label: Text('ط§ظ„ط¥ظٹط±ط§ط¯ط§طھ'), numeric: true),
-                    DataColumn(label: Text('ط§ظ„ط£ط±ط¨ط§ط­'), numeric: true),
+                    DataColumn(label: Text('الصنف')),
+                    DataColumn(label: Text('الكمية المباعة'), numeric: true),
+                    DataColumn(label: Text('الإيرادات'), numeric: true),
+                    DataColumn(label: Text('الأرباح'), numeric: true),
                   ],
                   rows: data.map((row) {
                     return DataRow(cells: [
                       DataCell(Text(row['productName'] ?? '')),
                       DataCell(Text(row['totalQuantity'].toStringAsFixed(1))),
-                      DataCell(Text('${row['totalRevenue'].toStringAsFixed(2)} ط´ظٹظƒظ„')),
+                      DataCell(Text('${row['totalRevenue'].toStringAsFixed(2)} شيكل')),
                       DataCell(Text(
-                        '${row['profit'].toStringAsFixed(2)} ط´ظٹظƒظ„',
+                        '${row['profit'].toStringAsFixed(2)} شيكل',
                         style: TextStyle(
                           color: (row['profit'] as double) >= 0 ? Colors.green : Colors.red,
                           fontWeight: FontWeight.bold,
@@ -198,7 +198,7 @@ class AgingReportTab extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'ط£ط¹ظ…ط§ط± ط°ظ…ظ… ط§ظ„ط¹ظ…ظ„ط§ط، (ط¨ط§ظ„ط£ظٹط§ظ…)',
+                'أعمار ذمم العملاء (بالأيام)',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               reportAsync.whenOrNull(
@@ -217,19 +217,19 @@ class AgingReportTab extends ConsumerWidget {
           child: reportAsync.when(
             data: (data) {
               if (data.isEmpty) {
-                return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط°ظ…ظ… ظ…ط³طھط­ظ‚ط©'));
+                return const Center(child: Text('لا توجد ذمم مستحقة'));
               }
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   columns: const [
-                    DataColumn(label: Text('ط§ظ„ط¹ظ…ظٹظ„')),
-                    DataColumn(label: Text('ط­ط§ظ„ظٹط§ظ‹'), numeric: true), // 0-30
-                    DataColumn(label: Text('30-60 ظٹظˆظ…'), numeric: true),
-                    DataColumn(label: Text('60-90 ظٹظˆظ…'), numeric: true),
-                    DataColumn(label: Text('>90 ظٹظˆظ…'), numeric: true),
-                    DataColumn(label: Text('ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ'), numeric: true),
-                    DataColumn(label: Text('ط¥ط¬ط±ط§ط،')),
+                    DataColumn(label: Text('العميل')),
+                    DataColumn(label: Text('حالياً'), numeric: true), // 0-30
+                    DataColumn(label: Text('30-60 يوم'), numeric: true),
+                    DataColumn(label: Text('60-90 يوم'), numeric: true),
+                    DataColumn(label: Text('>90 يوم'), numeric: true),
+                    DataColumn(label: Text('الإجمالي'), numeric: true),
+                    DataColumn(label: Text('إجراء')),
                   ],
                   rows: data.map((entry) {
                     return DataRow(cells: [
@@ -330,27 +330,27 @@ class ProfitLossTab extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
-                  _buildMetricCard('ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط¥ظٹط±ط§ط¯ط§طھ', data.revenue, Colors.green),
+                  _buildMetricCard('إجمالي الإيرادات', data.revenue, Colors.green),
                   const SizedBox(height: 12),
-                  _buildMetricCard('طھظƒظ„ظپط© ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…ط¨ط§ط¹ط©', data.cost, Colors.orange),
+                  _buildMetricCard('تكلفة البضاعة المباعة', data.cost, Colors.orange),
                   const SizedBox(height: 12),
-                  _buildMetricCard('ط§ظ„ظ…طµط±ظˆظپط§طھ ط§ظ„طھط´ط؛ظٹظ„ظٹط©', data.expenses, Colors.red),
+                  _buildMetricCard('المصروفات التشغيلية', data.expenses, Colors.red),
                   const Divider(height: 16),
-                  _buildMetricCard('ط§ظ„ط±ط¨ط­ ط§ظ„طھط´ط؛ظٹظ„ظٹ', data.profit, Colors.blue, isBold: true),
+                  _buildMetricCard('الربح التشغيلي', data.profit, Colors.blue, isBold: true),
                   const SizedBox(height: 16),
-                  _buildMetricCard('ط§ظ„ط±ظˆط§طھط¨ ظˆط§ظ„ط£ط¬ظˆط±', data.salaries, Colors.teal),
+                  _buildMetricCard('الرواتب والأجور', data.salaries, Colors.teal),
                   const SizedBox(height: 12),
-                  _buildMetricCard('ط§ظ„ط¬ط±ط¯ ط§ظ„ط³ظ†ظˆظٹ / طھط³ظˆظٹط©', data.annualInventories, Colors.indigo),
+                  _buildMetricCard('الجرد السنوي / تسوية', data.annualInventories, Colors.indigo),
                   const Divider(height: 32),
                   _buildMetricCard(
-                    'طµط§ظپظٹ ط§ظ„ط±ط¨ط­ ط§ظ„ظ†ظ‡ط§ط¦ظٹ',
+                    'صافي الربح النهائي',
                     data.netProfit,
                     data.netProfit >= 0 ? Colors.green.shade700 : Colors.red,
                     isBold: true,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­ ط§ظ„ظ†ظ‡ط§ط¦ظٹ: ${data.profitMargin.toStringAsFixed(1)}%',
+                    'هامش الربح النهائي: ${data.profitMargin.toStringAsFixed(1)}%',
                     style: TextStyle(
                       fontSize: 16,
                       color: data.netProfit >= 0 ? Colors.green : Colors.red,
@@ -379,7 +379,7 @@ class ProfitLossTab extends ConsumerWidget {
           children: [
             Text(title, style: TextStyle(fontSize: 18, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
             Text(
-              '${value.toStringAsFixed(2)} ط´ظٹظƒظ„',
+              '${value.toStringAsFixed(2)} شيكل',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -428,7 +428,7 @@ class CashFlowTab extends ConsumerWidget {
     return reportAsync.when(
       data: (data) {
         if (data.isEmpty) {
-          return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط­ط±ظƒط© ظپظٹ ط§ظ„طµظ†ط¯ظˆظ‚'));
+          return const Center(child: Text('لا توجد حركة في الصندوق'));
         }
         return Column(
           children: [
@@ -467,14 +467,14 @@ class CashFlowTab extends ConsumerWidget {
                       children: [
                         if (!isOpening)
                           Text(
-                            '${isIn ? "+" : "-"}${entry.amount.toStringAsFixed(2)} ط´ظٹظƒظ„',
+                            '${isIn ? "+" : "-"}${entry.amount.toStringAsFixed(2)} شيكل',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: isIn ? Colors.green : Colors.red,
                             ),
                           ),
                         Text(
-                          'ط§ظ„ط±طµظٹط¯: ${entry.balance.toStringAsFixed(2)} ط´ظٹظƒظ„',
+                          'الرصيد: ${entry.balance.toStringAsFixed(2)} شيكل',
                           style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ],

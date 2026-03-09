@@ -67,13 +67,13 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('طھظ… ط­ظپط¸ ط§ظ„ط±ط§طھط¨ ط¨ظ†ط¬ط§ط­')),
+          const SnackBar(content: Text('تم حفظ الراتب بنجاح')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ط®ط·ط£ ظپظٹ ط§ظ„ط­ظپط¸: $e')),
+          SnackBar(content: Text('خطأ في الحفظ: $e')),
         );
       }
     }
@@ -86,7 +86,7 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'طھط¹ط¯ظٹظ„ ط±ط§طھط¨' : 'طµط±ظپ ط±ط§طھط¨'),
+        title: Text(isEditing ? 'تعديل راتب' : 'صرف راتب'),
         backgroundColor: Colors.teal,
       ),
       body: SingleChildScrollView(
@@ -105,14 +105,14 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
                        DropdownButtonFormField<int>(
                          value: _selectedEmployeeId,
                          decoration: const InputDecoration(
-                           labelText: 'ط§ط®طھط± ط§ظ„ظ…ظˆط¸ظپ',
+                           labelText: 'اختر الموظف',
                            border: OutlineInputBorder(),
                            prefixIcon: Icon(Icons.person),
                          ),
                          items: [
                            ...employees.map((e) => DropdownMenuItem(
                              value: e.id,
-                             child: Text('${e.name} (${e.monthlySalary} ط´ظٹظƒظ„)'),
+                             child: Text('${e.name} (${e.monthlySalary} شيكل)'),
                            )),
                          ],
                          onChanged: (id) {
@@ -124,31 +124,31 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
                              }
                            });
                          },
-                         validator: (val) => val == null && _nameController.text.isEmpty ? 'ط§ط®طھط± ظ…ظˆط¸ظپط§ظ‹ ط£ظˆ ط§ط¯ط®ظ„ ط§ظ„ط§ط³ظ…' : null,
+                         validator: (val) => val == null && _nameController.text.isEmpty ? 'اختر موظفاً أو ادخل الاسم' : null,
                        ),
 // ... lines continue ...
                      ],
                    );
                 },
                 loading: () => const CircularProgressIndicator(),
-                error: (e, s) => Text('ط®ط·ط£ ظپظٹ طھط­ظ…ظٹظ„ ط§ظ„ظ…ظˆط¸ظپظٹظ†: $e'),
+                error: (e, s) => Text('خطأ في تحميل الموظفين: $e'),
               ),
               
               const SizedBox(height: 16),
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
-                  labelText: 'ط§ظ„ظ…ط¨ظ„ط؛ (ط´ظٹظƒظ„) *',
+                  labelText: 'المبلغ (شيكل) *',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.attach_money),
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (val) {
                   if (val == null || val.isEmpty) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛';
+                    return 'يرجى إدخال المبلغ';
                   }
                   if (double.tryParse(val) == null) {
-                    return 'ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط±ظ‚ظ… طµط­ظٹط­';
+                    return 'يرجى إدخال رقم صحيح';
                   }
                   return null;
                 },
@@ -159,7 +159,7 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
               TextFormField(
                 controller: _notesController,
                 decoration: const InputDecoration(
-                  labelText: 'ظ…ظ„ط§ط­ط¸ط§طھ ط¥ط¶ط§ظپظٹط©',
+                  labelText: 'ملاحظات إضافية',
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
@@ -174,7 +174,7 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
                     backgroundColor: Colors.teal,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('ط­ظپط¸ ط§ظ„ط¨ظٹط§ظ†ط§طھ', style: TextStyle(fontSize: 18)),
+                  child: const Text('حفظ البيانات', style: TextStyle(fontSize: 18)),
                 ),
               ),
             ],
@@ -199,7 +199,7 @@ class _SalaryFormScreenState extends ConsumerState<SalaryFormScreen> {
       },
       child: InputDecorator(
         decoration: const InputDecoration(
-          labelText: 'ط§ظ„طھط§ط±ظٹط®',
+          labelText: 'التاريخ',
           border: OutlineInputBorder(),
           prefixIcon: Icon(Icons.calendar_today),
         ),

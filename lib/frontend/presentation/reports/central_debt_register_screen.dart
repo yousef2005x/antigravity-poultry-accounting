@@ -75,15 +75,15 @@ class _CentralDebtRegisterScreenState extends ConsumerState<CentralDebtRegisterS
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('ط³ط¬ظ„ ط§ظ„ط¯ظٹظˆظ† ط§ظ„ظ…ظˆط­ط¯'),
+          title: const Text('سجل الديون الموحد'),
           backgroundColor: Colors.blueGrey,
           bottom: TabBar(
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white.withValues(alpha: 0.85),
             indicatorColor: Colors.white,
             tabs: const [
-              Tab(text: 'ط¯ظٹظˆظ† ط§ظ„ط¹ظ…ظ„ط§ط، (ظ„ظ†ط§)', icon: Icon(Icons.group_outlined)),
-              Tab(text: 'ط¯ظٹظˆظ† ط§ظ„ظ…ظˆط±ط¯ظٹظ† (ط¹ظ„ظٹظ†ط§)', icon: Icon(Icons.local_shipping_outlined)),
+              Tab(text: 'ديون العملاء (لنا)', icon: Icon(Icons.group_outlined)),
+              Tab(text: 'ديون الموردين (علينا)', icon: Icon(Icons.local_shipping_outlined)),
             ],
           ),
         ),
@@ -116,9 +116,9 @@ class _CentralDebtRegisterScreenState extends ConsumerState<CentralDebtRegisterS
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildSummaryItem('ط¥ط¬ظ…ط§ظ„ظٹ ظ…ط¯ظٹظˆظ†ظٹط© ط§ظ„ط¹ظ…ظ„ط§ط،', _totalCustomerDebt, Colors.greenAccent),
+          _buildSummaryItem('إجمالي مديونية العملاء', _totalCustomerDebt, Colors.greenAccent),
           Container(width: 1, height: 40, color: Colors.white24),
-          _buildSummaryItem('ط¥ط¬ظ…ط§ظ„ظٹ ظ…ط³طھط­ظ‚ط§طھ ط§ظ„ظ…ظˆط±ط¯ظٹظ†', _totalSupplierDebt, Colors.orangeAccent),
+          _buildSummaryItem('إجمالي مستحقات الموردين', _totalSupplierDebt, Colors.orangeAccent),
         ],
       ),
     );
@@ -131,7 +131,7 @@ class _CentralDebtRegisterScreenState extends ConsumerState<CentralDebtRegisterS
         Text(title, style: const TextStyle(color: Colors.white70, fontSize: 12)),
         const SizedBox(height: 4),
         Text(
-          '${value.toStringAsFixed(2)} â‚ھ',
+          '${value.toStringAsFixed(2)} ₪',
           style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ],
@@ -140,7 +140,7 @@ class _CentralDebtRegisterScreenState extends ConsumerState<CentralDebtRegisterS
 
   Widget _buildCustomerDebtsTab() {
     if (_customerDebts.isEmpty) {
-      return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ط¯ظٹظˆظ† ط¹ظ…ظ„ط§ط، ط­ط§ظ„ظٹط§ظ‹'));
+      return const Center(child: Text('لا توجد ديون عملاء حالياً'));
     }
     return ListView.separated(
       padding: const EdgeInsets.all(8),
@@ -152,7 +152,7 @@ class _CentralDebtRegisterScreenState extends ConsumerState<CentralDebtRegisterS
           leading: const CircleAvatar(child: Icon(Icons.person)),
           title: Text(debt.customerName, style: const TextStyle(fontWeight: FontWeight.bold)),
           trailing: Text(
-            '${debt.total.toStringAsFixed(2)} â‚ھ',
+            '${debt.total.toStringAsFixed(2)} ₪',
             style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
           ),
         );
@@ -162,7 +162,7 @@ class _CentralDebtRegisterScreenState extends ConsumerState<CentralDebtRegisterS
 
   Widget _buildSupplierDebtsTab() {
     if (_supplierDebts.isEmpty) {
-      return const Center(child: Text('ظ„ط§ طھظˆط¬ط¯ ظ…ط¯ظٹظˆظ†ظٹط© ظ„ظ…ظˆط±ط¯ظٹظ† ط­ط§ظ„ظٹط§ظ‹'));
+      return const Center(child: Text('لا توجد مديونية لموردين حالياً'));
     }
     return ListView.separated(
       padding: const EdgeInsets.all(8),
@@ -174,7 +174,7 @@ class _CentralDebtRegisterScreenState extends ConsumerState<CentralDebtRegisterS
           leading: const CircleAvatar(child: Icon(Icons.local_shipping)),
           title: Text(debt['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
           trailing: Text(
-            '${(debt['balance'] as double).toStringAsFixed(2)} â‚ھ',
+            '${(debt['balance'] as double).toStringAsFixed(2)} ₪',
             style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 16),
           ),
         );

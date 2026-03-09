@@ -448,7 +448,7 @@ class ReportRepositoryImpl implements ReportRepository {
     if (fromDate != null) {
       report.add(CashFlowEntry(
         date: fromDate,
-        description: 'ط±طµظٹط¯ ط³ط§ط¨ظ‚',
+        description: 'رصيد سابق',
         type: 'opening',
         amount: 0,
         balance: balance,
@@ -498,7 +498,7 @@ class ReportRepositoryImpl implements ReportRepository {
       
       entries.add(CustomerStatementEntry(
         date: fromDate,
-        description: 'ط±طµظٹط¯ ط³ط§ط¨ظ‚',
+        description: 'رصيد سابق',
         reference: '-',
         debit: 0,
         credit: 0,
@@ -556,7 +556,7 @@ class ReportRepositoryImpl implements ReportRepository {
         balance += tx.total;
         entries.add(CustomerStatementEntry(
           date: tx.invoiceDate,
-          description: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ: $itemsDesc',
+          description: 'فاتورة مبيعات: $itemsDesc',
           reference: tx.invoiceNumber,
           debit: tx.total,
           credit: 0,
@@ -567,7 +567,7 @@ class ReportRepositoryImpl implements ReportRepository {
         balance -= tx.amount;
         entries.add(CustomerStatementEntry(
           date: tx.paymentDate,
-          description: 'ط³ظ†ط¯ ظ‚ط¨ط¶ - ${method.nameAr}${tx.notes != null ? ' (${tx.notes})' : ''}',
+          description: 'سند قبض - ${method.nameAr}${tx.notes != null ? ' (${tx.notes})' : ''}',
           reference: tx.paymentNumber,
           debit: 0,
           credit: tx.amount,
@@ -604,7 +604,7 @@ class ReportRepositoryImpl implements ReportRepository {
       
       entries.add(SupplierStatementEntry(
         date: fromDate,
-        description: 'ط±طµظٹط¯ ط³ط§ط¨ظ‚',
+        description: 'رصيد سابق',
         reference: '-',
         debit: 0,
         credit: 0,
@@ -651,7 +651,7 @@ class ReportRepositoryImpl implements ReportRepository {
         balance += tx.total;
         entries.add(SupplierStatementEntry(
           date: tx.invoiceDate,
-          description: 'ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ #${tx.invoiceNumber}',
+          description: 'فاتورة مشتريات #${tx.invoiceNumber}',
           reference: tx.invoiceNumber,
           debit: 0,
           credit: tx.total,
